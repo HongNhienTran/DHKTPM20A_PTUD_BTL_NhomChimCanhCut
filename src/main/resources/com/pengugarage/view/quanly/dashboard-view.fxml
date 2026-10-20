@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.DashboardController"
+      stylesheets="@../../css/style.css"
+      styleClass="dark-root"
+      prefHeight="760.0" prefWidth="1280.0">
+
+    <!-- ================================================================= -->
+    <!-- SIDEBAR BÊN TRÁI                                                  -->
+    <!-- ================================================================= -->
+    <VBox prefWidth="240.0" minWidth="240.0" style="-fx-background-color: #0d1826; -fx-border-color: #1a2f47; -fx-border-width: 0 1px 0 0;">
+        
+        <!-- Logo Gara -->
+        <VBox alignment="CENTER" spacing="10.0" style="-fx-padding: 20px 16px 16px 16px;">
+            <StackPane alignment="CENTER" maxWidth="100.0" maxHeight="100.0" styleClass="brand-logo-frame" style="-fx-padding: 6px;">
+                <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../../images/logo_pengu-garage.png" />
+                    </image>
+                </ImageView>
+            </StackPane>
+            <Label text="PENGU GARAGE" style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: 800; -fx-letter-spacing: 1px;" />
+        </VBox>
+
+        <!-- Menu Danh Mục -->
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
+            <VBox spacing="4.0" style="-fx-padding: 10px 12px;">
+                
+                <!-- Dashboard (Active) -->
+                <Button text="Dashboard" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: #1a385c; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 10px 14px; -fx-cursor: hand;" />
+
+                <!-- Nhóm: Hạng mục cung cấp -->
+                <Label text="Hạng mục cung cấp" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
+                <Button text="Quản lý sản phẩm" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                <Button text="Quản lý dịch vụ" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+
+                <!-- Nhóm: Vận hành -->
+                <Label text="Vận hành" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
+                <Button text="Tiếp nhận phương tiện" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                <Button text="Quản lý phương tiện" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                <Button text="Bán hàng" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                <Button text="Quản lý hóa đơn" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                <Button text="Quản lý khách hàng" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+
+                <!-- Nhóm: Quản trị cửa hàng -->
+                <VBox fx:id="menuQuanTriCuahang" spacing="4.0">
+                    <Label text="Quản trị cửa hàng" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
+                    <Button fx:id="btnQuanLyNhanVien" text="Quản lý nhân viên" onAction="#onQuanLyNhanVienClick" maxWidth="Infinity" alignment="CENTER_LEFT"
+                            style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                    <Button fx:id="btnThongKeBaoCao" text="Thống kê &amp; báo cáo" maxWidth="Infinity" alignment="CENTER_LEFT"
+                            style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                </VBox>
+            </VBox>
+        </ScrollPane>
+
+        <!-- Bottom User Info -->
+        <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 14px 16px; -fx-border-color: #1a2f47; -fx-border-width: 1px 0 0 0; -fx-background-color: #0b1420;">
+            <StackPane style="-fx-background-color: #f47b31; -fx-background-radius: 20px; -fx-min-width: 36px; -fx-min-height: 36px;">
+                <Label fx:id="userAvatarLabel" text="T" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 15px;" />
+            </StackPane>
+            <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                <Label fx:id="userNameLabel" text="Nguyễn Minh Tuấn" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                <Label fx:id="userRoleLabel" text="Quản lý" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+            </VBox>
+            <Button text="Đăng xuất" onAction="#onLogoutClick"
+                    style="-fx-background-color: #16283c; -fx-text-fill: #e06c75; -fx-font-size: 11px; -fx-font-weight: bold; -fx-border-color: #2b415a; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 6px 10px; -fx-cursor: hand;" />
+        </HBox>
+    </VBox>
+
+    <!-- ================================================================= -->
+    <!-- CONTENT VÙNG CHÍNH                                                -->
+    <!-- ================================================================= -->
+    <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: #0a131f;">
+        
+        <!-- Top Navigation Bar (Đã bỏ qua các nút demo theo yêu cầu) -->
+        <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-padding: 16px 32px; -fx-border-color: #172a3e; -fx-border-width: 0 0 1px 0;">
+            <Label text="Trang chủ / Dashboard" style="-fx-text-fill: #8c9eb2; -fx-font-size: 13px;" />
+            <Region HBox.hgrow="ALWAYS" />
+        </HBox>
+
+        <!-- Main Dashboard Scrollable Area -->
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+            <VBox spacing="24.0" style="-fx-padding: 24px 32px 36px 32px;">
+
+                <!-- Title Section -->
+                <VBox spacing="4.0">
+                    <Label text="Dashboard" style="-fx-text-fill: #ffffff; -fx-font-size: 24px; -fx-font-weight: 800;" />
+                    <Label text="Tổng quan hoạt động và so sánh với kỳ trước (dữ liệu từ CSDL pengu_garage)"
+                           style="-fx-text-fill: #8c9eb2; -fx-font-size: 13px;" />
+                </VBox>
+
+                <!-- ================= 6 KPI CARDS ================= -->
+                <HBox spacing="14.0">
+                    <!-- Card 1: Doanh thu thực thu -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Doanh thu thực thu" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiRevenueLabel" text="117,0 tr đ" style="-fx-text-fill: #ffffff; -fx-font-size: 20px; -fx-font-weight: 800;" />
+                        <Label text="▲ +12,0% so với 7 ngày trước đó" style="-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    </VBox>
+
+                    <!-- Card 2: Hóa đơn đã thanh toán -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Hóa đơn đã thanh toán" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiInvoiceLabel" text="41" style="-fx-text-fill: #ffffff; -fx-font-size: 20px; -fx-font-weight: 800;" />
+                        <Label text="▲ +7,9% TB 2,9 tr đ mỗi hóa đơn" style="-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    </VBox>
+
+                    <!-- Card 3: Lượt tiếp nhận -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Lượt tiếp nhận" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiIntakeLabel" text="34" style="-fx-text-fill: #ffffff; -fx-font-size: 20px; -fx-font-weight: 800;" />
+                        <Label text="▲ +17,2% so với 7 ngày trước đó" style="-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    </VBox>
+
+                    <!-- Card 4: Phiếu sửa chữa đang xử lý -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Phiếu sửa chữa đang xử lý" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiRepairLabel" text="13" style="-fx-text-fill: #ffffff; -fx-font-size: 20px; -fx-font-weight: 800;" />
+                        <HBox spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="7 chờ • 6 đang sửa" style="-fx-background-color: rgba(244, 123, 49, 0.2); -fx-text-fill: #f47b31; -fx-padding: 2px 6px; -fx-background-radius: 4px; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            <Label text="Theo dữ liệu hiện tại" style="-fx-text-fill: #607996; -fx-font-size: 10px;" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- Card 5: Khách hàng mới -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Khách hàng mới" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiCustomerLabel" text="9" style="-fx-text-fill: #ffffff; -fx-font-size: 20px; -fx-font-weight: 800;" />
+                        <Label text="▼ -25,0% so với 7 ngày trước đó" style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    </VBox>
+
+                    <!-- Card 6: Sản phẩm sắp hết hàng -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Sản phẩm sắp hết hàng" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiLowStockLabel" text="2" style="-fx-text-fill: #ffffff; -fx-font-size: 20px; -fx-font-weight: 800;" />
+                        <HBox spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="Cần nhập thêm" style="-fx-background-color: rgba(239, 68, 68, 0.2); -fx-text-fill: #ef4444; -fx-padding: 2px 6px; -fx-background-radius: 4px; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            <Label text="Má phanh, Nước mát" style="-fx-text-fill: #8c9eb2; -fx-font-size: 10px;" />
+                        </HBox>
+                    </VBox>
+                </HBox>
+
+                <!-- ================= CHARTS SECTION ================= -->
+                <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+                    <!-- Khung Biểu Đồ Doanh Thu -->
+                    <VBox HBox.hgrow="ALWAYS" prefWidth="640.0" spacing="16.0"
+                          style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-padding: 22px;">
+                        <Label text="Doanh thu bán hàng và dịch vụ" style="-fx-text-fill: #ffffff; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                        
+                        <!-- Cột biểu đồ mô phỏng theo ảnh mẫu (Cam: Bán hàng, Navy: Dịch vụ) -->
+                        <HBox alignment="BOTTOM_CENTER" spacing="24.0" prefHeight="220.0" style="-fx-padding: 10px 10px 0 10px;">
+                            <!-- T2 -->
+                            <VBox alignment="BOTTOM_CENTER" spacing="6.0">
+                                <HBox alignment="BOTTOM_CENTER" spacing="4.0">
+                                    <Region prefHeight="45.0" prefWidth="18.0" style="-fx-background-color: #f47b31; -fx-background-radius: 4px 4px 0 0;" />
+                                    <Region prefHeight="95.0" prefWidth="18.0" style="-fx-background-color: #1f4f82; -fx-background-radius: 4px 4px 0 0;" />
+                                </HBox>
+                                <Label text="T2" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+                            <!-- T3 -->
+                            <VBox alignment="BOTTOM_CENTER" spacing="6.0">
+                                <HBox alignment="BOTTOM_CENTER" spacing="4.0">
+                                    <Region prefHeight="70.0" prefWidth="18.0" style="-fx-background-color: #f47b31; -fx-background-radius: 4px 4px 0 0;" />
+                                    <Region prefHeight="115.0" prefWidth="18.0" style="-fx-background-color: #1f4f82; -fx-background-radius: 4px 4px 0 0;" />
+                                </HBox>
+                                <Label text="T3" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+                            <!-- T4 -->
+                            <VBox alignment="BOTTOM_CENTER" spacing="6.0">
+                                <HBox alignment="BOTTOM_CENTER" spacing="4.0">
+                                    <Region prefHeight="55.0" prefWidth="18.0" style="-fx-background-color: #f47b31; -fx-background-radius: 4px 4px 0 0;" />
+                                    <Region prefHeight="100.0" prefWidth="18.0" style="-fx-background-color: #1f4f82; -fx-background-radius: 4px 4px 0 0;" />
+                                </HBox>
+                                <Label text="T4" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+                            <!-- T5 -->
+                            <VBox alignment="BOTTOM_CENTER" spacing="6.0">
+                                <HBox alignment="BOTTOM_CENTER" spacing="4.0">
+                                    <Region prefHeight="85.0" prefWidth="18.0" style="-fx-background-color: #f47b31; -fx-background-radius: 4px 4px 0 0;" />
+                                    <Region prefHeight="130.0" prefWidth="18.0" style="-fx-background-color: #1f4f82; -fx-background-radius: 4px 4px 0 0;" />
+                                </HBox>
+                                <Label text="T5" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+                            <!-- T6 -->
+                            <VBox alignment="BOTTOM_CENTER" spacing="6.0">
+                                <HBox alignment="BOTTOM_CENTER" spacing="4.0">
+                                    <Region prefHeight="95.0" prefWidth="18.0" style="-fx-background-color: #f47b31; -fx-background-radius: 4px 4px 0 0;" />
+                                    <Region prefHeight="150.0" prefWidth="18.0" style="-fx-background-color: #1f4f82; -fx-background-radius: 4px 4px 0 0;" />
+                                </HBox>
+                                <Label text="T6" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+                            <!-- T7 -->
+                            <VBox alignment="BOTTOM_CENTER" spacing="6.0">
+                                <HBox alignment="BOTTOM_CENTER" spacing="4.0">
+                                    <Region prefHeight="110.0" prefWidth="18.0" style="-fx-background-color: #f47b31; -fx-background-radius: 4px 4px 0 0;" />
+                                    <Region prefHeight="175.0" prefWidth="18.0" style="-fx-background-color: #1f4f82; -fx-background-radius: 4px 4px 0 0;" />
+                                </HBox>
+                                <Label text="T7" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+                            <!-- CN -->
+                            <VBox alignment="BOTTOM_CENTER" spacing="6.0">
+                                <HBox alignment="BOTTOM_CENTER" spacing="4.0">
+                                    <Region prefHeight="40.0" prefWidth="18.0" style="-fx-background-color: #f47b31; -fx-background-radius: 4px 4px 0 0;" />
+                                    <Region prefHeight="60.0" prefWidth="18.0" style="-fx-background-color: #1f4f82; -fx-background-radius: 4px 4px 0 0;" />
+                                </HBox>
+                                <Label text="CN" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+                        </HBox>
+
+                        <Label text="Cam: Bán hàng - Navy: Dịch vụ sửa chữa (triệu đồng)"
+                               style="-fx-text-fill: #607996; -fx-font-size: 11px;" />
+                    </VBox>
+
+                    <!-- Khung Trạng Thái Sửa Chữa -->
+                    <VBox prefWidth="380.0" spacing="20.0"
+                          style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-padding: 22px;">
+                        <Label text="Trạng thái sửa chữa" style="-fx-text-fill: #ffffff; -fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                        <VBox spacing="14.0">
+                            <!-- Hoàn thành -->
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label text="Hoàn thành" style="-fx-background-color: rgba(16, 185, 129, 0.2); -fx-text-fill: #10b981; -fx-padding: 5px 12px; -fx-background-radius: 6px; -fx-font-weight: bold; -fx-font-size: 12px;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="6 (32%)" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                            </HBox>
+
+                            <!-- Đang sửa chữa -->
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label text="Đang sửa chữa" style="-fx-background-color: rgba(244, 123, 49, 0.2); -fx-text-fill: #f47b31; -fx-padding: 5px 12px; -fx-background-radius: 6px; -fx-font-weight: bold; -fx-font-size: 12px;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="6 (32%)" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                            </HBox>
+
+                            <!-- Chờ sửa chữa -->
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label text="Chờ sửa chữa" style="-fx-background-color: rgba(234, 179, 8, 0.2); -fx-text-fill: #eab308; -fx-padding: 5px 12px; -fx-background-radius: 6px; -fx-font-weight: bold; -fx-font-size: 12px;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="7 (37%)" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </HBox>
+
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+</HBox>
