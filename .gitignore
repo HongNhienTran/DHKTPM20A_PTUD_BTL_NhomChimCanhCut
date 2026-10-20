@@ -1,0 +1,33 @@
+# Maven build outputs
+target/
+*.class
+
+# IDE and Editor files
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+bin/
+
+# Environment and sensitive configuration files
+.env
+*.local.properties
+config.properties
+
+# Log files
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# User uploads (chỉ giữ lại thư mục bằng .gitkeep)
+uploads/products/*
+!uploads/products/.gitkeep
+
+# Database scripts and sensitive credentials
+database/
+
