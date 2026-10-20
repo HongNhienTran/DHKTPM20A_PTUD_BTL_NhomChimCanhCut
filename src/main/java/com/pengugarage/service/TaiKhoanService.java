@@ -55,8 +55,8 @@ public class TaiKhoanService {
             return loiMatKhau;
         }
 
-        // Băm mật khẩu MD5 (đồng bộ mẫu DB)
-        String hash = MatKhauUtil.hashMD5(matKhauRaw);
+        // Băm mật khẩu bằng thuật toán SHA-256
+        String hash = MatKhauUtil.maHoa(matKhauRaw);
         TaiKhoan tk = new TaiKhoan(nhanVienId, tenDangNhap.trim(), hash);
 
         boolean thanhCong = taiKhoanDAO.them(tk);
@@ -97,7 +97,7 @@ public class TaiKhoanService {
             return "Mật khẩu hiện tại không chính xác!";
         }
 
-        String hashMoi = MatKhauUtil.hashMD5(matKhauMoi);
+        String hashMoi = MatKhauUtil.maHoa(matKhauMoi);
         boolean thanhCong = taiKhoanDAO.doiMatKhau(taiKhoanId, hashMoi);
         return thanhCong ? null : "Lỗi khi cập nhật mật khẩu vào CSDL!";
     }

@@ -5,6 +5,7 @@ import com.pengugarage.model.entity.TaiKhoan;
 import com.pengugarage.model.enums.ChucVu;
 import com.pengugarage.service.NhanVienService;
 import com.pengugarage.service.TaiKhoanService;
+import com.pengugarage.util.DieuHuongUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -329,20 +330,9 @@ public class NhanVienController {
 
     @FXML
     private void onBackToDashboardClick() {
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/pengugarage/view/quanly/dashboard-view.fxml"));
-                Parent root = loader.load();
-
-                Stage stage = (Stage) nhanVienTable.getScene().getWindow();
-                Scene scene = new Scene(root, 1280, 760);
-                stage.setScene(scene);
-                stage.setTitle("Pengu Garage Service ERP - Dashboard Quản Lý");
-                stage.centerOnScreen();
-            } catch (IOException e) {
-                hienThongBao("Lỗi mở Dashboard: " + e.getMessage(), true);
-            }
-        });
+        DieuHuongUtil.chuyenManHinh(nhanVienTable,
+                "/com/pengugarage/view/quanly/dashboard-view.fxml",
+                "Pengu Garage Service ERP - Dashboard Quản Lý");
     }
 
     private void hienThongBao(String msg, boolean isError) {

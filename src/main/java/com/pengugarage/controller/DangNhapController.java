@@ -3,17 +3,12 @@ package com.pengugarage.controller;
 import com.pengugarage.model.entity.NhanVien;
 import com.pengugarage.model.entity.TaiKhoan;
 import com.pengugarage.service.DangNhapService;
+import com.pengugarage.util.DieuHuongUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-
-import java.io.IOException;
 
 /**
  * Controller điều khiển màn hình Đăng Nhập Hệ Thống Pengu Garage.
@@ -236,24 +231,10 @@ public class DangNhapController {
      * Chuyển sang màn hình Dashboard sau khi đăng nhập thành công
      */
     private void navigateToDashboard() {
-        Platform.runLater(() -> {
-            try {
-                String fxmlPath = "/com/pengugarage/view/quanly/dashboard-view.fxml";
-                if (getClass().getResource(fxmlPath) == null) {
-                    fxmlPath = "/com/pengugarage/view/chung/main-view.fxml";
-                }
-
-                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-                Parent root = loader.load();
-
-                Stage stage = (Stage) loginButton.getScene().getWindow();
-                Scene scene = new Scene(root, 1280, 760);
-                stage.setScene(scene);
-                stage.setTitle("Pengu Garage Service ERP - Tổng Quan Hoạt Động (Dashboard)");
-                stage.centerOnScreen();
-            } catch (IOException e) {
-                showAlert("Không thể tải màn hình chính: " + e.getMessage(), true);
-            }
-        });
+        String fxmlPath = "/com/pengugarage/view/quanly/dashboard-view.fxml";
+        if (getClass().getResource(fxmlPath) == null) {
+            fxmlPath = "/com/pengugarage/view/chung/main-view.fxml";
+        }
+        DieuHuongUtil.chuyenManHinh(loginButton, fxmlPath, "Pengu Garage Service ERP - Tổng Quan Hoạt Động (Dashboard)");
     }
 }

@@ -25,7 +25,7 @@ public class TaiKhoanDAO {
      * @return TaiKhoan nếu tìm thấy, null nếu không tìm thấy
      */
     public TaiKhoan findByTenDangNhap(String tenDangNhap) {
-        String sql = "SELECT tk.id AS tk_id, tk.nhan_vien_id, tk.ten_dang_nhap, tk.mat_khau_maHoa, " +
+        String sql = "SELECT tk.id AS tk_id, tk.nhan_vien_id, tk.ten_dang_nhap, tk.mat_khau_ma_hoa, " +
                      "       nv.id AS nv_id, nv.ma_nhan_vien, nv.ho_ten, nv.so_dien_thoai, " +
                      "       nv.dia_chi, nv.chuc_vu, nv.trang_thai " +
                      "FROM `tai_khoan` tk " +
@@ -43,7 +43,7 @@ public class TaiKhoanDAO {
                     taiKhoan.setId(rs.getInt("tk_id"));
                     taiKhoan.setNhanVienId(rs.getInt("nhan_vien_id"));
                     taiKhoan.setTenDangNhap(rs.getString("ten_dang_nhap"));
-                    taiKhoan.setMatKhauMaHoa(rs.getString("mat_khau_maHoa"));
+                    taiKhoan.setMatKhauMaHoa(rs.getString("mat_khau_ma_hoa"));
 
                     NhanVien nv = new NhanVien();
                     nv.setId(rs.getInt("nv_id"));
@@ -75,7 +75,7 @@ public class TaiKhoanDAO {
      */
     public List<TaiKhoan> layTatCa() {
         List<TaiKhoan> list = new ArrayList<>();
-        String sql = "SELECT tk.id AS tk_id, tk.nhan_vien_id, tk.ten_dang_nhap, tk.mat_khau_maHoa, " +
+        String sql = "SELECT tk.id AS tk_id, tk.nhan_vien_id, tk.ten_dang_nhap, tk.mat_khau_ma_hoa, " +
                      "       nv.id AS nv_id, nv.ma_nhan_vien, nv.ho_ten, nv.so_dien_thoai, " +
                      "       nv.dia_chi, nv.chuc_vu, nv.trang_thai " +
                      "FROM `tai_khoan` tk " +
@@ -91,7 +91,7 @@ public class TaiKhoanDAO {
                 tk.setId(rs.getInt("tk_id"));
                 tk.setNhanVienId(rs.getInt("nhan_vien_id"));
                 tk.setTenDangNhap(rs.getString("ten_dang_nhap"));
-                tk.setMatKhauMaHoa(rs.getString("mat_khau_maHoa"));
+                tk.setMatKhauMaHoa(rs.getString("mat_khau_ma_hoa"));
 
                 NhanVien nv = new NhanVien();
                 nv.setId(rs.getInt("nv_id"));
@@ -130,7 +130,7 @@ public class TaiKhoanDAO {
                     tk.setId(rs.getInt("id"));
                     tk.setNhanVienId(rs.getInt("nhan_vien_id"));
                     tk.setTenDangNhap(rs.getString("ten_dang_nhap"));
-                    tk.setMatKhauMaHoa(rs.getString("mat_khau_maHoa"));
+                    tk.setMatKhauMaHoa(rs.getString("mat_khau_ma_hoa"));
                     return tk;
                 }
             }
@@ -144,7 +144,7 @@ public class TaiKhoanDAO {
      * Thêm mới tài khoản nhân viên
      */
     public boolean them(TaiKhoan tk) {
-        String sql = "INSERT INTO `tai_khoan` (`nhan_vien_id`, `ten_dang_nhap`, `mat_khau_maHoa`) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO `tai_khoan` (`nhan_vien_id`, `ten_dang_nhap`, `mat_khau_ma_hoa`) VALUES (?, ?, ?)";
         try (Connection conn = CoSoDuLieuUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -171,7 +171,7 @@ public class TaiKhoanDAO {
      * Cập nhật mật khẩu tài khoản
      */
     public boolean doiMatKhau(int taiKhoanId, String matKhauMoiMaHoa) {
-        String sql = "UPDATE `tai_khoan` SET `mat_khau_maHoa` = ? WHERE `id` = ?";
+        String sql = "UPDATE `tai_khoan` SET `mat_khau_ma_hoa` = ? WHERE `id` = ?";
         try (Connection conn = CoSoDuLieuUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
