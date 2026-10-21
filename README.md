@@ -142,12 +142,12 @@ Hệ thống hỗ trợ nạp cấu hình linh hoạt, tuyệt đối **không g
 Hệ thống sử dụng file `.env` tại thư mục gốc (và đã được cấu hình trong `.gitignore` để **không bao giờ bị đẩy lên Git**). Bạn mở file `.env` và điền cấu hình:
 
 ```env
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=pengu_garage
-DB_USER=root
-DB_PASSWORD=root
-UPLOAD_PRODUCT_DIR=uploads/products/
+DB_HOST=
+DB_PORT=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+UPLOAD_PRODUCT_DIR=
 ```
 
 > **Chính sách bảo mật Git:**
@@ -175,13 +175,13 @@ mvn javafx:run
 
 ## 6. Danh Sách Nhiệm Vụ Đã Triển Khai
 
-| Mã Task | Tên Nhiệm Vụ | Trạng Thái | Mô Tả |
-| :---: | :--- | :---: | :--- |
-| **M01-T01** | Khởi tạo project base | **Hoàn thành** | Maven, JavaFX 21, FXML, CSS Dark Theme, JDBC |
-| **M01-T02** | Kết nối database | **Hoàn thành** | Đọc cấu hình từ `.env`, quản lý đóng/mở Connection an toàn |
-| **M01-T03** | Đăng nhập hệ thống | **Hoàn thành** | Xác thực tên đăng nhập, mật khẩu băm chuẩn SHA-256 |
-| **M01-T04** | Đăng xuất hệ thống | **Hoàn thành** | Xóa phiên làm việc trong `PhienDangNhapUtil`, trở về màn hình đăng nhập |
-| **M01-T05** | Phân quyền người dùng | **Hoàn thành** | Phân định chức năng Quản lý, Kỹ thuật viên, Lễ tân |
-| **M01-T06** | Điều hướng giao diện | **Hoàn thành** | Màn hình Splash khởi động, Dashboard quản trị tự động full màn hình |
-| **M01-T07** | Quản lý nhân viên | **Hoàn thành** | Thêm, sửa, tìm kiếm theo tên/SĐT, khóa/mở trạng thái nhân viên |
-| **M01-T08** | Quản lý tài khoản | **Hoàn thành** | Cấp tài khoản liên kết nhân viên, đổi mật khẩu bảo mật SHA-256 |
+| Mã Task | Tên Nhiệm Vụ | Người Thực Hiện | Trạng Thái | Mô Tả |
+| :---: | :--- | :--- | :---: | :--- |
+| **M01-T01** | Khởi tạo project base | Trần Hồng Nhiên | **Hoàn thành** | Maven, JavaFX 21, FXML, CSS Dark Theme, JDBC |
+| **M01-T02** | Kết nối database | Trần Hồng Nhiên | **Hoàn thành** | Đọc cấu hình từ `.env`, quản lý đóng/mở Connection an toàn |
+| **M01-T03** | Đăng nhập hệ thống | Trần Hồng Nhiên | **Hoàn thành** | Xác thực tên đăng nhập, mật khẩu băm chuẩn SHA-256 |
+| **M01-T04** | Đăng xuất hệ thống | Trần Hồng Nhiên | **Hoàn thành** | Xóa phiên làm việc trong `PhienDangNhapUtil`, trở về màn hình đăng nhập |
+| **M01-T05** | Phân quyền người dùng | Trần Hồng Nhiên | **Hoàn thành** | Phân định chức năng Quản lý, Kỹ thuật viên, Lễ tân |
+| **M01-T06** | Điều hướng giao diện | Trần Hồng Nhiên | **Hoàn thành** | Màn hình Splash khởi động, Dashboard quản trị tự động full màn hình |
+| **M01-T07** | Quản lý nhân viên | Trần Hồng Nhiên | **Hoàn thành** | Thêm, sửa, tìm kiếm theo tên/SĐT, khóa/mở trạng thái nhân viên |
+| **M01-T08** | Quản lý tài khoản | Trần Hồng Nhiên | **Hoàn thành** | Cấp tài khoản liên kết nhân viên, đổi mật khẩu bảo mật SHA-256 |
