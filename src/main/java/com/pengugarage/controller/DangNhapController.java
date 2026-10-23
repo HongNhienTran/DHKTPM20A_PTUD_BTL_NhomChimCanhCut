@@ -2,8 +2,10 @@ package com.pengugarage.controller;
 
 import com.pengugarage.model.entity.NhanVien;
 import com.pengugarage.model.entity.TaiKhoan;
+import com.pengugarage.model.enums.ChucVu;
 import com.pengugarage.service.DangNhapService;
 import com.pengugarage.util.DieuHuongUtil;
+import com.pengugarage.util.PhienDangNhapUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -228,13 +230,30 @@ public class DangNhapController {
     }
 
     /**
-     * Chuyển sang màn hình Dashboard sau khi đăng nhập thành công
+     * Chuyển sang màn hình Dashboard riêng cho từng actor sau khi đăng nhập thành công
      */
     private void navigateToDashboard() {
-        String fxmlPath = "/com/pengugarage/view/quanly/dashboard-view.fxml";
+        PhienDangNhapUtil session = PhienDangNhapUtil.getInstance();
+        ChucVu chucVu = session.getChucVu();
+
+        String fxmlPath;
+        String tieuDe;
+
+        if (chucVu == ChucVu.KY_THUAT_VIEN) {
+            fxmlPath = "/com/pengugarage/view/kythuatvien/dashboard-view.fxml";
+            tieuDe = "Pengu Garage Service ERP - Dashboard Kỹ Thuật Viên";
+        } else if (chucVu == ChucVu.LE_TAN) {
+            fxmlPath = "/com/pengugarage/view/letan/dashboard-view.fxml";
+            tieuDe = "Pengu Garage Service ERP - Dashboard Lễ Tân & Thu Ngân";
+        } else {
+            // Mặc định hoặc Quản lý
+            fxmlPath = "/com/pengugarage/view/quanly/dashboard-view.fxml";
+            tieuDe = "Pengu Garage Service ERP - Dashboard Quản Lý";
+        }
+
         if (getClass().getResource(fxmlPath) == null) {
             fxmlPath = "/com/pengugarage/view/chung/main-view.fxml";
         }
-        DieuHuongUtil.chuyenManHinh(loginButton, fxmlPath, "Pengu Garage Service ERP - Tổng Quan Hoạt Động (Dashboard)");
+        DieuHuongUtil.chuyenManHinh(loginButton, fxmlPath, tieuDe);
     }
 }

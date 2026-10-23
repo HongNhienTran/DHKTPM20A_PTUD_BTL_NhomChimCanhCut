@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.DashboardLeTanController"
+      stylesheets="@../../css/style.css"
+      styleClass="dark-root"
+      prefHeight="760.0" prefWidth="1280.0">
+
+    <!-- ================================================================= -->
+    <!-- SIDEBAR DÀNH CHO LỄ TÂN & THU NGÂN                               -->
+    <!-- ================================================================= -->
+    <VBox prefWidth="250.0" minWidth="250.0" style="-fx-background-color: #0d1826; -fx-border-color: #1a2f47; -fx-border-width: 0 1px 0 0;">
+        
+        <!-- Logo Gara -->
+        <VBox alignment="CENTER" spacing="10.0" style="-fx-padding: 20px 16px 16px 16px;">
+            <StackPane alignment="CENTER" maxWidth="100.0" maxHeight="100.0" styleClass="brand-logo-frame" style="-fx-padding: 6px;">
+                <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../../images/logo_pengu-garage.png" />
+                    </image>
+                </ImageView>
+            </StackPane>
+            <Label text="PENGU GARAGE" style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: 800; -fx-letter-spacing: 1px;" />
+            <Label text="LỄ TÂN &amp; THU NGÂN" style="-fx-text-fill: #34d399; -fx-font-size: 10px; -fx-font-weight: bold; -fx-letter-spacing: 1px;" />
+        </VBox>
+
+        <!-- Menu Lễ Tân -->
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
+            <VBox spacing="4.0" style="-fx-padding: 10px 12px;">
+                
+                <!-- Dashboard Lễ Tân (Active) -->
+                <Button text="Dashboard Lễ Tân" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: #1a385c; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 10px 14px; -fx-cursor: hand;" />
+
+                <!-- Nhóm: Tiếp nhận phương tiện -->
+                <Label text="Tiếp nhận &amp; Điều phối" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
+                <Button text="Tiếp nhận xe mới (Check-in)" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                <Button text="Hàng đợi xe tại xưởng" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                <Button text="Hồ sơ xe &amp; Khách hàng" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+
+                <!-- Nhóm: Hóa đơn & Thu ngân -->
+                <Label text="Hóa đơn &amp; Bàn giao" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
+                <Button text="Lập hóa đơn &amp; Thu tiền" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                <Button text="Bàn giao xe cho khách" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+                <Button text="Nhật ký giao dịch thu ngân" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+
+                <!-- Nhóm: Lịch hẹn -->
+                <Label text="Lịch hẹn khách hàng" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
+                <Button text="Đặt lịch hẹn bảo dưỡng" maxWidth="Infinity" alignment="CENTER_LEFT"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+            </VBox>
+        </ScrollPane>
+
+        <!-- Bottom User Info -->
+        <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 14px 16px; -fx-border-color: #1a2f47; -fx-border-width: 1px 0 0 0; -fx-background-color: #0b1420;">
+            <StackPane style="-fx-background-color: #10b981; -fx-background-radius: 20px; -fx-min-width: 36px; -fx-min-height: 36px;">
+                <Label fx:id="userAvatarLabel" text="A" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 15px;" />
+            </StackPane>
+            <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                <Label fx:id="userNameLabel" text="Lê Thị Lan Anh" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                <Label fx:id="userRoleLabel" text="Lễ tân &amp; Thu ngân" style="-fx-text-fill: #34d399; -fx-font-size: 11px; -fx-font-weight: bold;" />
+            </VBox>
+            <Button text="Đăng xuất" onAction="#onLogoutClick"
+                    style="-fx-background-color: #16283c; -fx-text-fill: #e06c75; -fx-font-size: 11px; -fx-font-weight: bold; -fx-border-color: #2b415a; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 6px 10px; -fx-cursor: hand;" />
+        </HBox>
+    </VBox>
+
+    <!-- ================================================================= -->
+    <!-- CONTENT VÙNG CHÍNH DÀNH CHO LỄ TÂN & THU NGÂN                     -->
+    <!-- ================================================================= -->
+    <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: #0a131f;">
+        
+        <!-- Top Navigation Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-padding: 16px 32px; -fx-border-color: #172a3e; -fx-border-width: 0 0 1px 0;">
+            <Label text="Trang chủ / Dashboard Lễ Tân &amp; Thu Ngân" style="-fx-text-fill: #8c9eb2; -fx-font-size: 13px;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label text="● Đang có mặt tại xưởng: 14 xe" style="-fx-text-fill: #38bdf8; -fx-font-size: 12px; -fx-font-weight: bold;" />
+        </HBox>
+
+        <!-- Main Dashboard Scrollable Area -->
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+            <VBox spacing="24.0" style="-fx-padding: 24px 32px 36px 32px;">
+
+                <!-- Title Section -->
+                <VBox spacing="4.0">
+                    <Label text="Bàn Tiếp Nhận &amp; Điều Phối Lễ Tân" style="-fx-text-fill: #ffffff; -fx-font-size: 24px; -fx-font-weight: 800;" />
+                    <Label text="Theo dõi lượt xe check-in, tiến độ báo giá, hàng đợi giao xe và hóa đơn thu ngân trong ngày"
+                           style="-fx-text-fill: #8c9eb2; -fx-font-size: 13px;" />
+                </VBox>
+
+                <!-- ================= 4 KPI CARDS CHO LỄ TÂN ================= -->
+                <HBox spacing="16.0">
+                    <!-- Card 1: Lượt tiếp nhận -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Lượt tiếp nhận hôm nay" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiTiepNhanHomNayLabel" text="18 lượt" style="-fx-text-fill: #34d399; -fx-font-size: 22px; -fx-font-weight: 800;" />
+                        <Label text="▲ +12,5% so với hôm qua" style="-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    </VBox>
+
+                    <!-- Card 2: Chờ phân công -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Xe mới chờ phân công KTV" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiChoPhanCongLabel" text="3 xe" style="-fx-text-fill: #f47b31; -fx-font-size: 22px; -fx-font-weight: 800;" />
+                        <Label text="Cần chỉ định KTV kiểm tra xe" style="-fx-text-fill: #ff914d; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    </VBox>
+
+                    <!-- Card 3: Chờ giao xe & thanh toán -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Xe đã xong chờ giao khách" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiChoThanhToanLabel" text="6 xe" style="-fx-text-fill: #38bdf8; -fx-font-size: 22px; -fx-font-weight: 800;" />
+                        <Label text="Sẵn sàng thu tiền &amp; giao xe" style="-fx-text-fill: #7dd3fc; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    </VBox>
+
+                    <!-- Card 4: Tổng thu trong ngày -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0" styleClass="card-panel" style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-padding: 16px 18px;">
+                        <Label text="Tổng thu ngân trong ngày" style="-fx-text-fill: #8c9eb2; -fx-font-size: 12px;" />
+                        <Label fx:id="kpiDoanhThuNgayLabel" text="38,5 tr đ" style="-fx-text-fill: #ffffff; -fx-font-size: 22px; -fx-font-weight: 800;" />
+                        <Label text="Tiền mặt: 12 tr • CK: 26,5 tr" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    </VBox>
+                </HBox>
+
+                <!-- ================= 2 CỘT CHỨC NĂNG CHÍNH ================= -->
+                <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+                    
+                    <!-- Bảng Hàng Đợi Phương Tiện Tại Gara (65% chiều rộng) -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="16.0"
+                          style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-padding: 20px;">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Hàng Đợi Phương Tiện Tại Gara (Live Queue)" style="-fx-text-fill: #ffffff; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label text="● Cập nhật thời gian thực" style="-fx-text-fill: #34d399; -fx-font-size: 12px;" />
+                        </HBox>
+
+                        <VBox spacing="10.0">
+                            <!-- Hàng 1: Đang sửa chữa -->
+                            <HBox alignment="CENTER_LEFT" spacing="14.0"
+                                  style="-fx-background-color: #0b1523; -fx-padding: 12px 16px; -fx-background-radius: 8px; -fx-border-color: #203954; -fx-border-radius: 8px;">
+                                <VBox spacing="2.0" prefWidth="120.0">
+                                    <Label text="51F-123.45" style="-fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-font-size: 14px;" />
+                                    <Label text="08:15 • Toyota Vios" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                                </VBox>
+                                <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Khách hàng: Nguyễn Văn An (0901234567)" style="-fx-text-fill: #e2e8f0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                    <Label text="KTV phụ trách: Trần Gia Bảo • Cầu số 2" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" />
+                                </VBox>
+                                <Label text="ĐANG SỬA CHỮA" style="-fx-background-color: rgba(244, 123, 49, 0.2); -fx-text-fill: #f47b31; -fx-padding: 4px 10px; -fx-background-radius: 6px; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            </HBox>
+
+                            <!-- Hàng 2: Sẵn sàng giao xe -->
+                            <HBox alignment="CENTER_LEFT" spacing="14.0"
+                                  style="-fx-background-color: #0b1523; -fx-padding: 12px 16px; -fx-background-radius: 8px; -fx-border-color: #10b981; -fx-border-radius: 8px;">
+                                <VBox spacing="2.0" prefWidth="120.0">
+                                    <Label text="43B-345.67" style="-fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-font-size: 14px;" />
+                                    <Label text="07:30 • Ford Ranger" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                                </VBox>
+                                <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Khách hàng: Phạm Quốc Dũng (0934567890)" style="-fx-text-fill: #e2e8f0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                    <Label text="Hóa đơn: 5.600.000 đ • Đã rửa xe sạch sẽ" style="-fx-text-fill: #86efac; -fx-font-size: 11px;" />
+                                </VBox>
+                                <Label text="SẴN SÀNG GIAO XE" style="-fx-background-color: rgba(16, 185, 129, 0.2); -fx-text-fill: #10b981; -fx-padding: 4px 10px; -fx-background-radius: 6px; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            </HBox>
+
+                            <!-- Hàng 3: Chờ duyệt báo giá -->
+                            <HBox alignment="CENTER_LEFT" spacing="14.0"
+                                  style="-fx-background-color: #0b1523; -fx-padding: 12px 16px; -fx-background-radius: 8px; -fx-border-color: #203954; -fx-border-radius: 8px;">
+                                <VBox spacing="2.0" prefWidth="120.0">
+                                    <Label text="60A-456.78" style="-fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-font-size: 14px;" />
+                                    <Label text="09:10 • Hyundai Accent" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                                </VBox>
+                                <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Khách hàng: Lê Hoàng Cường (0923456789)" style="-fx-text-fill: #e2e8f0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                    <Label text="Báo giá BG003: 2.450.000 đ • Đã gửi qua Zalo/SMS cho khách" style="-fx-text-fill: #eab308; -fx-font-size: 11px;" />
+                                </VBox>
+                                <Label text="CHỜ KHÁCH DUYỆT" style="-fx-background-color: rgba(234, 179, 8, 0.2); -fx-text-fill: #eab308; -fx-padding: 4px 10px; -fx-background-radius: 6px; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            </HBox>
+
+                            <!-- Hàng 4: Chờ phân công -->
+                            <HBox alignment="CENTER_LEFT" spacing="14.0"
+                                  style="-fx-background-color: #0b1523; -fx-padding: 12px 16px; -fx-background-radius: 8px; -fx-border-color: #203954; -fx-border-radius: 8px;">
+                                <VBox spacing="2.0" prefWidth="120.0">
+                                    <Label text="51G-678.90" style="-fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-font-size: 14px;" />
+                                    <Label text="09:40 • Honda City" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                                </VBox>
+                                <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Khách hàng: Trần Thị Bình (0912345678)" style="-fx-text-fill: #e2e8f0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                    <Label text="Tiếp nhận ban đầu: Kêu tiếng gầm khi phanh gấp" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" />
+                                </VBox>
+                                <Label text="CHỜ PHÂN CÔNG" style="-fx-background-color: rgba(56, 189, 248, 0.2); -fx-text-fill: #38bdf8; -fx-padding: 4px 10px; -fx-background-radius: 6px; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Lịch Hẹn Đặt Trước & Thao Tác Nhanh (35% chiều rộng) -->
+                    <VBox prefWidth="380.0" spacing="16.0"
+                          style="-fx-background-color: #142235; -fx-border-color: #1e354d; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-padding: 20px;">
+                        
+                        <Label text="Lịch Hẹn Đến Gara Hôm Nay" style="-fx-text-fill: #ffffff; -fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                        <VBox spacing="10.0">
+                            <!-- Lịch 1 -->
+                            <VBox spacing="4.0" style="-fx-background-color: #0b1523; -fx-padding: 10px 14px; -fx-background-radius: 6px;">
+                                <HBox alignment="CENTER_LEFT">
+                                    <Label text="10:00 • Toyota Camry" style="-fx-text-fill: #ffffff; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label text="SẮP TỚI" style="-fx-text-fill: #eab308; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                                </HBox>
+                                <Label text="Khách: Đặng Minh Tuấn (0988776655) • Bảo dưỡng 20.000km" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+
+                            <!-- Lịch 2 -->
+                            <VBox spacing="4.0" style="-fx-background-color: #0b1523; -fx-padding: 10px 14px; -fx-background-radius: 6px;">
+                                <HBox alignment="CENTER_LEFT">
+                                    <Label text="11:30 • Mazda CX-5" style="-fx-text-fill: #ffffff; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label text="ĐÃ XÁC NHẬN" style="-fx-text-fill: #10b981; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                                </HBox>
+                                <Label text="Khách: Vũ Thu Hà (0977665544) • Kiểm tra rung lắc vô lăng" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+
+                            <!-- Lịch 3 -->
+                            <VBox spacing="4.0" style="-fx-background-color: #0b1523; -fx-padding: 10px 14px; -fx-background-radius: 6px;">
+                                <HBox alignment="CENTER_LEFT">
+                                    <Label text="14:00 • VinFast VF8" style="-fx-text-fill: #ffffff; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label text="ĐÃ XÁC NHẬN" style="-fx-text-fill: #10b981; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                                </HBox>
+                                <Label text="Khách: Bùi Văn Nam (0966554433) • Cân mâm bấm chì" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
+                            </VBox>
+                        </VBox>
+
+                        <Region VBox.vgrow="ALWAYS" />
+
+                        <!-- Nút thao tác nhanh của Lễ tân -->
+                        <VBox spacing="10.0" style="-fx-padding: 8px 0 0 0;">
+                            <Button text="+ Tiếp Nhận Phương Tiện Mới" maxWidth="Infinity"
+                                    style="-fx-background-color: linear-gradient(to right, #10b981, #059669); -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-padding: 10px 16px; -fx-background-radius: 8px; -fx-cursor: hand;" />
+                            <Button text="Thu Tiền &amp; Bàn Giao Xe" maxWidth="Infinity"
+                                    style="-fx-background-color: #1f3754; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-padding: 10px 16px; -fx-background-radius: 8px; -fx-cursor: hand;" />
+                        </VBox>
+
+                    </VBox>
+
+                </HBox>
+
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+</HBox>
