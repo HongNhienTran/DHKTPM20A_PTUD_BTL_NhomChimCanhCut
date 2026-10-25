@@ -36,7 +36,7 @@
 
                 <!-- Title Section -->
                 <VBox spacing="4.0">
-                    <Label text="Dashboard Quản Lý" style="-fx-text-fill: #ffffff; -fx-font-size: 24px; -fx-font-weight: 800;" />
+                    <Label text="Dashboard Quản Lý" style="-fx-text-fill: #ffffff; -fx-font-size: 26px; -fx-font-weight: 900;" />
                     <Label text="Tổng quan hoạt động và so sánh với kỳ trước (dữ liệu từ CSDL pengu_garage)"
                            style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;" />
                 </VBox>

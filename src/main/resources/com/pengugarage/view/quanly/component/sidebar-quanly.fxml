@@ -13,7 +13,7 @@
 <!-- COMPONENT SIDEBAR DÀNH CHO QUẢN LÝ                                -->
 <!-- ================================================================= -->
 
-<VBox minWidth="240.0" prefWidth="240.0" style="-fx-background-color: #0d1826; -fx-border-color: #1a2f47; -fx-border-width: 0 1px 0 0;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pengugarage.controller.component.SidebarQuanLyController">
+<VBox fx:id="rootSidebar" minWidth="240.0" prefWidth="240.0" style="-fx-background-color: #0d1826; -fx-border-color: #1a2f47; -fx-border-width: 0 1px 0 0;" stylesheets="@../../../css/style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pengugarage.controller.component.SidebarQuanLyController">
 
     <!-- Logo Gara -->
     <VBox alignment="CENTER" spacing="10.0" style="-fx-padding: 20px 16px 16px 16px;">
@@ -24,7 +24,7 @@
                 </image>
             </ImageView>
         </StackPane>
-        <Label style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: 800; -fx-letter-spacing: 1px;" text="PENGU GARAGE" />
+        <Label styleClass="sidebar-brand-title" text="PENGU GARAGE" />
     </VBox>
 
     <!-- Menu Danh Mục -->
@@ -32,25 +32,25 @@
         <VBox spacing="4.0" style="-fx-padding: 10px 12px;">
             
             <!-- Dashboard -->
-            <Button fx:id="btnDashboard" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDashboardClick" style="-fx-background-color: #1a385c; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 10px 14px; -fx-cursor: hand;" text="Dashboard" />
+            <Button fx:id="btnDashboard" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDashboardClick" styleClass="sidebar-nav-btn" text="DASHBOARD" />
 
             <!-- Nhóm: Hạng mục cung cấp -->
-            <Label style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" text="Hạng mục cung cấp" />
-            <Button fx:id="btnQuanLySanPham" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLySanPhamClick" style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" text="Quản lý sản phẩm" />
-            <Button fx:id="btnQuanLyDichVu" alignment="CENTER_LEFT" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" text="Quản lý dịch vụ" />
-            <Button fx:id="btnQuanLyMaKhuyenMai" alignment="CENTER_LEFT" layoutX="22.0" layoutY="137.0" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" text="Quản lý mã khuyến mãi" />
+            <Label styleClass="sidebar-section-title" text="HẠNG MỤC CUNG CẤP" />
+            <Button fx:id="btnQuanLySanPham" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLySanPhamClick" styleClass="sidebar-nav-btn" text="Quản lý sản phẩm" />
+            <Button fx:id="btnQuanLyDichVu" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyDichVuClick" styleClass="sidebar-nav-btn" text="Quản lý dịch vụ" />
+            <Button fx:id="btnQuanLyMaKhuyenMai" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyMaKhuyenMaiClick" styleClass="sidebar-nav-btn" text="Quản lý mã khuyến mãi" />
 
             <!-- Nhóm: Vận hành -->
-            <Label style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" text="Vận hành" />
-            <Button alignment="CENTER_LEFT" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" text="Quản lý phương tiện" />
-            <Button alignment="CENTER_LEFT" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" text="Quản lý hóa đơn" />
-            <Button alignment="CENTER_LEFT" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" text="Quản lý khách hàng" />
+            <Label styleClass="sidebar-section-title" text="VẬN HÀNH" />
+            <Button fx:id="btnQuanLyPhuongTien" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyPhuongTienClick" styleClass="sidebar-nav-btn" text="Quản lý phương tiện" />
+            <Button fx:id="btnQuanLyHoaDon" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyHoaDonClick" styleClass="sidebar-nav-btn" text="Quản lý hóa đơn" />
+            <Button fx:id="btnQuanLyKhachHang" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyKhachHangClick" styleClass="sidebar-nav-btn" text="Quản lý khách hàng" />
 
             <!-- Nhóm: Quản trị cửa hàng -->
             <VBox spacing="4.0">
-                <Label style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" text="Quản trị cửa hàng" />
-                <Button fx:id="btnQuanLyNhanVien" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyNhanVienClick" style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" text="Quản lý nhân viên" />
-                <Button fx:id="btnBaoCaoThongKe" alignment="CENTER_LEFT" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" text="Thống kê &amp; báo cáo" />
+                <Label styleClass="sidebar-section-title" text="QUẢN TRỊ CỬA HÀNG" />
+                <Button fx:id="btnQuanLyNhanVien" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyNhanVienClick" styleClass="sidebar-nav-btn" text="Quản lý nhân viên" />
+                <Button fx:id="btnBaoCaoThongKe" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onBaoCaoThongKeClick" styleClass="sidebar-nav-btn" text="Thống kê &amp; báo cáo" />
             </VBox>
         </VBox>
     </ScrollPane>
@@ -58,8 +58,8 @@
     <!-- Bottom User Info -->
     <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 14px 16px; -fx-border-color: #1a2f47; -fx-border-width: 1px 0 0 0; -fx-background-color: #0b1420;">
         <VBox spacing="2.0" HBox.hgrow="ALWAYS">
-            <Label fx:id="userNameLabel" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 12;" text="Nguyễn Minh Tuấn" />
-            <Label fx:id="userRoleLabel" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" text="Quản lý" />
+            <Label fx:id="userNameLabel" style="-fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-font-size: 13px;" text="Nguyễn Minh Tuấn" />
+            <Label fx:id="userRoleLabel" style="-fx-text-fill: #94a3b8; -fx-font-size: 11.5px; -fx-font-weight: 600;" text="Quản lý" />
         </VBox>
         <Button onAction="#onLogoutClick" style="-fx-background-color: #16283c; -fx-text-fill: #e06c75; -fx-font-size: 11px; -fx-font-weight: bold; -fx-border-color: #2b415a; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 6px 10px; -fx-cursor: hand;" text="Đăng xuất" />
     </HBox>

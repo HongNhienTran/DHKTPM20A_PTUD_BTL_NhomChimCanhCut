@@ -98,52 +98,6 @@ public class NhanVienDAO {
     }
 
     /**
-     * Tìm kiếm và lọc nhân viên theo nhiều tiêu chí
-     */
-    public List<NhanVien> timKiem(String tuKhoa, ChucVu chucVu, Boolean trangThai) {
-        List<NhanVien> list = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM `nhan_vien` WHERE 1=1");
-        List<Object> params = new ArrayList<>();
-
-        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
-            sql.append(" AND (`ma_nhan_vien` LIKE ? OR `ho_ten` LIKE ? OR `so_dien_thoai` LIKE ?)");
-            String kw = "%" + tuKhoa.trim() + "%";
-            params.add(kw);
-            params.add(kw);
-            params.add(kw);
-        }
-
-        if (chucVu != null) {
-            sql.append(" AND `chuc_vu` = ?");
-            params.add(chucVu.name());
-        }
-
-        if (trangThai != null) {
-            sql.append(" AND `trang_thai` = ?");
-            params.add(trangThai ? 1 : 0);
-        }
-
-        sql.append(" ORDER BY `id` ASC");
-
-        try (Connection conn = CoSoDuLieuUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToNhanVien(rs));
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi tìm kiếm nhân viên", e);
-        }
-        return list;
-    }
-
-    /**
      * Thêm mới nhân viên
      */
     public boolean them(NhanVien nv) {

@@ -16,6 +16,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.pengugarage.controller.component.SidebarLeTanController"
       prefWidth="250.0" minWidth="250.0"
+      stylesheets="@../../../css/style.css"
       style="-fx-background-color: #0d1826; -fx-border-color: #1a2f47; -fx-border-width: 0 1px 0 0;">
 
     <!-- Logo Gara -->
@@ -27,8 +28,8 @@
                 </image>
             </ImageView>
         </StackPane>
-        <Label text="PENGU GARAGE" style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: 800; -fx-letter-spacing: 1px;" />
-        <Label text="LỄ TÂN &amp; THU NGÂN" style="-fx-text-fill: #34d399; -fx-font-size: 10px; -fx-font-weight: bold; -fx-letter-spacing: 1px;" />
+        <Label text="PENGU GARAGE" styleClass="sidebar-brand-title" />
+        <Label text="LỄ TÂN &amp; THU NGÂN" style="-fx-text-fill: #34d399; -fx-font-size: 11px; -fx-font-weight: 800; -fx-letter-spacing: 1px;" />
     </VBox>
 
     <!-- Menu Lễ Tân -->
@@ -36,31 +37,24 @@
         <VBox spacing="4.0" style="-fx-padding: 10px 12px;">
             
             <!-- Dashboard Lễ Tân (Active) -->
-            <Button fx:id="btnDashboard" text="Dashboard Lễ Tân" onAction="#onDashboardClick" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: #1a385c; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 10px 14px; -fx-cursor: hand;" />
+            <Button fx:id="btnDashboard" text="DASHBOARD LỄ TÂN" onAction="#onDashboardClick" maxWidth="Infinity" alignment="CENTER_LEFT"
+                    styleClass="sidebar-nav-btn-active" />
 
             <!-- Nhóm: Tiếp nhận phương tiện -->
-            <Label text="Tiếp nhận &amp; Điều phối" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-            <Button text="Tiếp nhận xe mới (Check-in)" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-            <Button text="Hàng đợi xe tại xưởng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-            <Button text="Hồ sơ xe &amp; Khách hàng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+            <Label text="TIẾP NHẬN &amp; ĐIỀU PHỐI" styleClass="sidebar-section-title" />
+            <Button text="Tiếp nhận xe mới (Check-in)" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
+            <Button text="Hàng đợi xe tại xưởng" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
+            <Button text="Hồ sơ xe &amp; Khách hàng" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
 
             <!-- Nhóm: Hóa đơn & Thu ngân -->
-            <Label text="Hóa đơn &amp; Bàn giao" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-            <Button text="Lập hóa đơn &amp; Thu tiền" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-            <Button text="Bàn giao xe cho khách" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-            <Button text="Nhật ký giao dịch thu ngân" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+            <Label text="HÓA ĐƠN &amp; BÀN GIAO" styleClass="sidebar-section-title" />
+            <Button text="Lập hóa đơn &amp; Thu tiền" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
+            <Button text="Bàn giao xe cho khách" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
+            <Button text="Nhật ký giao dịch thu ngân" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
 
             <!-- Nhóm: Lịch hẹn -->
-            <Label text="Lịch hẹn khách hàng" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-            <Button text="Đặt lịch hẹn bảo dưỡng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+            <Label text="LỊCH HẸN KHÁCH HÀNG" styleClass="sidebar-section-title" />
+            <Button text="Đặt lịch hẹn bảo dưỡng" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
         </VBox>
     </ScrollPane>
 

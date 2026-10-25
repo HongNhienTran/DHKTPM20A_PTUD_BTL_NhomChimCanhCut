@@ -16,7 +16,14 @@ import java.io.IOException;
  */
 public class DieuHuongUtil {
 
-    private DieuHuongUtil() {
+    private static String currentFxmlPath = "/com/pengugarage/view/quanly/dashboard-view.fxml";
+
+    public static String getCurrentFxmlPath() {
+        return currentFxmlPath;
+    }
+
+    public static void setCurrentFxmlPath(String currentFxmlPath) {
+        DieuHuongUtil.currentFxmlPath = currentFxmlPath;
     }
 
     /**
@@ -28,10 +35,13 @@ public class DieuHuongUtil {
             return;
         }
 
+        currentFxmlPath = fxmlPath;
+
         Platform.runLater(() -> {
             try {
                 FXMLLoader loader = new FXMLLoader(DieuHuongUtil.class.getResource(fxmlPath));
                 Parent root = loader.load();
+                root.getProperties().put("fxmlPath", fxmlPath);
 
                 Scene scene = stage.getScene();
                 if (scene == null) {
@@ -67,4 +77,36 @@ public class DieuHuongUtil {
         Stage stage = (Stage) batKyNode.getScene().getWindow();
         chuyenManHinh(stage, fxmlPath, tieuDe);
     }
+
+    /**
+     * Mở cửa sổ Modal (Dialog) đè lên giao diện hiện tại với kiểu Modality.APPLICATION_MODAL.
+     */
+    public static Stage moModal(Stage ownerStage, String fxmlPath, String tieuDe) {
+        try {
+            FXMLLoader loader = new FXMLLoader(DieuHuongUtil.class.getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage modalStage = new Stage();
+            modalStage.setTitle(tieuDe != null ? tieuDe : "Pengu Garage");
+            modalStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            if (ownerStage != null) {
+                modalStage.initOwner(ownerStage);
+            }
+            modalStage.setResizable(false);
+            Scene scene = new Scene(root);
+            modalStage.setScene(scene);
+            modalStage.showAndWait();
+            return modalStage;
+        } catch (IOException e) {
+            System.err.println("Lỗi khi mở modal: " + fxmlPath);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Stage moModal(Node batKyNode, String fxmlPath, String tieuDe) {
+        Stage ownerStage = (batKyNode != null && batKyNode.getScene() != null)
+                ? (Stage) batKyNode.getScene().getWindow() : null;
+        return moModal(ownerStage, fxmlPath, tieuDe);
+    }
 }
+

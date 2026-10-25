@@ -10,16 +10,12 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,6 +49,7 @@ public class NhanVienController {
     private final NhanVienService nhanVienService = new NhanVienService();
     private final TaiKhoanService taiKhoanService = new TaiKhoanService();
     private final ObservableList<NhanVien> danhSachNhanVien = FXCollections.observableArrayList();
+    private FilteredList<NhanVien> filteredNhanVien;
     private NhanVien nhanVienDangChon = null;
 
     @FXML
@@ -96,17 +93,23 @@ public class NhanVienController {
             }
         });
 
-        nhanVienTable.setItems(danhSachNhanVien);
+        filteredNhanVien = new FilteredList<>(danhSachNhanVien, p -> true);
+        nhanVienTable.setItems(filteredNhanVien);
 
-        // Khởi tạo các ComboBox
-        locChucVuCombo.setItems(FXCollections.observableArrayList("Tất cả", "QUAN_LY", "KY_THUAT_VIEN", "LE_TAN"));
-        locChucVuCombo.setValue("Tất cả");
+        // Khởi tạo các ComboBox bộ lọc chức vụ và trạng thái
+        locChucVuCombo.setItems(FXCollections.observableArrayList("Tất cả chức vụ", "Quản lý", "Kỹ thuật viên", "Lễ tân & Thu ngân"));
+        locChucVuCombo.setValue("Tất cả chức vụ");
 
-        locTrangThaiCombo.setItems(FXCollections.observableArrayList("Tất cả", "Đang hoạt động", "Đã khóa"));
-        locTrangThaiCombo.setValue("Tất cả");
+        locTrangThaiCombo.setItems(FXCollections.observableArrayList("Tất cả trạng thái", "Đang hoạt động", "Đã khóa"));
+        locTrangThaiCombo.setValue("Tất cả trạng thái");
 
         chucVuField.setItems(FXCollections.observableArrayList(ChucVu.values()));
         chucVuField.setValue(ChucVu.KY_THUAT_VIEN);
+
+        // Gắn listener lọc tức thì trực tiếp trên giao diện
+        timKiemField.textProperty().addListener((obs, oldVal, newVal) -> onTimKiemClick());
+        locChucVuCombo.valueProperty().addListener((obs, oldVal, newVal) -> onTimKiemClick());
+        locTrangThaiCombo.valueProperty().addListener((obs, oldVal, newVal) -> onTimKiemClick());
 
         // Lắng nghe sự kiện click chọn hàng trong bảng
         nhanVienTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
@@ -124,7 +127,7 @@ public class NhanVienController {
             List<NhanVien> list = nhanVienService.layTatCa();
             Platform.runLater(() -> {
                 danhSachNhanVien.setAll(list);
-                tongSoLabel.setText("Tổng số: " + list.size() + " nhân viên");
+                onTimKiemClick();
             });
         }).start();
     }
@@ -148,30 +151,41 @@ public class NhanVienController {
 
     @FXML
     private void onTimKiemClick() {
-        String tuKhoa = timKiemField.getText();
-        String cvStr = locChucVuCombo.getValue();
-        ChucVu cv = (cvStr == null || cvStr.equals("Tất cả")) ? null : ChucVu.valueOf(cvStr);
+        if (filteredNhanVien == null) return;
+        String keyword = timKiemField.getText() != null ? timKiemField.getText().trim().toLowerCase() : "";
+        String chucVu = locChucVuCombo.getValue();
+        String trangThai = locTrangThaiCombo.getValue();
 
-        String ttStr = locTrangThaiCombo.getValue();
-        Boolean tt = null;
-        if ("Đang hoạt động".equals(ttStr)) tt = true;
-        else if ("Đã khóa".equals(ttStr)) tt = false;
-
-        Boolean finalTt = tt;
-        new Thread(() -> {
-            List<NhanVien> ketQua = nhanVienService.timKiem(tuKhoa, cv, finalTt);
-            Platform.runLater(() -> {
-                danhSachNhanVien.setAll(ketQua);
-                tongSoLabel.setText("Tìm thấy: " + ketQua.size() + " nhân viên");
-            });
-        }).start();
+        filteredNhanVien.setPredicate(nv -> {
+            if (!keyword.isEmpty()) {
+                boolean matchMa = nv.getMaNhanVien() != null && nv.getMaNhanVien().toLowerCase().contains(keyword);
+                boolean matchTen = nv.getHoTen() != null && nv.getHoTen().toLowerCase().contains(keyword);
+                boolean matchSdt = nv.getSoDienThoai() != null && nv.getSoDienThoai().contains(keyword);
+                boolean matchDiaChi = nv.getDiaChi() != null && nv.getDiaChi().toLowerCase().contains(keyword);
+                if (!matchMa && !matchTen && !matchSdt && !matchDiaChi) return false;
+            }
+            if (chucVu != null && !"Tất cả chức vụ".equals(chucVu)) {
+                if ("Quản lý".equals(chucVu) && nv.getChucVu() != ChucVu.QUAN_LY) return false;
+                if ("Kỹ thuật viên".equals(chucVu) && nv.getChucVu() != ChucVu.KY_THUAT_VIEN) return false;
+                if ("Lễ tân & Thu ngân".equals(chucVu) && nv.getChucVu() != ChucVu.LE_TAN) return false;
+            }
+            if (trangThai != null && !"Tất cả trạng thái".equals(trangThai)) {
+                if ("Đang hoạt động".equals(trangThai) && !nv.isTrangThai()) return false;
+                if ("Đã khóa".equals(trangThai) && nv.isTrangThai()) return false;
+            }
+            return true;
+        });
+        tongSoLabel.setText("Tổng số: " + filteredNhanVien.size() + " nhân viên");
     }
 
     @FXML
     private void onLamMoiClick() {
         timKiemField.clear();
-        locChucVuCombo.setValue("Tất cả");
-        locTrangThaiCombo.setValue("Tất cả");
+        locChucVuCombo.setValue("Tất cả chức vụ");
+        locTrangThaiCombo.setValue("Tất cả trạng thái");
+        if (filteredNhanVien != null) {
+            filteredNhanVien.setPredicate(p -> true);
+        }
         taiDanhSachNhanVien();
         onXoaTrangClick();
     }
