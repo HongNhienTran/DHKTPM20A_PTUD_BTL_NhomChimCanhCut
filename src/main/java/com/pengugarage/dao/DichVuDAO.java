@@ -12,19 +12,57 @@ import java.util.List;
 
 public class DichVuDAO {
 
-    public List<DichVu> layTatCa(){
+    // =========================================================================
+    // TASK M03-T01: Hiển thị danh sách, hiển thị chi tiết, lọc trên giao diện
+    // Người thực hiện: Nhiên
+    // =========================================================================
+    public List<DichVu> layTatCa() {
         List<DichVu> list = new ArrayList<>();
         String sql = "SELECT * FROM `dich_vu` ORDER BY `id` ASC";
-        try(Connection conn = CoSoDuLieuUtil.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()) {
-            while (rs.next()){
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
                 list.add(mapResultSetToDichVu(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return list;
+    }
+
+    public DichVu layChiTietDichVuTheoID(int id) {
+        String sql = "SELECT * FROM `dich_vu` WHERE `id` = ?";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToDichVu(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    // =========================================================================
+    // TASK M03-T02: Nhập thông tin dịch vụ và thêm
+    // Người thực hiện: Tân
+    // =========================================================================
+    public boolean them(DichVu dv) {
+        // TODO: Tân thực hiện chức năng nhập thông tin dịch vụ và thêm
+        return false;
+    }
+
+    // =========================================================================
+    // TASK M02-T03: Hiển thị thông tin dịch vụ (và cập nhật)
+    // Người thực hiện: Tân
+    // =========================================================================
+    public boolean capNhat(DichVu dv) {
+        // TODO: Tân thực hiện chức năng cập nhật thông tin dịch vụ
+        return false;
     }
 
     private DichVu mapResultSetToDichVu(ResultSet rs) throws SQLException {

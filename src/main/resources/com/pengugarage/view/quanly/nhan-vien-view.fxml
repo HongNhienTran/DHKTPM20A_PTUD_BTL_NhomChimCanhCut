@@ -24,8 +24,8 @@
 
         <!-- Top Header Bar -->
         <HBox alignment="CENTER_LEFT" spacing="16.0">
-            <VBox prefHeight="23.0" prefWidth="285.0" spacing="2.0">
-                <Label style="-fx-text-fill: #ffffff; -fx-font-size: 20px; -fx-font-weight: 800;" text="Quản Lý Nhân Sự &amp; Tài Khoản" />
+            <VBox spacing="2.0">
+                <Label style="-fx-text-fill: #ffffff; -fx-font-size: 25px; -fx-font-weight: 900;" text="Quản Lý Nhân Sự &amp; Tài Khoản" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <Label fx:id="thongBaoLabel" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="" />
@@ -33,17 +33,11 @@
 
         <!-- Search & Filter Toolbar: Component Card (#182e47) -->
         <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: #182e47; -fx-padding: 14px 18px; -fx-background-radius: 10px; -fx-border-color: #27456b; -fx-border-radius: 10px;">
-            <Label style="-fx-font-size: 14px; -fx-text-fill: #94a3b8;" text="🔍" />
-            <TextField fx:id="timKiemField" promptText="Tìm theo Mã NV, Họ tên hoặc SĐT..." style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #64748b;" styleClass="dark-text-field" HBox.hgrow="ALWAYS" />
-            
-            <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 12px; -fx-font-weight: bold;" text="Chức vụ:" />
-            <ComboBox fx:id="locChucVuCombo" prefWidth="150.0" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-border-radius: 6px; -fx-text-fill: #ffffff;" />
-
-            <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 12px; -fx-font-weight: bold;" text="Trạng thái:" />
-            <ComboBox fx:id="locTrangThaiCombo" prefWidth="150.0" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-border-radius: 6px; -fx-text-fill: #ffffff;" />
-
+            <TextField fx:id="timKiemField" promptText="🔍 Tìm theo Mã NV, Họ tên hoặc SĐT..." style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 9px 14px; -fx-background-radius: 6px; -fx-border-radius: 6px; -fx-font-size: 13px;" HBox.hgrow="ALWAYS" />
+            <ComboBox fx:id="locChucVuCombo" prefWidth="170.0" promptText="Chức vụ" style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 3px;" styleClass="light-combo-box" />
+            <ComboBox fx:id="locTrangThaiCombo" prefWidth="160.0" promptText="Trạng thái" style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 3px;" styleClass="light-combo-box" />
             <Button onAction="#onTimKiemClick" style="-fx-padding: 9px 18px; -fx-font-size: 12px;" styleClass="login-submit-button" text="Tìm Kiếm" />
-            <Button onAction="#onLamMoiClick" style="-fx-background-color: #223e60; -fx-text-fill: #ffffff; -fx-padding: 9px 16px; -fx-background-radius: 8px; -fx-cursor: hand;" text="Làm Mới" />
+            <Button graphicTextGap="0.0" onAction="#onLamMoiClick" style="-fx-background-color: #223e60; -fx-text-fill: #ffffff; -fx-padding: 9px 16px; -fx-background-radius: 8px; -fx-cursor: hand;" text="🔄" />
         </HBox>
 
         <!-- Main Content: Table + Form Split (Component Card #182e47) -->

@@ -29,10 +29,6 @@ public class NhanVienService {
         return nhanVienDAO.timTheoId(id);
     }
 
-    public List<NhanVien> timKiem(String tuKhoa, ChucVu chucVu, Boolean trangThai) {
-        return nhanVienDAO.timKiem(tuKhoa, chucVu, trangThai);
-    }
-
     /**
      * Sinh mã nhân viên tự động dựa theo chức vụ
      */

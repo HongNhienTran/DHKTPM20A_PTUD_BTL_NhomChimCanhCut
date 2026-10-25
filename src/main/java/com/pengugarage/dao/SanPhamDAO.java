@@ -1,5 +1,6 @@
 package com.pengugarage.dao;
 
+import com.pengugarage.model.entity.DanhMucSanPham;
 import com.pengugarage.model.entity.SanPham;
 import com.pengugarage.util.CoSoDuLieuUtil;
 
@@ -14,10 +15,16 @@ public class SanPhamDAO {
 
     public List<SanPham> layTatCa() {
         List<SanPham> list = new ArrayList<>();
-        String sql = "SELECT * FROM san_pham ORDER BY id ASC";
-        try(Connection conn = CoSoDuLieuUtil.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()) {
+        String sql = """
+            SELECT sp.*, 
+                   dm.id AS dm_id, dm.ma_danh_muc, dm.ten_danh_muc, dm.mo_ta AS dm_mo_ta, dm.trang_thai AS dm_trang_thai
+            FROM san_pham sp
+            LEFT JOIN danh_muc_san_pham dm ON sp.danh_muc_id = dm.id
+            ORDER BY sp.id ASC
+            """;
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapResultSetToSanPham(rs));
             }
@@ -25,6 +32,77 @@ public class SanPhamDAO {
             throw new RuntimeException(e);
         }
         return list;
+    }
+
+    /**
+     * Lấy danh sách các đơn vị tính thực tế hiện có trong cơ sở dữ liệu
+     */
+    public List<String> layDanhSachDonViTinh() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT `don_vi_tinh` FROM `san_pham` WHERE `don_vi_tinh` IS NOT NULL AND TRIM(`don_vi_tinh`) != '' ORDER BY `don_vi_tinh` ASC";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(rs.getString("don_vi_tinh").trim());
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi truy vấn danh sách đơn vị tính: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // =========================================================================
+    // TASK M02-T01: Hiển thị danh sách, hiển thị chi tiết sản phẩm, lọc sản phẩm trên giao diện
+    // Người thực hiện: Nhiên
+    // =========================================================================
+    public SanPham layChiTietSanPhamTheoID(int id) {
+        String sql = """
+            SELECT sp.*, 
+                   dm.id AS dm_id, dm.ma_danh_muc, dm.ten_danh_muc, dm.mo_ta AS dm_mo_ta, dm.trang_thai AS dm_trang_thai
+            FROM san_pham sp
+            LEFT JOIN danh_muc_san_pham dm ON sp.danh_muc_id = dm.id
+            WHERE sp.id = ?
+            """;
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToSanPham(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public SanPham layChiTietSanPhamTheoId(int id) {
+        return layChiTietSanPhamTheoID(id);
+    }
+
+    // =========================================================================
+    // TASK M02-T03: Nhập 1 thông tin sản phẩm và thêm, thêm bằng file import (exel)
+    // Người thực hiện: Phong
+    // =========================================================================
+    public boolean them(SanPham sp) {
+        // TODO: Phong thực hiện chức năng nhập 1 thông tin sản phẩm và thêm
+        return false;
+    }
+
+    public boolean themDanhSachSanPham(List<SanPham> danhSach) {
+        // TODO: Phong thực hiện chức năng thêm danh sách sản phẩm bằng file import (exel)
+        return false;
+    }
+
+    // =========================================================================
+    // TASK M02-T04: Hiển thị thông tin sản phẩm và cho phép chỉnh sửa
+    // Người thực hiện: Tuấn
+    // =========================================================================
+    public boolean capNhat(SanPham sp) {
+        // TODO: Tuấn thực hiện chức năng cập nhật thông tin sản phẩm
+        return false;
     }
 
     private SanPham mapResultSetToSanPham(ResultSet rs) throws SQLException {
@@ -40,6 +118,26 @@ public class SanPhamDAO {
         sanPham.setThueVAT(rs.getDouble("thue_vat"));
         sanPham.setTrangThai(rs.getBoolean("trang_thai"));
         sanPham.setDuongDanAnh(rs.getString("duong_dan_anh"));
+
+        int danhMucId = rs.getInt("danh_muc_id");
+        sanPham.setDanhMucId(danhMucId);
+
+        // Lấy thông tin đối tượng Danh mục sản phẩm từ LEFT JOIN
+        try {
+            String tenDanhMuc = rs.getString("ten_danh_muc");
+            if (tenDanhMuc != null) {
+                DanhMucSanPham dm = new DanhMucSanPham();
+                dm.setId(rs.getInt("dm_id"));
+                dm.setMaDanhMuc(rs.getString("ma_danh_muc"));
+                dm.setTenDanhMuc(tenDanhMuc);
+                dm.setMoTa(rs.getString("dm_mo_ta"));
+                dm.setTrangThai(rs.getBoolean("dm_trang_thai"));
+                sanPham.setDanhMuc(dm);
+            }
+        } catch (SQLException ignored) {
+            // Bỏ qua nếu câu query không có cột join
+        }
+
         return sanPham;
     }
 }

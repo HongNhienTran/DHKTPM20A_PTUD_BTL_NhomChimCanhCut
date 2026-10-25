@@ -1,248 +1,151 @@
-# Hướng Dẫn Phát Triển Chức Năng Mới (Ví dụ: Quản Lý Sản Phẩm)
+# TÀI LIỆU HƯỚNG DẪN PHÁT TRIỂN & PHÂN CÔNG TASK - PENGU GARAGE SERVICE ERP
 
-Tài liệu này hướng dẫn chi tiết quy trình từng bước từ Database $\rightarrow$ DAO $\rightarrow$ Service $\rightarrow$ Controller $\rightarrow$ Giao diện FXML (thiết kế bằng Scene Builder) cho hệ thống **Pengu Garage Service ERP**.
-
----
-
-## 🏛️ 1. Cấu Trúc Giao Diện Phân Theo Vai Trò (Actor Role-Based Architecture)
-
-Hệ thống phân chia giao diện FXML và Controller theo 3 nhóm đối tượng người dùng chính:
-- **Quản lý (`com.pengugarage.view.quanly`)**:
-  - `dashboard-view.fxml` & `DashboardController.java`
-  - Quản lý nhân viên, phụ tùng / sản phẩm, tài chính, báo cáo doanh thu, cấu hình garage.
-- **Kỹ thuật viên (`com.pengugarage.view.kythuatvien`)**:
-  - `dashboard-view.fxml` & `DashboardKyThuatVienController.java`
-  - Tiếp nhận lệnh sửa chữa, cập nhật tiến độ công việc, kiểm tra vật tư/phụ tùng, báo cáo kỹ thuật.
-- **Lễ tân & Thu ngân (`com.pengugarage.view.letan`)**:
-  - `dashboard-view.fxml` & `DashboardLeTanController.java`
-  - Tiếp nhận xe vào gara, tạo phiếu tiếp nhận, lập hóa đơn thanh toán, tra cứu thông tin khách hàng.
-- **Dùng chung (`com.pengugarage.view.chung`)**:
-  - `splash-view.fxml` & `SplashController.java`
-  - `dang-nhap-view.fxml` & `DangNhapController.java`
+> **Dự án**: Hệ Thống Quản Lý Dịch Vụ Gara Ô Tô (Pengu Garage Service ERP)  
+> **Công nghệ**: Java 21, JavaFX 21, MariaDB, Maven  
+> **Kiến trúc**: MVC kết hợp Layered Architecture (Database $\rightarrow$ DAO $\rightarrow$ Service $\rightarrow$ Controller $\rightarrow$ FXML/Component)
 
 ---
 
-## 🏗️ 2. Sơ Đồ Kiến Trúc Luồng Dữ Liệu
+## 📋 BẢNG TỔNG HỢP TIẾN ĐỘ & PHÂN CÔNG TASK CHI TIẾT
 
-$$\text{Database (MariaDB)} \longrightarrow \text{DAO (Truy vấn SQL)} \longrightarrow \text{Service (Nghiệp vụ)} \longrightarrow \text{Controller (JavaFX)} \longleftrightarrow \text{View FXML (Scene Builder)}$$
-
----
-
-## 🚀 3. Quy Trình 5 Bước Thực Hiện
-
-### Bước 1: Viết lớp Data Access Object (`SanPhamDAO.java`)
-Lớp này chịu trách nhiệm kết nối MariaDB thông qua `CoSoDuLieuUtil` và chuyển đổi kết quả `ResultSet` thành danh sách đối tượng `SanPham`.
-
-Tạo file: `src/main/java/com/pengugarage/dao/SanPhamDAO.java`
-```java
-package com.pengugarage.dao;
-
-import com.pengugarage.model.entity.SanPham;
-import com.pengugarage.util.CoSoDuLieuUtil;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-
-public class SanPhamDAO {
-
-    /**
-     * Lấy toàn bộ danh sách sản phẩm từ bảng san_pham
-     */
-    public List<SanPham> layTatCa() {
-        List<SanPham> ds = new ArrayList<>();
-        String sql = "SELECT * FROM san_pham ORDER BY id DESC";
-
-        try (Connection conn = CoSoDuLieuUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                SanPham sp = new SanPham();
-                sp.setId(rs.getInt("id"));
-                sp.setDanhMucId(rs.getInt("danh_muc_id"));
-                sp.setMaSanPham(rs.getString("ma_san_pham"));
-                sp.setTenSanPham(rs.getString("ten_san_pham"));
-                sp.setDonViTinh(rs.getString("don_vi_tinh"));
-                sp.setSoLuongTon(rs.getInt("so_luong_ton"));
-                sp.setDonGiaBan(rs.getDouble("don_gia_ban"));
-                sp.setTrangThai(rs.getBoolean("trang_thai"));
-                ds.add(sp);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ds;
-    }
-}
-```
+| Module | Task ID | Tên hàm DAO | Nội dung công việc | Người thực hiện | Trạng thái hiện tại |
+| :--- | :--- | :--- | :--- | :---: | :---: |
+| **Sản phẩm & Danh mục** | `M02-T01` | `layTatCa()`, `layChiTietSanPhamTheoID()` | Hiển thị danh sách, hiển thị chi tiết sản phẩm, lọc sản phẩm trên giao diện | **Nhiên** | **✅ ĐÃ HOÀN THÀNH** |
+| **Sản phẩm & Danh mục** | `M02-T02` | `layTatCa()` | Hiển thị danh sách danh mục (lấy từ DB thật) | **Nhiên** | **✅ ĐÃ HOÀN THÀNH** |
+| **Sản phẩm & Danh mục** | `M02-T03` | `them()`, `themDanhSachSanPham()` | Nhập 1 thông tin sản phẩm và thêm, thêm bằng file import (Excel) | **Phong** | ⏳ Đã dựng khung (Chờ code) |
+| **Sản phẩm & Danh mục** | `M02-T04` | `capNhat()` | Hiển thị thông tin sản phẩm và cho phép chỉnh sửa | **Tuấn** | ⏳ Đã dựng khung (Chờ code) |
+| **Quản lý Dịch vụ** | `M03-T01` | `layTatCa()`, `layChiTietDichVuTheoID()` | Hiển thị danh sách, hiển thị chi tiết, lọc trên giao diện | **Nhiên** | **✅ ĐÃ HOÀN THÀNH** |
+| **Quản lý Dịch vụ** | `M03-T02` | `them()` | Nhập thông tin dịch vụ và thêm mới qua Modal | **Tân** | ⏳ Đã dựng khung (Chờ code) |
+| **Quản lý Dịch vụ** | `M02-T03` | `capNhat()` | Hiển thị thông tin dịch vụ và cho phép chỉnh sửa | **Tân** | ⏳ Đã dựng khung (Chờ code) |
+| **Mã Khuyến Mãi** | `M03-T01` | `layTatCa()`, `layChiTietMaKhuyenMaiTheoID()` | Hiển thị danh sách, hiển thị chi tiết, lọc trên giao diện | **Nhiên** | **✅ ĐÃ HOÀN THÀNH** |
+| **Mã Khuyến Mãi** | `M03-T02` | `them()` | Nhập thông tin mã khuyến mãi và thêm mới qua Modal | **Tuấn** | ⏳ Đã dựng khung (Chờ code) |
 
 ---
 
-### Bước 2: Viết lớp Service nghiệp vụ (`SanPhamService.java`)
-Service chứa các quy tắc logic nghiệp vụ, gọi DAO để lấy dữ liệu hoặc thực hiện kiểm tra hợp lệ trước khi gửi sang giao diện.
-
-Tạo file: `src/main/java/com/pengugarage/service/SanPhamService.java`
-```java
-package com.pengugarage.service;
-
-import com.pengugarage.dao.SanPhamDAO;
-import com.pengugarage.model.entity.SanPham;
-
-import java.util.List;
-
-public class SanPhamService {
-    private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
-
-    public List<SanPham> layDanhSachSanPham() {
-        return sanPhamDAO.layTatCa();
-    }
-}
-```
+## 📌 HƯỚNG DẪN CHI TIẾT DÀNH CHO TỪNG THÀNH VIÊN
 
 ---
 
-### Bước 3: Thiết kế giao diện bằng Scene Builder (`san-pham-view.fxml`)
+### 👨‍💻 1. DÀNH CHO PHONG (Task M02-T03: Thêm Sản Phẩm & Import Excel)
 
-1. **Khởi tạo file FXML sườn cơ bản**:
-   Tạo file `src/main/resources/com/pengugarage/view/quanly/san-pham-view.fxml` với nội dung:
-   ```xml
-   <?xml version="1.0" encoding="UTF-8"?>
-   <?import javafx.scene.layout.VBox?>
+#### Nhiệm vụ:
+1. Nhập thông tin sản phẩm thủ công và lưu vào database.
+2. Nhập danh sách sản phẩm hàng loạt từ file Excel (`.xlsx`, `.xls`).
 
-   <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-         fx:controller="com.pengugarage.controller.SanPhamController"
-         stylesheets="@../../css/style.css" styleClass="dark-root"
-         prefHeight="760.0" prefWidth="1280.0">
-   </VBox>
-   ```
+#### Các vị trí file đã được dựng khung sẵn cần vào code:
 
-2. **Mở file bằng Scene Builder**:
-   * Nhấp chuột phải vào file `san-pham-view.fxml` trong IntelliJ $\rightarrow$ chọn **Open In SceneBuilder** (hoặc mở ứng dụng Scene Builder $\rightarrow$ `File` $\rightarrow$ `Open`).
+##### 1.1. Tầng DAO: [SanPhamDAO.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/dao/SanPhamDAO.java)
+- **Hàm `public boolean them(SanPham sp)`**:
+  - Viết câu lệnh `INSERT INTO san_pham (ma_san_pham, ten_san_pham, danh_muc_id, don_vi_tinh, don_gia_ban, gia_nhap, thue_vat, so_luong_ton, so_luong_ton_toi_thieu, vi_tri_kho, trang_thai, mo_ta, hinh_anh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`.
+  - Trả về `true` nếu thêm thành công, `false` nếu thất bại.
+- **Hàm `public boolean themDanhSachSanPham(List<SanPham> danhSach)`**:
+  - Dùng `PreparedStatement` kết hợp `conn.setAutoCommit(false)` và `ps.addBatch()` để thêm nhanh theo batch.
 
-3. **Kéo thả các Component**:
-   * **Thanh Header trên cùng**: Kéo `HBox` thả vào `VBox`. Bên trong `HBox`, thêm một `Button` (Nút "← Dashboard") và một `Label` (Tiêu đề "Quản Lý Sản Phẩm & Phụ Tùng").
-   * **Bảng danh sách TableView**: Kéo `TableView` thả vào giữa `VBox`.
-     * Trong `TableView`, kéo thả các `TableColumn` đại diện cho các cột:
-       * Mã sản phẩm
-       * Tên sản phẩm
-       * Đơn vị tính
-       * Số lượng tồn
-       * Đơn giá bán
+##### 1.2. Tầng Service: [SanPhamService.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/service/SanPhamService.java)
+- Triển khai logic kiểm tra tính hợp lệ (Mã SP không trùng, Giá bán $\ge$ Giá nhập, Tồn kho $\ge 0$) trước khi gọi `sanPhamDAO.them(sp)` hoặc `sanPhamDAO.themDanhSachSanPham(danhSach)`.
 
-4. **Đặt `fx:id` và sự kiện trong Scene Builder**:
-   * Chọn `TableView` $\rightarrow$ tại bảng thuộc tính bên phải, mở mục **Code**:
-     * Đặt **`fx:id`** là: `sanPhamTable`.
-   * Chọn từng cột `TableColumn` $\rightarrow$ đặt `fx:id` tương ứng:
-     * Cột Mã SP: `colMaSP`
-     * Cột Tên SP: `colTenSP`
-     * Cột ĐVT: `colDonViTinh`
-     * Cột Tồn kho: `colSoLuongTon`
-     * Cột Đơn giá: `colDonGiaBan`
-   * Chọn nút "← Dashboard" $\rightarrow$ tại mục **Code** $\rightarrow$ **On Action** gõ: `#onBackToDashboardClick`.
-
-5. Nhấn **`Ctrl + S`** để lưu file trong Scene Builder.
+##### 1.3. Tầng Controller & Giao diện:
+- **Thêm thủ công 1 sản phẩm**:
+  - Mở [SanPhamThemController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/SanPhamThemController.java).
+  - Tìm hàm `@FXML public void onLuuClick()`. Lấy dữ liệu từ các trường `tenSanPhamField`, `donViTinhCombo`, `donGiaBanField`, `soLuongTonField`, `hinhAnhView`... $\rightarrow$ tạo đối tượng `SanPham` $\rightarrow$ gọi `sanPhamService.them(sp)`.
+- **Thêm sản phẩm bằng file Excel**:
+  - Mở [SanPhamController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/SanPhamController.java).
+  - Tìm hàm `@FXML public void onNhapFileClick()`. Hệ thống đã có sẵn `FileChooser` chọn file. Phong đọc nội dung file Excel (dùng thư viện Apache POI) $\rightarrow$ chuyển thành `List<SanPham>` $\rightarrow$ gọi `sanPhamService.themDanhSachSanPham(...)`.
 
 ---
 
-### Bước 4: Viết Controller điều khiển giao diện (`SanPhamController.java`)
-Controller ánh xạ các phần tử FXML qua `@FXML`, cấu hình các cột TableView và tải danh sách sản phẩm lên màn hình.
+### 👨‍💻 2. DÀNH CHO TUẤN (Task M02-T04: Cập Nhật Sản Phẩm & Task M03-T02: Thêm Mã Khuyến Mãi)
 
-Tạo file: `src/main/java/com/pengugarage/controller/SanPhamController.java`
-```java
-package com.pengugarage.controller;
+#### Nhiệm vụ 1: Cập nhật thông tin sản phẩm (Task M02-T04)
+- **DAO**: [SanPhamDAO.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/dao/SanPhamDAO.java)
+  - Hoàn thiện hàm `public boolean capNhat(SanPham sp)`.
+  - Viết câu lệnh `UPDATE san_pham SET ten_san_pham=?, danh_muc_id=?, don_vi_tinh=?, don_gia_ban=?, gia_nhap=?, thue_vat=?, so_luong_ton=?, so_luong_ton_toi_thieu=?, vi_tri_kho=?, trang_thai=?, mo_ta=?, hinh_anh=? WHERE id=?`.
+- **Service**: [SanPhamService.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/service/SanPhamService.java)
+  - Hoàn thiện hàm `public boolean capNhat(SanPham sp)`.
+- **Controller**: [ChiTietSanPhamController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/component/ChiTietSanPhamController.java)
+  - Tìm hàm `@FXML public void onLuuThayDoiClick()`.
+  - Lấy các giá trị chỉnh sửa từ form chi tiết: `tenSPField`, `giaBanField`, `danhMucCombo`, `dvtField`, `soLuongTonField`, `trangThaiCombo` $\rightarrow$ gán vào `sanPhamHienTai` $\rightarrow$ gọi `sanPhamService.capNhat(...)` $\rightarrow$ hiển thị thông báo thành công.
 
-import com.pengugarage.model.entity.SanPham;
-import com.pengugarage.service.SanPhamService;
-import com.pengugarage.util.DieuHuongUtil;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-
-import java.text.DecimalFormat;
-import java.util.List;
-
-public class SanPhamController {
-
-    @FXML
-    private TableView<SanPham> sanPhamTable;
-
-    @FXML
-    private TableColumn<SanPham, String> colMaSP;
-
-    @FXML
-    private TableColumn<SanPham, String> colTenSP;
-
-    @FXML
-    private TableColumn<SanPham, String> colDonViTinh;
-
-    @FXML
-    private TableColumn<SanPham, String> colSoLuongTon;
-
-    @FXML
-    private TableColumn<SanPham, String> colDonGiaBan;
-
-    private final SanPhamService sanPhamService = new SanPhamService();
-
-    @FXML
-    public void initialize() {
-        cauHinhCacCotTable();
-        taiDanhSachSanPham();
-    }
-
-    private void cauHinhCacCotTable() {
-        colMaSP.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getMaSanPham()));
-        colTenSP.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTenSanPham()));
-        colDonViTinh.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getDonViTinh()));
-        colSoLuongTon.setCellValueFactory(cell -> new SimpleStringProperty(String.valueOf(cell.getValue().getSoLuongTon())));
-        
-        DecimalFormat df = new DecimalFormat("#,### VNĐ");
-        colDonGiaBan.setCellValueFactory(cell -> new SimpleStringProperty(df.format(cell.getValue().getDonGiaBan())));
-    }
-
-    private void taiDanhSachSanPham() {
-        List<SanPham> list = sanPhamService.layDanhSachSanPham();
-        sanPhamTable.setItems(FXCollections.observableArrayList(list));
-    }
-
-    @FXML
-    private void onBackToDashboardClick() {
-        DieuHuongUtil.chuyenManHinh(sanPhamTable,
-                "/com/pengugarage/view/quanly/dashboard-view.fxml",
-                "Pengu Garage Service ERP - Dashboard Quản Lý");
-    }
-}
-```
+#### Nhiệm vụ 2: Thêm mới mã khuyến mãi (Task M03-T02)
+- **DAO**: [MaKhuyenMaiDAO.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/dao/MaKhuyenMaiDAO.java)
+  - Hoàn thiện hàm `public boolean them(MaKhuyenMai km)`.
+  - Viết câu lệnh: `INSERT INTO ma_khuyen_mai (ma_khuyen_mai, loai_giam, gia_tri_giam, gia_tri_toi_thieu_ap_dung, ngay_bat_dau_ap_dung, ngay_het_han, so_luong_ton, trang_thai) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`.
+- **Service**: [MaKhuyenMaiService.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/service/MaKhuyenMaiService.java)
+  - Hoàn thiện hàm `public boolean them(MaKhuyenMai km)`.
+- **Giao diện Modal & Controller**:
+  - Giao diện modal đã được tạo sẵn: [modal-them-ma-khuyen-mai.fxml](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/resources/com/pengugarage/view/quanly/component/modal-them-ma-khuyen-mai.fxml).
+  - Mở [ModalThemMaKhuyenMaiController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/component/ModalThemMaKhuyenMaiController.java).
+  - Tìm hàm `@FXML public void onLuuClick()`. Lấy dữ liệu:
+    - Mã KM: `maKMField.getText().trim()`
+    - Loại giảm: `loaiGiamCombo.getValue()`
+    - Giá trị giảm: `Double.parseDouble(giaTriGiamField.getText())`
+    - Hóa đơn tối thiểu: `Double.parseDouble(giaTriToiThieuField.getText())`
+    - Ngày bắt đầu (Lịch): `DatePickerUtil.layDauNgay(ngayBatDauPicker)`
+    - Ngày hết hạn (Lịch): `DatePickerUtil.layCuoiNgay(ngayHetHanPicker)`
+    - Số lượng tồn: `Integer.parseInt(soLuongTonField.getText())`
+    - Trạng thái: `"Đang áp dụng".equals(trangThaiCombo.getValue())`
+    $\rightarrow$ Gọi `maKhuyenMaiService.them(km)`. Nếu thành công, gọi `onDongClick()` để đóng modal.
 
 ---
 
-### Bước 5: Nối sự kiện từ Dashboard sang màn hình Sản phẩm
-1. Mở file [DashboardController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/DashboardController.java), thêm hàm mở màn hình sản phẩm:
+### 👨‍💻 3. DÀNH CHO TÂN (Task M03-T02: Thêm Dịch Vụ & Task M02-T03: Cập Nhật Dịch Vụ)
+
+#### Nhiệm vụ 1: Thêm mới dịch vụ gara qua Modal (Task M03-T02)
+- **DAO**: [DichVuDAO.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/dao/DichVuDAO.java)
+  - Hoàn thiện hàm `public boolean them(DichVu dv)`.
+  - Viết câu lệnh: `INSERT INTO dich_vu (ma_dich_vu, ten_dich_vu, mo_ta, don_gia, thue_vat, trang_thai) VALUES (?, ?, ?, ?, ?, ?)`.
+- **Service**: [DichVuService.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/service/DichVuService.java)
+  - Hoàn thiện hàm `public boolean them(DichVu dv)`.
+- **Giao diện Modal & Controller**:
+  - Giao diện modal đã dựng sẵn: [modal-them-dich-vu.fxml](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/resources/com/pengugarage/view/quanly/component/modal-them-dich-vu.fxml).
+  - Mở [ModalThemDichVuController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/component/ModalThemDichVuController.java).
+  - Tìm hàm `@FXML public void onLuuClick()`. Lấy dữ liệu:
+    - `maDichVuField`, `tenDichVuField`, `donGiaField`, `thueVATField`, `moTaArea`, `trangThaiCombo`
+    $\rightarrow$ Tạo đối tượng `DichVu` $\rightarrow$ gọi `dichVuService.them(dv)`. Nếu thành công, gọi `onDongClick()` để đóng modal.
+
+#### Nhiệm vụ 2: Cập nhật thông tin dịch vụ (Task M02-T03)
+- **DAO**: [DichVuDAO.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/dao/DichVuDAO.java)
+  - Hoàn thiện hàm `public boolean capNhat(DichVu dv)`.
+  - Viết câu lệnh: `UPDATE dich_vu SET ten_dich_vu=?, mo_ta=?, don_gia=?, thue_vat=?, trang_thai=? WHERE id=?`.
+- **Service**: [DichVuService.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/service/DichVuService.java)
+  - Hoàn thiện hàm `public boolean capNhat(DichVu dv)`.
+- **Controller**: [ChiTietDichVuController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/component/ChiTietDichVuController.java)
+  - Tìm hàm `@FXML public void onLuuThayDoiClick()`.
+  - Lấy thông tin từ form chi tiết: `tenDVField`, `donGiaField`, `thueVATField`, `moTaArea`, `trangThaiCombo` $\rightarrow$ gọi `dichVuService.capNhat(...)`.
+
+---
+
+## 🛠️ CÁC TIỆN ÍCH DỰ ÁN HỖ TRỢ SẴN CẦN LƯU Ý
+
+1. **Mở Modal Popup**:
    ```java
-   @FXML
-   private void onQuanLySanPhamClick() {
-       DieuHuongUtil.chuyenManHinh(userNameLabel,
-               "/com/pengugarage/view/quanly/san-pham-view.fxml",
-               "Pengu Garage Service ERP - Quản Lý Sản Phẩm & Phụ Tùng");
-   }
+   DieuHuongUtil.moModal(tableHoacButton, "/com/pengugarage/view/quanly/component/modal-ten.fxml", "Tiêu đề Popup");
    ```
-2. Trong [dashboard-view.fxml](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/resources/com/pengugarage/view/quanly/dashboard-view.fxml), tìm đến Button `Quản lý sản phẩm` và gắn thêm thuộc tính `onAction`:
-   ```xml
-   <Button text="Quản lý sản phẩm" onAction="#onQuanLySanPhamClick" ... />
-   ```
+2. **Chọn ngày bằng Lịch (DatePicker)**:
+   - Sử dụng [DatePickerUtil.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/util/DatePickerUtil.java):
+     ```java
+     // Cấu hình hiển thị chuẩn dd/MM/yyyy:
+     DatePickerUtil.cauHinhDinhDang(myDatePicker);
+
+     // Lấy giá trị LocalDateTime:
+     LocalDateTime start = DatePickerUtil.layDauNgay(myDatePicker);
+
+     // Gán giá trị LocalDateTime lên DatePicker:
+     DatePickerUtil.ganGiaTri(myDatePicker, ldt);
+     ```
+3. **Kết nối Database**:
+   - Sử dụng `CoSoDuLieuUtil.getConnection()`. Luôn bọc trong khối `try-with-resources` để tự động đóng kết nối.
 
 ---
 
-## 💡 Quy Tắc Quan Trọng Khi Phát Triển
+## ⚙️ CÁCH TEST VÀ CHẠY DỰ ÁN
 
-1. **Luôn dùng `DieuHuongUtil.chuyenManHinh`**:
-   - Đảm bảo tất cả màn hình khi chuyển tiếp luôn giữ nguyên trạng thái **Toàn màn hình (Maximized)** và giữ ổn định kích thước cửa sổ.
-2. **Kế thừa bảng màu trong `style.css`**:
-   - Gắn `styleClass="dark-root"` cho thẻ gốc của FXML để giao diện đồng bộ chủ đề Dark sang trọng với toàn hệ thống (`#090d16` và card `#111827`).
-3. **Phân quyền và phiên làm việc**:
-   - Lấy thông tin tài khoản đăng nhập hiện tại bằng `PhienDangNhapUtil.getInstance().getNhanVienHienTai()`.
-   - Kiểm tra vai trò bằng `PhienDangNhapUtil.getInstance().getChucVu()`.
+1. **Biên dịch dự án**:
+   ```powershell
+   mvn clean compile
+   ```
+2. **Khởi chạy ứng dụng**:
+   ```powershell
+   mvn javafx:run
+   ```
+   *(Hoặc chạy trực tiếp file `com.pengugarage.App` trong IntelliJ IDEA)*

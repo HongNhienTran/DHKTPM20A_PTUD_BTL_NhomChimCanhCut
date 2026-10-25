@@ -16,6 +16,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.pengugarage.controller.component.SidebarKyThuatVienController"
       prefWidth="250.0" minWidth="250.0"
+      stylesheets="@../../../css/style.css"
       style="-fx-background-color: #0d1826; -fx-border-color: #1a2f47; -fx-border-width: 0 1px 0 0;">
 
     <!-- Logo Gara -->
@@ -27,8 +28,8 @@
                 </image>
             </ImageView>
         </StackPane>
-        <Label text="PENGU GARAGE" style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: 800; -fx-letter-spacing: 1px;" />
-        <Label text="KHÔNG GIAN KỸ THUẬT VIÊN" style="-fx-text-fill: #f47b31; -fx-font-size: 10px; -fx-font-weight: bold; -fx-letter-spacing: 1px;" />
+        <Label text="PENGU GARAGE" styleClass="sidebar-brand-title" />
+        <Label text="KHÔNG GIAN KỸ THUẬT VIÊN" style="-fx-text-fill: #f47b31; -fx-font-size: 11px; -fx-font-weight: 800; -fx-letter-spacing: 1px;" />
     </VBox>
 
     <!-- Menu Kỹ Thuật Viên -->
@@ -36,29 +37,23 @@
         <VBox spacing="4.0" style="-fx-padding: 10px 12px;">
             
             <!-- Dashboard KTV (Active) -->
-            <Button fx:id="btnDashboard" text="Dashboard Kỹ Thuật" onAction="#onDashboardClick" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: #1a385c; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 10px 14px; -fx-cursor: hand;" />
+            <Button fx:id="btnDashboard" text="DASHBOARD KỸ THUẬT" onAction="#onDashboardClick" maxWidth="Infinity" alignment="CENTER_LEFT"
+                    styleClass="sidebar-nav-btn-active" />
 
             <!-- Nhóm: Công việc sửa chữa -->
-            <Label text="Ca sửa chữa &amp; phân công" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-            <Button text="Phiếu phân công của tôi" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-            <Button text="Kiểm tra &amp; Chẩn đoán xe" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-            <Button text="Cập nhật tiến độ ca sửa" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+            <Label text="CA SỬA CHỮA &amp; PHÂN CÔNG" styleClass="sidebar-section-title" />
+            <Button text="Phiếu phân công của tôi" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
+            <Button text="Kiểm tra &amp; Chẩn đoán xe" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
+            <Button text="Cập nhật tiến độ ca sửa" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
 
             <!-- Nhóm: Vật tư & Phụ tùng -->
-            <Label text="Vật tư &amp; Phụ tùng" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-            <Button text="Đề xuất xuất kho phụ tùng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-            <Button text="Tra cứu tồn kho phụ tùng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+            <Label text="VẬT TƯ &amp; PHỤ TÙNG" styleClass="sidebar-section-title" />
+            <Button text="Đề xuất xuất kho phụ tùng" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
+            <Button text="Tra cứu tồn kho phụ tùng" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
 
             <!-- Nhóm: Nhật ký -->
-            <Label text="Nhật ký &amp; Lịch sử" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-            <Button text="Lịch sử ca sửa hoàn tất" maxWidth="Infinity" alignment="CENTER_LEFT"
-                    style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
+            <Label text="NHẬT KÝ &amp; LỊCH SỬ" styleClass="sidebar-section-title" />
+            <Button text="Lịch sử ca sửa hoàn tất" maxWidth="Infinity" alignment="CENTER_LEFT" styleClass="sidebar-nav-btn" />
         </VBox>
     </ScrollPane>
 

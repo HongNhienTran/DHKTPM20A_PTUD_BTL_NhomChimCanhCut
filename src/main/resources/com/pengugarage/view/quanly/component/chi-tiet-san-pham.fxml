@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- ===================================================================== -->
+<!-- COMPONENT XEM & CHỈNH SỬA CHI TIẾT SẢN PHẨM (chi-tiet-san-pham.fxml)   -->
+<!-- Bố cục dạng Form nhập liệu mở rộng phía dưới bảng TableView            -->
+<!-- Các ô input có nền TRẮNG (#FFFFFF), chữ tối (#0F172A) tương phản cao   -->
+<!-- ===================================================================== -->
+
+<VBox fx:id="rootPane" spacing="14.0"
+      style="-fx-background-color: #182e47; -fx-border-color: #27456b; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-padding: 18px 24px;"
+      xmlns="http://javafx.com/javafx/26"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.component.ChiTietSanPhamController">
+
+    <!-- 1. Header Panel: Tiêu đề + Mã SP + Nút Đóng -->
+    <HBox alignment="CENTER_LEFT" spacing="12.0">
+        <Label style="-fx-text-fill: #f47b31; -fx-font-weight: 800; -fx-font-size: 14px; -fx-letter-spacing: 0.5px;"
+               text="CHI TIẾT &amp; CHỈNH SỬA SẢN PHẨM" />
+        <Label fx:id="detailMaSPLabel"
+               style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-border-radius: 4px; -fx-text-fill: #38bdf8; -fx-padding: 3px 10px; -fx-background-radius: 4px; -fx-font-weight: bold; -fx-font-size: 11px;"
+               text="---" />
+
+        <Region HBox.hgrow="ALWAYS" />
+
+        <Label fx:id="thongBaoLuuLabel" style="-fx-font-size: 12px; -fx-font-weight: bold;" text="" />
+
+        <Button onAction="#onDongClick"
+                style="-fx-background-color: #223e60; -fx-text-fill: #cbd5e1; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 6px; -fx-cursor: hand; -fx-padding: 6px 14px;"
+                text="✕ Đóng" />
+    </HBox>
+
+    <Separator style="-fx-opacity: 0.15;" />
+
+    <!-- 2. Nội dung Form chỉnh sửa: Chia cột Ảnh (Trái) + Form TextField Nền Trắng (Phải) -->
+    <HBox alignment="TOP_LEFT" spacing="24.0">
+
+        <!-- CỘT TRÁI: Khung Preview Ảnh lớn + Nút Chọn/Đổi Ảnh -->
+        <VBox alignment="CENTER" prefWidth="200.0" minWidth="200.0" spacing="10.0">
+            <!-- Khung Ảnh Preview (Nền trắng nhẹ để thấy rõ chi tiết ảnh phụ tùng) -->
+            <StackPane maxHeight="160.0" maxWidth="200.0" prefHeight="160.0" prefWidth="200.0"
+                       style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-border-radius: 8px; -fx-background-radius: 8px;">
+                <ImageView fx:id="previewImageView" fitHeight="150.0" fitWidth="190.0"
+                           preserveRatio="true" visible="false" />
+                <Label fx:id="previewPlaceholderLabel"
+                       style="-fx-text-fill: #64748b; -fx-font-size: 12px;"
+                       text="📷 Chưa có hình ảnh" />
+            </StackPane>
+
+            <!-- Nút Chọn / Đổi Ảnh -->
+            <Button maxWidth="Infinity" onAction="#onChonAnhClick"
+                    style="-fx-background-color: #223e60; -fx-text-fill: #e2e8f0; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 8px; -fx-background-radius: 6px; -fx-cursor: hand;"
+                    text="📁 Đổi hình ảnh..." />
+        </VBox>
+
+        <!-- CỘT PHẢI: Toàn bộ Form Thông Tin dạng TextField & ComboBox Nền Trắng Sáng Sủa -->
+        <VBox spacing="14.0" HBox.hgrow="ALWAYS">
+
+            <!-- HÀNG 1: Tên SP + Danh mục + Đơn vị tính + Trạng thái kinh doanh -->
+            <HBox spacing="16.0">
+                <!-- Tên Sản Phẩm (Nền Trắng) -->
+                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: bold;"
+                           text="TÊN SẢN PHẨM / PHỤ TÙNG (*)" />
+                    <TextField fx:id="tenSanPhamField"
+                               promptText="Nhập tên sản phẩm..."
+                               style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+                </VBox>
+
+                <!-- Danh Mục (ComboBox Nền Trắng) -->
+                <VBox prefWidth="180.0" spacing="4.0">
+                    <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: bold;"
+                           text="DANH MỤC (*)" />
+                    <ComboBox fx:id="danhMucCombo" maxWidth="Infinity"
+                              style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 3px;"
+                              styleClass="light-combo-box" />
+                </VBox>
+
+                <!-- Đơn Vị Tính (TextField Nền Trắng) -->
+                <VBox prefWidth="120.0" spacing="4.0">
+                    <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: bold;"
+                           text="ĐƠN VỊ TÍNH (*)" />
+                    <TextField fx:id="donViTinhField"
+                               promptText="Cái, Can, Bộ..."
+                               style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+                </VBox>
+
+                <!-- Trạng Thái Kinh Doanh (ComboBox Nền Trắng) -->
+                <VBox prefWidth="170.0" spacing="4.0">
+                    <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: bold;"
+                           text="TRẠNG THÁI KINH DOANH" />
+                    <ComboBox fx:id="trangThaiCombo" maxWidth="Infinity"
+                              style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 3px;"
+                              styleClass="light-combo-box" />
+                </VBox>
+            </HBox>
+
+            <!-- HÀNG 2: Giá bán + Giá nhập + Tồn kho + Tồn tối thiểu + Thuế VAT + Nút Lưu -->
+            <HBox alignment="BOTTOM_LEFT" spacing="16.0">
+                <!-- Đơn Giá Bán (Nền Trắng - Chữ Cam Nổi Bật) -->
+                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: bold;"
+                           text="ĐƠN GIÁ BÁN (VNĐ) (*)" />
+                    <TextField fx:id="donGiaBanField"
+                               promptText="0"
+                               style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #EA580C; -fx-font-weight: 800; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+                </VBox>
+
+                <!-- Giá Nhập Kho (Nền Trắng) -->
+                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: bold;"
+                           text="GIÁ NHẬP KHO (VNĐ)" />
+                    <TextField fx:id="giaNhapField"
+                               promptText="0"
+                               style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+                </VBox>
+
+                <!-- Số Lượng Tồn (Nền Trắng - Chữ Xanh Nổi Bật) -->
+                <VBox prefWidth="120.0" spacing="4.0">
+                    <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: bold;"
+                           text="SỐ LƯỢNG TỒN" />
+                    <TextField fx:id="soLuongTonField"
+                               promptText="0"
+                               style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #16A34A; -fx-font-weight: 800; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+                </VBox>
+
+                <!-- Tồn Tối Thiểu (Nền Trắng) -->
+                <VBox prefWidth="110.0" spacing="4.0">
+                    <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: bold;"
+                           text="TỒN TỐI THIỂU" />
+                    <TextField fx:id="soLuongTonToiThieuField"
+                               promptText="5"
+                               style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+                </VBox>
+
+                <!-- Thuế VAT (Nền Trắng) -->
+                <VBox prefWidth="100.0" spacing="4.0">
+                    <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: bold;"
+                           text="THUẾ VAT (%)" />
+                    <TextField fx:id="thueVATField"
+                               promptText="10.0"
+                               style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+                </VBox>
+
+                <!-- Nút Lưu Thay Đổi -->
+                <VBox alignment="BOTTOM_CENTER" prefWidth="150.0">
+                    <Button fx:id="btnLuuThayDoi" maxWidth="Infinity" onAction="#onLuuThayDoiClick"
+                            style="-fx-background-color: #f47b31; -fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-font-size: 12px; -fx-padding: 9px 16px; -fx-background-radius: 6px; -fx-cursor: hand;"
+                            text="💾 Lưu thay đổi" />
+                </VBox>
+            </HBox>
+        </VBox>
+    </HBox>
+</VBox>

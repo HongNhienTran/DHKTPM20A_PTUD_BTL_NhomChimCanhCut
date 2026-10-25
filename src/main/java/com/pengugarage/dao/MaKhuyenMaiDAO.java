@@ -13,19 +13,48 @@ import java.util.List;
 
 public class MaKhuyenMaiDAO {
 
+    // =========================================================================
+    // TASK M03-T01: Hiển thị danh sách, hiển thị chi tiết, lọc trên giao diện
+    // Người thực hiện: Nhiên
+    // =========================================================================
     public List<MaKhuyenMai> layTatCa() {
         List<MaKhuyenMai> list = new ArrayList<>();
         String sql = "SELECT * FROM `ma_khuyen_mai` ORDER BY `id` ASC";
-        try(Connection conn = CoSoDuLieuUtil.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapResultSetToMaKhuyenMai(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Lỗi truy vấn danh sách mã khuyến mãi: " + e.getMessage(), e);
         }
         return list;
+    }
+
+    public MaKhuyenMai layChiTietMaKhuyenMaiTheoID(int id) {
+        String sql = "SELECT * FROM `ma_khuyen_mai` WHERE `id` = ?";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToMaKhuyenMai(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi truy vấn chi tiết mã khuyến mãi: " + e.getMessage(), e);
+        }
+        return null;
+    }
+
+    // =========================================================================
+    // TASK M03-T02: Nhập thông tin mã khuyến mãi và thêm
+    // Người thực hiện: Tuấn
+    // =========================================================================
+    public boolean them(MaKhuyenMai km) {
+        // TODO: Tuấn thực hiện chức năng nhập thông tin mã khuyến mãi và thêm
+        return false;
     }
 
     private MaKhuyenMai mapResultSetToMaKhuyenMai(ResultSet rs) throws SQLException {
@@ -45,3 +74,4 @@ public class MaKhuyenMaiDAO {
         return maKhuyenMai;
     }
 }
+
