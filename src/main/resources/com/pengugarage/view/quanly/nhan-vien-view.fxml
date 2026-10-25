@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #112032;" stylesheets="@../../css/style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pengugarage.controller.NhanVienController">
+
+    <!-- Sidebar Quản Lý (Màu Navy đậm thương hiệu #0d1826) -->
+    <fx:include source="component/sidebar-quanly.fxml" />
+
+    <!-- Nền Vùng Nội Dung: Màu Slate Navy êm mắt #112032 (giảm độ đậm so với sidebar, không bị chói) -->
+    <VBox spacing="18.0" style="-fx-background-color: #112032;" HBox.hgrow="ALWAYS">
+        <padding>
+            <Insets bottom="24.0" left="28.0" right="28.0" top="24.0" />
+        </padding>
+
+        <!-- Top Header Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="16.0">
+            <VBox spacing="2.0">
+                <Label style="-fx-text-fill: #ffffff; -fx-font-size: 25px; -fx-font-weight: 900;" text="Quản Lý Nhân Sự &amp; Tài Khoản" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="thongBaoLabel" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="" />
+        </HBox>
+
+        <!-- Search & Filter Toolbar: Component Card (#182e47) -->
+        <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: #182e47; -fx-padding: 14px 18px; -fx-background-radius: 10px; -fx-border-color: #27456b; -fx-border-radius: 10px;">
+            <TextField fx:id="timKiemField" promptText="🔍 Tìm theo Mã NV, Họ tên hoặc SĐT..." style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 9px 14px; -fx-background-radius: 6px; -fx-border-radius: 6px; -fx-font-size: 13px;" HBox.hgrow="ALWAYS" />
+            <ComboBox fx:id="locChucVuCombo" prefWidth="170.0" promptText="Chức vụ" style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 3px;" styleClass="light-combo-box" />
+            <ComboBox fx:id="locTrangThaiCombo" prefWidth="160.0" promptText="Trạng thái" style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 3px;" styleClass="light-combo-box" />
+            <Button onAction="#onTimKiemClick" style="-fx-padding: 9px 18px; -fx-font-size: 12px;" styleClass="login-submit-button" text="Tìm Kiếm" />
+            <Button graphicTextGap="0.0" onAction="#onLamMoiClick" style="-fx-background-color: #223e60; -fx-text-fill: #ffffff; -fx-padding: 9px 16px; -fx-background-radius: 8px; -fx-cursor: hand;" text="🔄" />
+        </HBox>
+
+        <!-- Main Content: Table + Form Split (Component Card #182e47) -->
+        <HBox spacing="18.0" VBox.vgrow="ALWAYS">
+            <!-- Bảng danh sách nhân viên: Nền Card #182e47 -->
+            <VBox spacing="10.0" style="-fx-background-color: #182e47; -fx-border-color: #27456b; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 16px;" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT">
+                    <Label style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 15px;" text="Danh Sách Nhân Sự Gara" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label fx:id="tongSoLabel" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" text="Tổng số: 0 nhân viên" />
+                </HBox>
+
+                <TableView fx:id="nhanVienTable" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-border-radius: 6px;" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colMaNV" prefWidth="100.0" text="Mã NV" />
+                        <TableColumn fx:id="colHoTen" prefWidth="180.0" text="Họ và Tên" />
+                        <TableColumn fx:id="colSDT" prefWidth="120.0" text="Số Điện Thoại" />
+                        <TableColumn fx:id="colDiaChi" prefWidth="200.0" text="Địa Chỉ" />
+                        <TableColumn fx:id="colChucVu" prefWidth="130.0" text="Chức Vụ" />
+                        <TableColumn fx:id="colTrangThai" prefWidth="110.0" text="Trạng Thái" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+
+            <!-- Form nhập thông tin nhân viên & tài khoản: Nền Card #182e47 -->
+            <VBox prefWidth="380.0" spacing="14.0" style="-fx-background-color: #182e47; -fx-border-color: #27456b; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 18px;">
+                
+                <Label style="-fx-text-fill: #f47b31; -fx-font-weight: 800; -fx-font-size: 15px;" text="Chi Tiết Nhân Sự" />
+
+                <!-- Mã NV -->
+                <VBox spacing="4.0">
+                    <Label styleClass="dark-field-label" text="MÃ NHÂN VIÊN" />
+                    <TextField fx:id="maNVField" editable="false" promptText="Hệ thống tự sinh theo chức vụ" style="-fx-opacity: 0.8; -fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-text-fill: #94a3b8;" styleClass="dark-text-field" />
+                </VBox>
+
+                <!-- Họ tên -->
+                <VBox spacing="4.0">
+                    <Label styleClass="dark-field-label" text="HỌ VÀ TÊN (*)" />
+                    <TextField fx:id="hoTenField" promptText="Nhập họ và tên đầy đủ" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #64748b;" styleClass="dark-text-field" />
+                </VBox>
+
+                <!-- SĐT -->
+                <VBox spacing="4.0">
+                    <Label styleClass="dark-field-label" text="SỐ ĐIỆN THOẠI (* 10 số)" />
+                    <TextField fx:id="sdtField" promptText="Ví dụ: 0901234567" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #64748b;" styleClass="dark-text-field" />
+                </VBox>
+
+                <!-- Địa chỉ -->
+                <VBox spacing="4.0">
+                    <Label styleClass="dark-field-label" text="ĐỊA CHỈ" />
+                    <TextField fx:id="diaChiField" promptText="Địa chỉ cư trú" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #64748b;" styleClass="dark-text-field" />
+                </VBox>
+
+                <!-- Chức vụ -->
+                <VBox spacing="4.0">
+                    <Label styleClass="dark-field-label" text="CHỨC VỤ (*)" />
+                    <ComboBox fx:id="chucVuField" maxWidth="Infinity" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-border-radius: 6px; -fx-text-fill: #ffffff;" />
+                </VBox>
+
+                <!-- Action Buttons -->
+                <VBox spacing="8.0" style="-fx-padding: 8px 0 0 0;">
+                    <HBox spacing="10.0">
+                        <Button maxWidth="Infinity" onAction="#onThemClick" style="-fx-background-color: #10b981; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-padding: 10px; -fx-background-radius: 6px; -fx-cursor: hand;" text="Thêm Mới" HBox.hgrow="ALWAYS" />
+                        <Button maxWidth="Infinity" onAction="#onCapNhatClick" style="-fx-background-color: #f47b31; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-padding: 10px; -fx-background-radius: 6px; -fx-cursor: hand;" text="Cập Nhật" HBox.hgrow="ALWAYS" />
+                    </HBox>
+
+                    <Button fx:id="btnKhoaMoKhoa" maxWidth="Infinity" onAction="#onDoiTrangThaiClick" style="-fx-background-color: #dc2626; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-padding: 10px; -fx-background-radius: 6px; -fx-cursor: hand;" text="Khóa / Mở Khóa Nhân Viên" />
+                    
+                    <Button maxWidth="Infinity" onAction="#onQuanLyTaiKhoanClick" style="-fx-background-color: #223e60; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-padding: 10px; -fx-background-radius: 6px; -fx-cursor: hand;" text="Tạo / Đổi Mật Khẩu Tài Khoản (M01-T08)" />
+
+                    <Button maxWidth="Infinity" onAction="#onXoaTrangClick" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;" text="Xóa Trắng Form" />
+                </VBox>
+            </VBox>
+        </HBox>
+
+    </VBox>
+</HBox>

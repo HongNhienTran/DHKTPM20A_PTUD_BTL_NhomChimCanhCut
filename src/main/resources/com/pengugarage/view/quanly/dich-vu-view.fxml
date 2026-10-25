@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- ===================================================================== -->
+<!-- MÀN HÌNH QUẢN LÝ DỊCH VỤ SỬA CHỮA GARA (dich-vu-view.fxml)            -->
+<!-- Bố cục: Sidebar Quản lý + Toolbar Tìm kiếm + TableView + Panel Chi tiết-->
+<!-- Tone màu: Slate Navy #112032, Card #182e47, Ô nhập nền Trắng #FFFFFF   -->
+<!-- ===================================================================== -->
+
+<HBox prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #112032;" stylesheets="@../../css/style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pengugarage.controller.DichVuController">
+
+    <!-- 1. Thanh Sidebar Quản Lý -->
+    <fx:include source="component/sidebar-quanly.fxml" />
+
+    <!-- 2. Vùng Nội Dung Làm Việc Chính (Slate Navy #112032) -->
+    <VBox spacing="18.0" style="-fx-background-color: #112032;" HBox.hgrow="ALWAYS">
+        <padding>
+            <Insets bottom="24.0" left="28.0" right="28.0" top="24.0" />
+        </padding>
+
+        <!-- Top Header Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="16.0">
+
+            <VBox spacing="2.0">
+                <Label style="-fx-text-fill: #ffffff; -fx-font-size: 25px; -fx-font-weight: 900;" text="Quản Lý Dịch Vụ Sửa Chữa &amp; Bảo Dưỡng" />
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <Label fx:id="thongBaoLabel" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="" />
+
+            <Button onAction="#onThemMoiClick" style="-fx-background-color: #f47b31; -fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-font-size: 13px; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;" text="+ Thêm Dịch Vụ Mới" />
+        </HBox>
+
+        <!-- Toolbar Tìm Kiếm & Lọc: Card (#182e47) - Ô Nhập Nền Trắng Sáng Sủa -->
+        <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: #182e47; -fx-padding: 14px 18px; -fx-background-radius: 10px; -fx-border-color: #27456b; -fx-border-radius: 10px;">
+            <TextField fx:id="timKiemField" promptText="Tìm theo Mã DV, Tên dịch vụ, Mô tả..." style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 9px 14px; -fx-background-radius: 6px; -fx-border-radius: 6px; -fx-font-size: 13px;" HBox.hgrow="ALWAYS" />
+
+            <ComboBox fx:id="locTrangThaiCombo" prefWidth="170.0" promptText="Trạng thái" style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 3px;" styleClass="light-combo-box" />
+
+            <Button onAction="#onTimKiemClick" style="-fx-padding: 9px 18px; -fx-font-size: 12px;" styleClass="login-submit-button" text="Tìm Kiếm" />
+            <Button graphicTextGap="0.0" onAction="#onLamMoiClick" style="-fx-background-color: #223e60; -fx-text-fill: #ffffff; -fx-padding: 9px 16px; -fx-background-radius: 8px; -fx-cursor: hand;" text="🔄" />
+        </HBox>
+
+        <!-- Main Content: Bảng Danh Sách Full Chiều Ngang + Chi Tiết Sổ Phía Dưới -->
+        <VBox spacing="12.0" VBox.vgrow="ALWAYS">
+
+            <!-- Bảng Danh Sách Dịch Vụ -->
+            <VBox spacing="10.0" style="-fx-background-color: #182e47; -fx-border-color: #27456b; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 16px;" VBox.vgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT">
+                    <Label style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 15px;" text="Danh Sách Các Dịch Vụ Kỹ Thuật" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label fx:id="tongSoLabel" alignment="CENTER_RIGHT" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" text="Tổng số: 0 dịch vụ" />
+                </HBox>
+
+                <TableView fx:id="dichVuTable" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-border-radius: 6px;" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colMaDV" prefWidth="100.0" text="Mã DV" />
+                        <TableColumn fx:id="colTenDV" prefWidth="300.0" text="Tên Dịch Vụ" />
+                        <TableColumn fx:id="colMoTa" prefWidth="380.0" text="Mô Tả Kỹ Thuật" />
+                        <TableColumn fx:id="colDonGia" prefWidth="150.0" text="Đơn Giá" />
+                        <TableColumn fx:id="colThueVAT" prefWidth="90.0" text="VAT" />
+                        <TableColumn fx:id="colTrangThai" prefWidth="120.0" text="Trạng Thái" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+
+            <!-- Khung Xem & Chỉnh Sửa Chi Tiết Dịch Vụ (Sổ ra phía dưới khi chọn dòng) -->
+            <fx:include fx:id="chiTietDichVu" source="component/chi-tiet-dich-vu.fxml" />
+        </VBox>
+    </VBox>
+</HBox>

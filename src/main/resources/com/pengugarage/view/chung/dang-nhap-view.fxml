@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.DangNhapController"
+      stylesheets="@../../css/style.css"
+      styleClass="dark-root, login-background"
+      prefHeight="680.0" prefWidth="1080.0">
+
+    <!-- ================================================================= -->
+    <!-- CỘT BÊN TRÁI: THƯƠNG HIỆU GARA XE (LOGO LỚN)                      -->
+    <!-- ================================================================= -->
+    <VBox styleClass="login-brand-panel" prefWidth="480.0" minWidth="420.0" spacing="24.0" alignment="CENTER">
+
+        <Region VBox.vgrow="ALWAYS" />
+
+        <!-- Logo & Thương hiệu căn giữa -->
+        <VBox spacing="20.0" alignment="CENTER">
+            <StackPane alignment="CENTER" maxWidth="260.0" maxHeight="260.0" styleClass="brand-logo-frame" style="-fx-padding: 16px; -fx-background-radius: 28px;">
+                <ImageView fitHeight="230.0" fitWidth="230.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../../images/logo_pengu-garage.png" />
+                    </image>
+                </ImageView>
+            </StackPane>
+
+            <VBox spacing="8.0" alignment="CENTER">
+                <Label text="PENGU GARAGE" styleClass="brand-title" style="-fx-font-size: 30px; -fx-font-weight: 800; -fx-letter-spacing: 1.5px;" />
+                <Label text="SERVICE ERP • YOUR CAR, OUR CARE" styleClass="brand-slogan" style="-fx-font-size: 13px; -fx-letter-spacing: 2px;" />
+                <Label text="Hệ Thống Quản Lý Dịch Vụ Gara Chuyên Nghiệp" style="-fx-text-fill: #8c9eb2; -fx-font-size: 13px;" />
+            </VBox>
+        </VBox>
+
+        <Region VBox.vgrow="ALWAYS" />
+
+        <!-- Footer phiên bản -->
+        <HBox alignment="CENTER" spacing="8.0">
+            <Label text="●" style="-fx-text-fill: #10b981; -fx-font-size: 10px;" />
+            <Label text="Hệ Thống Trực Tuyến • v1.0.0 Enterprise" style="-fx-text-fill: #607996; -fx-font-size: 11px;" />
+        </HBox>
+    </VBox>
+
+    <!-- ================================================================= -->
+    <!-- CỘT BÊN PHẢI: FORM ĐĂNG NHẬP & QUICK LOGIN DEMO                   -->
+    <!-- ================================================================= -->
+    <VBox styleClass="login-form-panel" HBox.hgrow="ALWAYS" alignment="CENTER">
+
+        <VBox styleClass="login-card" spacing="22.0">
+
+            <!-- Card Header -->
+            <VBox spacing="6.0">
+                <Label text="Đăng Nhập Hệ Thống" styleClass="login-header-title" />
+                <Label text="Chào mừng trở lại! Vui lòng nhập thông tin để truy cập gara." styleClass="login-header-subtitle" />
+            </VBox>
+
+            <!-- Hộp cảnh báo thông báo lỗi/thành công -->
+            <VBox fx:id="alertBox" managed="false" visible="false" styleClass="login-alert-box">
+                <Label fx:id="alertLabel" text="Thông báo trạng thái" styleClass="login-alert-text" wrapText="true" />
+            </VBox>
+
+            <!-- Form Fields -->
+            <VBox spacing="16.0">
+
+                <!-- Trường Tên đăng nhập -->
+                <VBox spacing="6.0">
+                    <Label text="TÊN ĐĂNG NHẬP / MÃ NHÂN VIÊN" styleClass="dark-field-label" />
+                    <TextField fx:id="usernameField"
+                               promptText="Ví dụ: NV_QL_001, NV_KTV_002, NV_LT_006..."
+                               styleClass="dark-text-field" />
+                </VBox>
+
+                <!-- Trường Mật khẩu -->
+                <VBox spacing="6.0">
+                    <Label text="MẬT KHẨU" styleClass="dark-field-label" />
+                    <StackPane alignment="CENTER_RIGHT">
+                        <!-- Ô mật khẩu ẩn dấu sao -->
+                        <PasswordField fx:id="passwordField"
+                                       promptText="Nhập mật khẩu của bạn"
+                                       styleClass="dark-text-field"
+                                       style="-fx-padding: 11px 40px 11px 14px;" />
+                        
+                        <!-- Ô văn bản mật khẩu hiển thị khi toggle xem -->
+                        <TextField fx:id="passwordTextField"
+                                   promptText="Nhập mật khẩu của bạn"
+                                   styleClass="dark-text-field"
+                                   style="-fx-padding: 11px 40px 11px 14px;"
+                                   managed="false"
+                                   visible="false" />
+
+                        <!-- Nút mắt Show / Hide Mật khẩu -->
+                        <Button fx:id="togglePasswordBtn"
+                                text="👁"
+                                onAction="#onTogglePasswordVisibility"
+                                styleClass="eye-toggle-btn"
+                                focusTraversable="false" />
+                    </StackPane>
+                </VBox>
+
+                <!-- Tiện ích: Ghi nhớ & Quên mật khẩu -->
+                <HBox alignment="CENTER_LEFT">
+                    <CheckBox fx:id="rememberCheckBox" text="Ghi nhớ đăng nhập" styleClass="dark-check-box" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Hyperlink text="Quên mật khẩu?" onAction="#onForgotPasswordClick" styleClass="forgot-link" />
+                </HBox>
+
+                <!-- Nút Đăng Nhập Chính (Action Orange) -->
+                <Button fx:id="loginButton"
+                        text="ĐĂNG NHẬP VÀO HỆ THỐNG"
+                        onAction="#onLoginClick"
+                        maxWidth="Infinity"
+                        styleClass="login-submit-button" />
+            </VBox>
+
+            <!-- Phân vùng Đăng nhập nhanh theo vai trò (Quick Demo Roles) -->
+            <VBox spacing="8.0" styleClass="quick-login-box">
+                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                    <Label text="⚡" style="-fx-font-size: 13px;" />
+                    <Label text="ĐĂNG NHẬP NHANH THEO VAI TRÒ (DEMO):" styleClass="quick-login-title" />
+                </HBox>
+
+                <HBox spacing="8.0" alignment="CENTER">
+                    <Button text="👔 Quản lý"
+                            onAction="#onQuickAdminClick"
+                            HBox.hgrow="ALWAYS"
+                            maxWidth="Infinity"
+                            styleClass="quick-role-btn, quick-role-btn-admin" />
+                    <Button text="🔧 Kỹ thuật viên"
+                            onAction="#onQuickTechClick"
+                            HBox.hgrow="ALWAYS"
+                            maxWidth="Infinity"
+                            styleClass="quick-role-btn, quick-role-btn-tech" />
+                    <Button text="👩‍💼 Lễ tân"
+                            onAction="#onQuickFrontClick"
+                            HBox.hgrow="ALWAYS"
+                            maxWidth="Infinity"
+                            styleClass="quick-role-btn, quick-role-btn-front" />
+                </HBox>
+            </VBox>
+
+        </VBox>
+    </VBox>
+
+</HBox>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- ===================================================================== -->
+<!-- MODAL THÊM DỊCH VỤ MỚI                                               -->
+<!-- Tone màu: Slate Navy Card #182e47, Viền #27456b                       -->
+<!-- Người thực hiện: Tân (Task M03-T02)                                  -->
+<!-- ===================================================================== -->
+
+<VBox fx:id="rootPane" prefWidth="540.0" spacing="18.0"
+      style="-fx-background-color: #182e47; -fx-border-color: #27456b; -fx-border-width: 2px; -fx-border-radius: 12px; -fx-background-radius: 12px;"
+      stylesheets="@../../../css/style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.component.ModalThemDichVuController">
+
+    <padding>
+        <Insets bottom="24.0" left="28.0" right="28.0" top="24.0" />
+    </padding>
+
+    <!-- Header Modal -->
+    <HBox alignment="CENTER_LEFT" spacing="12.0">
+        <VBox spacing="4.0">
+            <Label style="-fx-text-fill: #ffffff; -fx-font-size: 20px; -fx-font-weight: 900;"
+                   text="➕ Thêm Dịch Vụ Mới" />
+            <Label style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"
+                   text="Nhập thông tin dịch vụ kỹ thuật gara (Task M03-T02 - Tân)" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button onAction="#onDongClick"
+                style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-font-size: 18px; -fx-font-weight: bold; -fx-cursor: hand;"
+                text="✕" />
+    </HBox>
+
+    <!-- Form Nhập Liệu -->
+    <GridPane hgap="14.0" vgap="14.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="140.0" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" />
+        </columnConstraints>
+
+        <!-- Mã Dịch Vụ -->
+        <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
+               text="Mã dịch vụ:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <TextField fx:id="maDichVuField" promptText="VD: DV-001, DV-BAODUONG..."
+                   style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+        <!-- Tên Dịch Vụ -->
+        <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
+               text="Tên dịch vụ (*):" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <TextField fx:id="tenDichVuField" promptText="VD: Thay dầu máy động cơ, Cân chỉnh góc lái..."
+                   style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+        <!-- Đơn Giá (VNĐ) -->
+        <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
+               text="Đơn giá (VNĐ) (*):" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <TextField fx:id="donGiaField" promptText="VD: 250000"
+                   style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;"
+                   GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+        <!-- Thuế VAT (%) -->
+        <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
+               text="Thuế VAT (%):" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+        <TextField fx:id="thueVATField" promptText="10"
+                   style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+        <!-- Mô Tả Dịch Vụ -->
+        <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
+               text="Mô tả kỹ thuật:" GridPane.rowIndex="4" GridPane.columnIndex="0" alignment="TOP_LEFT" />
+        <TextArea fx:id="moTaArea" prefRowCount="3" promptText="Mô tả các bước thực hiện, ghi chú kỹ thuật..."
+                  style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-background-radius: 6px; -fx-border-radius: 6px;"
+                  wrapText="true" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+        <!-- Trạng Thái -->
+        <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
+               text="Trạng thái:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+        <ComboBox fx:id="trangThaiCombo" prefWidth="250.0"
+                  style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 3px;"
+                  GridPane.rowIndex="5" GridPane.columnIndex="1" />
+    </GridPane>
+
+    <!-- Nhãn thông báo -->
+    <Label fx:id="thongBaoLabel" style="-fx-font-size: 12px; -fx-font-weight: bold;" text="" />
+
+    <!-- Footer Action Buttons -->
+    <HBox alignment="CENTER_RIGHT" spacing="12.0">
+        <Button onAction="#onDongClick"
+                style="-fx-background-color: #223e60; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;"
+                text="Hủy bỏ" />
+        <Button onAction="#onLuuClick"
+                style="-fx-background-color: #f47b31; -fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-padding: 10px 24px; -fx-background-radius: 8px; -fx-cursor: hand;"
+                text="Lưu Dịch Vụ" />
+    </HBox>
+
+</VBox>
