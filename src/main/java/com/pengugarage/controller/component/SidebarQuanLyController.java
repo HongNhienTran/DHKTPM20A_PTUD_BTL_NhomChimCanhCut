@@ -22,6 +22,9 @@ public class SidebarQuanLyController extends BaseSidebarController {
     private Button btnQuanLyDichVu;
 
     @FXML
+    private Button btnQuanLyMaKhuyenMai;
+
+    @FXML
     private Button btnBaoCaoThongKe;
 
     @FXML

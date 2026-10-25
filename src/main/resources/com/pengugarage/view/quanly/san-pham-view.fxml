@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<HBox prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #112032;" stylesheets="@../../css/style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.SanPhamController">
+
+    <fx:include source="component/sidebar-quanly.fxml" />
+
+    <VBox HBox.hgrow="ALWAYS" spacing="18.0" style="-fx-background-color: #112032;">
+        <padding>
+            <Insets bottom="24.0" left="28.0" right="28.0" top="24.0" />
+        </padding>
+        <HBox alignment="CENTER_LEFT" spacing="16.0">
+            <VBox prefHeight="23.0" prefWidth="285.0" spacing="2.0">
+                <Label style="-fx-text-fill: #ffffff; -fx-font-size: 20px; -fx-font-weight: 800;" text="Quản Lý Nhân Sự &amp; Tài Khoản" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="thongBaoLabel" style="-fx-font-size: 13px; -fx-font-weight: bold;" text="" />
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: #182e47; -fx-padding: 14px 18px; -fx-background-radius: 10px; -fx-border-color: #27456b; -fx-border-radius: 10px;">
+            <Label style="-fx-font-size: 14px; -fx-text-fill: #94a3b8;" text="🔍" />
+            <TextField fx:id="" promptText="Tìm theo Mã NV, Họ tên hoặc SĐT..." style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #64748b;" styleClass="dark-text-field" HBox.hgrow="ALWAYS" />
+
+            <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 12px; -fx-font-weight: bold;" text="Chức vụ:" />
+            <ComboBox fx:id="" prefWidth="150.0" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-border-radius: 6px; -fx-text-fill: #ffffff;" />
+
+            <Label style="-fx-text-fill: #cbd5e1; -fx-font-size: 12px; -fx-font-weight: bold;" text="Trạng thái:" />
+            <ComboBox fx:id="" prefWidth="150.0" style="-fx-background-color: #0d1a29; -fx-border-color: #27456b; -fx-border-radius: 6px; -fx-text-fill: #ffffff;" />
+
+            <Button onAction="" style="-fx-padding: 9px 18px; -fx-font-size: 12px;" styleClass="login-submit-button" text="Tìm Kiếm" />
+            <Button onAction="" style="-fx-background-color: #223e60; -fx-text-fill: #ffffff; -fx-padding: 9px 16px; -fx-background-radius: 8px; -fx-cursor: hand;" text="Làm Mới" />
+        </HBox>
+
+    </VBox>
+</HBox>

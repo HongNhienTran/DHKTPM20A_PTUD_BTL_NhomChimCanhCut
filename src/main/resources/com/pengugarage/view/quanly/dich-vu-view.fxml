@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.DichVuController"
+      stylesheets="@../../css/style.css"
+      style="-fx-background-color: #112032;"
+      prefHeight="760.0" prefWidth="1280.0">
+
+    <!-- 1. Thanh Sidebar Quản Lý (Nền Navy #0d1826) -->
+    <fx:include source="component/sidebar-quanly.fxml" />
+
+    <!-- 2. KHU VỰC NỘI DUNG: MÀU SLATE NAVY #112032 (Êm mắt, giảm độ đậm so với sidebar, không chói) -->
+    <VBox HBox.hgrow="ALWAYS" spacing="18.0" style="-fx-background-color: #112032;">
+        <padding>
+            <Insets top="24.0" right="28.0" bottom="24.0" left="28.0"/>
+        </padding>
+
+        <!-- BẮT ĐẦU KÉO THẢ TỪ ĐÂY (Header, Thanh tìm kiếm, Bảng Table, Form...) -->
+
+    </VBox>
+
+</HBox>
