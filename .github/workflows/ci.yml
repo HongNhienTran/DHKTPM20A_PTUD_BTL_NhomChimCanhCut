@@ -1,0 +1,49 @@
+name: Pengu Garage CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & Verify Project
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up JDK 21 (Eclipse Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: ⚙️ Setup Environment Config
+        run: |
+          cp .env.example .env
+          echo "Created mock .env for CI environment"
+
+      - name: 🔨 Compile with Maven
+        run: mvn clean compile --batch-mode
+
+      - name: 🧪 Run Unit Tests
+        run: mvn test --batch-mode -Djava.awt.headless=true
+
+      - name: 📦 Package Application Artifact (JAR)
+        run: mvn package --batch-mode -DskipTests
+
+      - name: 📤 Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pengu-garage-erp-build
+          path: target/*.jar
+          retention-days: 7

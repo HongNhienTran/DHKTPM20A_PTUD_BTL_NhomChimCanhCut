@@ -31,6 +31,11 @@
 
 # Pengu Garage Service ERP
 
+[![CI/CD Pipeline](https://github.com/HongNhienTran/DHKTPM20A_PTUD_BTL_NhomChimCanhCut/actions/workflows/ci.yml/badge.svg)](https://github.com/HongNhienTran/DHKTPM20A_PTUD_BTL_NhomChimCanhCut/actions/workflows/ci.yml)
+![Java](https://img.shields.io/badge/Java-21-orange.svg)
+![JavaFX](https://img.shields.io/badge/JavaFX-21-blue.svg)
+![Database](https://img.shields.io/badge/MariaDB-10.11%2B-teal.svg)
+
 Hệ thống quản lý dịch vụ gara ô tô / xe máy xây dựng bằng **Java 21**, **JavaFX 21**, **FXML**, **CSS** và **JDBC**, sử dụng cơ sở dữ liệu **MariaDB**.
 
 ---
@@ -39,6 +44,9 @@ Hệ thống quản lý dịch vụ gara ô tô / xe máy xây dựng bằng **J
 
 ```
 pengugarage/
+├── .github/                                     # Cấu hình tự động hóa GitHub
+│   └── workflows/
+│       └── ci.yml                               # CI/CD Pipeline tự động build & test khi merge main/dev
 ├── pom.xml                                      # Quản lý thư viện và plugin build Maven
 ├── README.md                                    # Tài liệu thông tin nhóm và dự án
 ├── huong_dan.md                                 # Cẩm nang phát triển tính năng mới & tích hợp luồng code
@@ -196,3 +204,20 @@ mvn javafx:run
 | **M01-T06** | Điều hướng giao diện | Trần Hồng Nhiên | **Hoàn thành** | Màn hình Splash khởi động, Dashboard quản trị tự động full màn hình |
 | **M01-T07** | Quản lý nhân viên | Trần Hồng Nhiên | **Hoàn thành** | Thêm, sửa, tìm kiếm theo tên/SĐT, khóa/mở trạng thái nhân viên |
 | **M01-T08** | Quản lý tài khoản | Trần Hồng Nhiên | **Hoàn thành** | Cấp tài khoản liên kết nhân viên, đổi mật khẩu bảo mật SHA-256 |
+
+---
+
+## 7. Quy Trình Tự Động Hóa CI/CD (GitHub Actions)
+
+Dự án tích hợp sẵn **GitHub Actions CI/CD Pipeline** tại [`.github/workflows/ci.yml`](file:///.github/workflows/ci.yml):
+
+- **Điều kiện kích hoạt (Triggers)**: Tự động chạy mỗi khi có thao tác `push` hoặc `pull_request` (merge) vào 2 nhánh chính: **`main`** hoặc **`dev`**.
+- **Môi trường thực thi**: `ubuntu-latest` chạy trên nền tảng **Java 21 (Eclipse Temurin)** với cơ chế lưu bộ nhớ đệm (Maven Caching) giúp tăng tốc độ build.
+- **Các bước kiểm thử tự động**:
+  1. `actions/checkout@v4`: Kéo mã nguồn mới nhất.
+  2. Khởi tạo môi trường cấu hình ảo (`cp .env.example .env`).
+  3. `mvn clean compile`: Kiểm tra lỗi biên dịch mã nguồn và ràng buộc thư viện.
+  4. `mvn test -Djava.awt.headless=true`: Chạy kiểm thử tự động ở chế độ không màn hình.
+  5. `mvn package -DskipTests`: Đóng gói ứng dụng thành file JAR.
+  6. `actions/upload-artifact@v4`: Xuất file JAR lên Artifacts của GitHub Actions để tải về chạy thử.
+
