@@ -11,17 +11,21 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/21"
+<HBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.pengugarage.controller.NhanVienController"
       stylesheets="@../../css/style.css"
       styleClass="dark-root"
-      spacing="18.0"
-      prefHeight="760.0" prefWidth="1200.0">
+      prefHeight="760.0" prefWidth="1280.0">
 
-    <padding>
-        <Insets bottom="24.0" left="28.0" right="28.0" top="24.0"/>
-    </padding>
+    <!-- Sidebar Quản Lý (Nhúng Component Tái Sử Dụng) -->
+    <fx:include source="component/sidebar-quanly.fxml" />
+
+    <!-- Nội dung chính Quản lý nhân viên -->
+    <VBox HBox.hgrow="ALWAYS" spacing="18.0" style="-fx-background-color: #0b131f;">
+        <padding>
+            <Insets bottom="24.0" left="28.0" right="28.0" top="24.0"/>
+        </padding>
 
     <!-- Top Header Bar -->
     <HBox alignment="CENTER_LEFT" spacing="16.0">
@@ -151,4 +155,5 @@
         </VBox>
     </HBox>
 
-</VBox>
+    </VBox>
+</HBox>

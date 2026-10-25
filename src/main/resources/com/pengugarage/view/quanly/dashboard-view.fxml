@@ -20,74 +20,10 @@
       prefHeight="760.0" prefWidth="1280.0">
 
     <!-- ================================================================= -->
-    <!-- SIDEBAR BÊN TRÁI                                                  -->
+    <!-- SIDEBAR COMPONENT (Nhúng component tái sử dụng)                   -->
     <!-- ================================================================= -->
-    <VBox prefWidth="240.0" minWidth="240.0" style="-fx-background-color: #0d1826; -fx-border-color: #1a2f47; -fx-border-width: 0 1px 0 0;">
-        
-        <!-- Logo Gara -->
-        <VBox alignment="CENTER" spacing="10.0" style="-fx-padding: 20px 16px 16px 16px;">
-            <StackPane alignment="CENTER" maxWidth="100.0" maxHeight="100.0" styleClass="brand-logo-frame" style="-fx-padding: 6px;">
-                <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@../../images/logo_pengu-garage.png" />
-                    </image>
-                </ImageView>
-            </StackPane>
-            <Label text="PENGU GARAGE" style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: 800; -fx-letter-spacing: 1px;" />
-        </VBox>
+    <fx:include source="component/sidebar-quanly.fxml" />
 
-        <!-- Menu Danh Mục -->
-        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
-            <VBox spacing="4.0" style="-fx-padding: 10px 12px;">
-                
-                <!-- Dashboard (Active) -->
-                <Button text="Dashboard" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: #1a385c; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 10px 14px; -fx-cursor: hand;" />
-
-                <!-- Nhóm: Hạng mục cung cấp -->
-                <Label text="Hạng mục cung cấp" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-                <Button text="Quản lý sản phẩm" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                <Button text="Quản lý dịch vụ" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-
-                <!-- Nhóm: Vận hành -->
-                <Label text="Vận hành" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-                <Button text="Tiếp nhận phương tiện" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                <Button text="Quản lý phương tiện" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                <Button text="Bán hàng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                <Button text="Quản lý hóa đơn" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                <Button text="Quản lý khách hàng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-
-                <!-- Nhóm: Quản trị cửa hàng -->
-                <VBox fx:id="menuQuanTriCuahang" spacing="4.0">
-                    <Label text="Quản trị cửa hàng" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-                    <Button fx:id="btnQuanLyNhanVien" text="Quản lý nhân viên" onAction="#onQuanLyNhanVienClick" maxWidth="Infinity" alignment="CENTER_LEFT"
-                            style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                    <Button fx:id="btnThongKeBaoCao" text="Thống kê &amp; báo cáo" maxWidth="Infinity" alignment="CENTER_LEFT"
-                            style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                </VBox>
-            </VBox>
-        </ScrollPane>
-
-        <!-- Bottom User Info -->
-        <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 14px 16px; -fx-border-color: #1a2f47; -fx-border-width: 1px 0 0 0; -fx-background-color: #0b1420;">
-            <StackPane style="-fx-background-color: #f47b31; -fx-background-radius: 20px; -fx-min-width: 36px; -fx-min-height: 36px;">
-                <Label fx:id="userAvatarLabel" text="T" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 15px;" />
-            </StackPane>
-            <VBox spacing="2.0" HBox.hgrow="ALWAYS">
-                <Label fx:id="userNameLabel" text="Nguyễn Minh Tuấn" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 13px;" />
-                <Label fx:id="userRoleLabel" text="Quản lý" style="-fx-text-fill: #8c9eb2; -fx-font-size: 11px;" />
-            </VBox>
-            <Button text="Đăng xuất" onAction="#onLogoutClick"
-                    style="-fx-background-color: #16283c; -fx-text-fill: #e06c75; -fx-font-size: 11px; -fx-font-weight: bold; -fx-border-color: #2b415a; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 6px 10px; -fx-cursor: hand;" />
-        </HBox>
-    </VBox>
 
     <!-- ================================================================= -->
     <!-- CONTENT VÙNG CHÍNH                                                -->

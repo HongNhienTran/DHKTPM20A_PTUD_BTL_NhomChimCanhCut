@@ -31,6 +31,4 @@ uploads/products/*
 # Database scripts and sensitive credentials
 database/
 
-# Tai lieu huong dan noi bo
-huong_dan.md
 

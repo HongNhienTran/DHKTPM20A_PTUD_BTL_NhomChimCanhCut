@@ -252,7 +252,8 @@ public class DangNhapController {
         }
 
         if (getClass().getResource(fxmlPath) == null) {
-            fxmlPath = "/com/pengugarage/view/chung/main-view.fxml";
+            fxmlPath = "/com/pengugarage/view/quanly/dashboard-view.fxml";
+            tieuDe = "Pengu Garage Service ERP - Dashboard Quản Lý";
         }
         DieuHuongUtil.chuyenManHinh(loginButton, fxmlPath, tieuDe);
     }

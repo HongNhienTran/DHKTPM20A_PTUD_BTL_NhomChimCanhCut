@@ -20,69 +20,10 @@
       prefHeight="760.0" prefWidth="1280.0">
 
     <!-- ================================================================= -->
-    <!-- SIDEBAR DÀNH CHO LỄ TÂN & THU NGÂN                               -->
+    <!-- SIDEBAR COMPONENT (Nhúng component tái sử dụng)                   -->
     <!-- ================================================================= -->
-    <VBox prefWidth="250.0" minWidth="250.0" style="-fx-background-color: #0d1826; -fx-border-color: #1a2f47; -fx-border-width: 0 1px 0 0;">
-        
-        <!-- Logo Gara -->
-        <VBox alignment="CENTER" spacing="10.0" style="-fx-padding: 20px 16px 16px 16px;">
-            <StackPane alignment="CENTER" maxWidth="100.0" maxHeight="100.0" styleClass="brand-logo-frame" style="-fx-padding: 6px;">
-                <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@../../images/logo_pengu-garage.png" />
-                    </image>
-                </ImageView>
-            </StackPane>
-            <Label text="PENGU GARAGE" style="-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-font-weight: 800; -fx-letter-spacing: 1px;" />
-            <Label text="LỄ TÂN &amp; THU NGÂN" style="-fx-text-fill: #34d399; -fx-font-size: 10px; -fx-font-weight: bold; -fx-letter-spacing: 1px;" />
-        </VBox>
+    <fx:include source="component/sidebar-letan.fxml" />
 
-        <!-- Menu Lễ Tân -->
-        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
-            <VBox spacing="4.0" style="-fx-padding: 10px 12px;">
-                
-                <!-- Dashboard Lễ Tân (Active) -->
-                <Button text="Dashboard Lễ Tân" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: #1a385c; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 10px 14px; -fx-cursor: hand;" />
-
-                <!-- Nhóm: Tiếp nhận phương tiện -->
-                <Label text="Tiếp nhận &amp; Điều phối" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-                <Button text="Tiếp nhận xe mới (Check-in)" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                <Button text="Hàng đợi xe tại xưởng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                <Button text="Hồ sơ xe &amp; Khách hàng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-
-                <!-- Nhóm: Hóa đơn & Thu ngân -->
-                <Label text="Hóa đơn &amp; Bàn giao" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-                <Button text="Lập hóa đơn &amp; Thu tiền" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                <Button text="Bàn giao xe cho khách" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-                <Button text="Nhật ký giao dịch thu ngân" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-
-                <!-- Nhóm: Lịch hẹn -->
-                <Label text="Lịch hẹn khách hàng" style="-fx-text-fill: #5a738e; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 14px 10px 4px 10px;" />
-                <Button text="Đặt lịch hẹn bảo dưỡng" maxWidth="Infinity" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #9ab0c7; -fx-padding: 8px 14px; -fx-cursor: hand;" />
-            </VBox>
-        </ScrollPane>
-
-        <!-- Bottom User Info -->
-        <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 14px 16px; -fx-border-color: #1a2f47; -fx-border-width: 1px 0 0 0; -fx-background-color: #0b1420;">
-            <StackPane style="-fx-background-color: #10b981; -fx-background-radius: 20px; -fx-min-width: 36px; -fx-min-height: 36px;">
-                <Label fx:id="userAvatarLabel" text="A" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 15px;" />
-            </StackPane>
-            <VBox spacing="2.0" HBox.hgrow="ALWAYS">
-                <Label fx:id="userNameLabel" text="Lê Thị Lan Anh" style="-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 13px;" />
-                <Label fx:id="userRoleLabel" text="Lễ tân &amp; Thu ngân" style="-fx-text-fill: #34d399; -fx-font-size: 11px; -fx-font-weight: bold;" />
-            </VBox>
-            <Button text="Đăng xuất" onAction="#onLogoutClick"
-                    style="-fx-background-color: #16283c; -fx-text-fill: #e06c75; -fx-font-size: 11px; -fx-font-weight: bold; -fx-border-color: #2b415a; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 6px 10px; -fx-cursor: hand;" />
-        </HBox>
-    </VBox>
 
     <!-- ================================================================= -->
     <!-- CONTENT VÙNG CHÍNH DÀNH CHO LỄ TÂN & THU NGÂN                     -->

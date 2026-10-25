@@ -16,6 +16,7 @@ public class App {
         @Override
         public void start(Stage primaryStage) throws IOException {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/pengugarage/view/chung/splash-view.fxml"));
+
             Scene scene = new Scene(fxmlLoader.load(), 1280, 760);
 
             primaryStage.setTitle("Pengu Garage Service ERP - Khởi Động Hệ Thống");

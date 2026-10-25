@@ -41,6 +41,8 @@ Hệ thống quản lý dịch vụ gara ô tô / xe máy xây dựng bằng **J
 pengugarage/
 ├── pom.xml                                      # Quản lý thư viện và plugin build Maven
 ├── README.md                                    # Tài liệu thông tin nhóm và dự án
+├── huong_dan.md                                 # Cẩm nang phát triển tính năng mới & tích hợp luồng code
+├── huong_dan_design_fxml.md                     # Cẩm nang thiết kế giao diện FXML với Scene Builder & CSS
 ├── .gitignore                                   # Cấu hình loại trừ file nhạy cảm và build artifact
 ├── .env.example                                 # Cấu hình mẫu biến môi trường
 ├── database/                                    # Thư mục chứa các script SQL MariaDB
@@ -56,40 +58,49 @@ pengugarage/
         ├── java/
         │   └── com/
         │       └── pengugarage/
-        │           ├── App.java                 # Điểm khởi chạy chính ứng dụng JavaFX (Launcher)
-        │           ├── controller/              # Bộ điều khiển giao diện JavaFX
+        │           ├── App.java                             # Điểm khởi chạy chính ứng dụng JavaFX (Launcher)
+        │           ├── controller/                          # Bộ điều khiển giao diện JavaFX
+        │           │   ├── component/                       # Các Controller Sidebar tái sử dụng
+        │           │   │   ├── BaseSidebarController.java   # Base xử lý thông tin user và đăng xuất
+        │           │   │   ├── SidebarQuanLyController.java # Điều khiển Sidebar Quản lý
+        │           │   │   ├── SidebarKyThuatVienController.java # Điều khiển Sidebar Kỹ thuật viên
+        │           │   │   └── SidebarLeTanController.java  # Điều khiển Sidebar Lễ tân
         │           │   ├── DangNhapController.java
-        │           │   ├── DashboardController.java
-        │           │   ├── ManHinhChaoController.java
-        │           │   ├── NhanVienController.java
-        │           │   └── MainController.java
+        │           │   ├── DashboardController.java         # Điều khiển Dashboard Quản lý
+        │           │   ├── DashboardKyThuatVienController.java # Điều khiển Dashboard Kỹ thuật viên
+        │           │   ├── DashboardLeTanController.java    # Điều khiển Dashboard Lễ tân & Thu ngân
+        │           │   ├── SplashController.java            # Điều khiển Màn hình khởi động chào đón
+        │           │   └── NhanVienController.java          # Quản lý hồ sơ nhân viên
         │           ├── model/
-        │           │   ├── entity/              # 16 Java Entity Model ánh xạ CSDL
-        │           │   └── enums/               # 10 Enum định nghĩa theo chuẩn UML
-        │           ├── dao/                     # Tầng Data Access Object (JDBC)
-        │           ├── service/                 # Tầng xử lý nghiệp vụ (Business Service)
+        │           │   ├── entity/                          # 16 Java Entity Model ánh xạ CSDL
+        │           │   └── enums/                           # 10 Enum định nghĩa theo chuẩn UML
+        │           ├── dao/                                 # Tầng Data Access Object (JDBC)
+        │           ├── service/                             # Tầng xử lý nghiệp vụ (Business Service)
         │           └── util/
-        │               ├── CoSoDuLieuUtil.java  # Quản lý kết nối MariaDB qua .env
-        │               ├── DieuHuongUtil.java   # Tiện ích điều hướng duy trì full màn hình
-        │               ├── MatKhauUtil.java     # Mã hóa mật khẩu bảo mật chuẩn SHA-256
-        │               └── PhienDangNhapUtil.java # Quản lý phiên đăng nhập người dùng
+        │               ├── CoSoDuLieuUtil.java              # Quản lý kết nối MariaDB qua .env
+        │               ├── DieuHuongUtil.java               # Tiện ích điều hướng duy trì full màn hình
+        │               ├── MatKhauUtil.java                 # Mã hóa mật khẩu bảo mật chuẩn SHA-256
+        │               └── PhienDangNhapUtil.java           # Quản lý phiên đăng nhập người dùng
         └── resources/
             └── com/
                 └── pengugarage/
-                    ├── config.properties.example # File mẫu cấu hình JDBC
                     ├── view/
-                    │   ├── chung/               # Màn hình dùng chung (Splash, Đăng nhập)
+                    │   ├── chung/                           # Màn hình dùng chung (Splash, Đăng nhập)
                     │   │   ├── splash-view.fxml
-                    │   │   ├── dang-nhap-view.fxml
-                    │   │   └── main-view.fxml
-                    │   ├── quanly/              # Màn hình cho Quản lý (Dashboard, Nhân viên)
+                    │   │   └── dang-nhap-view.fxml
+                    │   ├── quanly/                          # Màn hình cho Quản lý (Dashboard, Nhân viên...)
+                    │   │   ├── component/sidebar-quanly.fxml # Component Sidebar Quản lý
                     │   │   ├── dashboard-view.fxml
                     │   │   └── nhan-vien-view.fxml
-                    │   ├── kythuatvien/         # Màn hình cho Kỹ thuật viên (Sửa chữa, Phụ tùng)
-                    │   └── letan/               # Màn hình cho Lễ tân (Tiếp nhận xe, Thu tiền)
+                    │   ├── kythuatvien/                     # Màn hình cho Kỹ thuật viên (Dashboard, Sửa chữa...)
+                    │   │   ├── component/sidebar-kythuatvien.fxml # Component Sidebar KTV
+                    │   │   └── dashboard-view.fxml
+                    │   └── letan/                           # Màn hình cho Lễ tân (Dashboard, Tiếp nhận xe...)
+                    │       ├── component/sidebar-letan.fxml # Component Sidebar Lễ tân
+                    │       └── dashboard-view.fxml
                     ├── css/
-                    │   └── style.css            # Bảng màu Dark Automotive và kiểu dáng giao diện
-                    └── images/                  # Thư mục chứa logo thương hiệu và hình ảnh
+                    │   └── style.css                        # Bảng màu Dark Automotive và kiểu dáng giao diện
+                    └── images/                              # Thư mục chứa logo thương hiệu và hình ảnh
 ```
 
 ---

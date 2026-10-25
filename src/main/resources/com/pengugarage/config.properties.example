@@ -1,9 +1,0 @@
-# Cấu hình JDBC MariaDB mặc định cho Pengu Garage Service ERP
-db.host=localhost
-db.port=3306
-db.name=pengu_garage
-db.user=root
-db.password=your_mariadb_password_here
-
-# Thư mục lưu ảnh upload
-upload.product.dir=uploads/products/
