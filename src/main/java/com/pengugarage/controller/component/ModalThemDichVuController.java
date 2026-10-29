@@ -37,6 +37,18 @@ public class ModalThemDichVuController {
         if (thueVATField != null && thueVATField.getText().isEmpty()) {
             thueVATField.setText("10");
         }
+          // nhấn enter
+        if (maDichVuField != null) {
+            maDichVuField.setOnAction(event -> onLuuClick());}
+
+        if (tenDichVuField != null) {
+            tenDichVuField.setOnAction(event -> onLuuClick());}
+
+        if (donGiaField != null) {
+            donGiaField.setOnAction(event -> onLuuClick());}
+
+        if (thueVATField != null) {
+            thueVATField.setOnAction(event -> onLuuClick());}
     }
 
     // =========================================================================
@@ -46,7 +58,8 @@ public class ModalThemDichVuController {
     @FXML
     public void onLuuClick() {
         try {
-            // 1. Kiểm tra mã dịch vụ
+
+            //mã dịch vụ
             String maDichVu = maDichVuField.getText();
 
             if (maDichVu == null || maDichVu.trim().isEmpty()) {
@@ -54,8 +67,15 @@ public class ModalThemDichVuController {
                 maDichVuField.requestFocus();
                 return;
             }
+            if (!maDichVu.matches("^DV\\d{3}$")) {
+                hienThongBao(
+                        "Mã dịch vụ phải có định dạng DV001, DV002...", false
+                );maDichVuField.requestFocus();
+                return;}
+
 
             maDichVu = maDichVu.trim();
+            //Tên dịch vụ
             String tenDichVu = tenDichVuField.getText();
 
             if (tenDichVu == null || tenDichVu.trim().isEmpty()) {
@@ -65,6 +85,25 @@ public class ModalThemDichVuController {
 
             tenDichVu = tenDichVu.trim();
 
+            String[] words = tenDichVu.toLowerCase(
+                    java.util.Locale.forLanguageTag("vi")
+            ).split("\\s+");
+            StringBuilder tenChuanHoa = new StringBuilder();
+            for (String word : words) {
+                if (!word.isEmpty()) {
+                    if (tenChuanHoa.length() > 0) {
+                        tenChuanHoa.append(" ");
+                    }
+                    tenChuanHoa.append(
+                            word.substring(0, 1).toUpperCase(
+                                    java.util.Locale.forLanguageTag("vi"))
+                    );tenChuanHoa.append(word.substring(1));
+                }
+            }
+
+            tenDichVu = tenChuanHoa.toString();
+
+            //Đơn giá
 
             String donGiaText = donGiaField.getText();
             if (donGiaText == null || donGiaText.trim().isEmpty()) {
@@ -83,7 +122,7 @@ public class ModalThemDichVuController {
                 donGiaField.requestFocus();
                 return;}
 
-
+              //Thuế VAT
             String thueVATText = thueVATField.getText();
             if (thueVATText == null || thueVATText.trim().isEmpty()) {
                 hienThongBao("Thuế VAT không được để trống.", false);
@@ -105,7 +144,7 @@ public class ModalThemDichVuController {
                 thueVATField.requestFocus();
                 return;}
 
-
+            //Trạng Thái
             String trangThai = trangThaiCombo.getValue();
             if (trangThai == null) {
                 hienThongBao("Vui lòng chọn trạng thái dịch vụ.", false);
