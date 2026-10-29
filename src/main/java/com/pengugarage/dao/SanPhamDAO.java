@@ -86,14 +86,85 @@ public class SanPhamDAO {
     // TASK M02-T03: Nhập 1 thông tin sản phẩm và thêm, thêm bằng file import (exel)
     // Người thực hiện: Phong
     // =========================================================================
+    public boolean kiemTraMaSanPhamTonTai(String maSanPham) {
+        String sql = "SELECT 1 FROM san_pham WHERE ma_san_pham = ? LIMIT 1";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSanPham);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi kiểm tra mã sản phẩm: " + maSanPham, e);
+        }
+    }
     public boolean them(SanPham sp) {
         // TODO: Phong thực hiện chức năng nhập 1 thông tin sản phẩm và thêm
-        return false;
+        String sql = """
+        INSERT INTO san_pham
+            (danh_muc_id, ma_san_pham, ten_san_pham, don_vi_tinh,
+             so_luong_ton, so_luong_ton_toi_thieu, gia_nhap,
+             don_gia_ban, thue_vat, trang_thai, duong_dan_anh)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ganThamSoThemSanPham(ps, sp);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi thêm sản phẩm: " + sp.getMaSanPham(), e);
+        }
     }
 
     public boolean themDanhSachSanPham(List<SanPham> danhSach) {
         // TODO: Phong thực hiện chức năng thêm danh sách sản phẩm bằng file import (exel)
-        return false;
+        if (danhSach == null || danhSach.isEmpty()) {
+            return false;
+        }
+
+        String sql = """
+        INSERT INTO san_pham
+            (danh_muc_id, ma_san_pham, ten_san_pham, don_vi_tinh,
+             so_luong_ton, so_luong_ton_toi_thieu, gia_nhap,
+             don_gia_ban, thue_vat, trang_thai, duong_dan_anh)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                for (SanPham sp : danhSach) {
+                    ganThamSoThemSanPham(ps, sp);
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi import danh sách sản phẩm", e);
+        }
+    }
+    private void ganThamSoThemSanPham(PreparedStatement ps, SanPham sp) throws SQLException {
+        ps.setInt(1, sp.getDanhMucId());
+        ps.setString(2, sp.getMaSanPham());
+        ps.setString(3, sp.getTenSanPham());
+        ps.setString(4, sp.getDonViTinh());
+        ps.setInt(5, sp.getSoLuongTon());
+        ps.setInt(6, sp.getSoLuongTonToiThieu());
+        ps.setDouble(7, sp.getGiaNhap());
+        ps.setDouble(8, sp.getDonGiaBan());
+        ps.setDouble(9, sp.getThueVAT());
+        ps.setBoolean(10, sp.isTrangThai());
+        ps.setString(11, sp.getDuongDanAnh());
     }
 
     // =========================================================================

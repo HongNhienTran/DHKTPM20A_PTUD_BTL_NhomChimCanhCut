@@ -194,7 +194,34 @@ public class SanPhamThemController {
     @FXML
     public void onLuuClick() {
         // TODO: Phong thực hiện chức năng nhập 1 thông tin sản phẩm và thêm (Task M02-T03)
-        hienThongBao("Chức năng thêm sản phẩm do Phong thực hiện (Task M02-T03)", false);
+        try {
+            DanhMucSanPham danhMuc = danhMucCombo.getValue();
+            String donViTinh = donViTinhCombo.isEditable()
+                    ? donViTinhCombo.getEditor().getText()
+                    : donViTinhCombo.getValue();
+
+            SanPham sp = new SanPham();
+            sp.setMaSanPham(maSanPhamField.getText());
+            sp.setTenSanPham(tenSanPhamField.getText());
+            sp.setDanhMuc(danhMuc);
+            sp.setDonViTinh(donViTinh);
+            sp.setGiaNhap(Double.parseDouble(giaNhapField.getText().trim()));
+            sp.setDonGiaBan(Double.parseDouble(donGiaBanField.getText().trim()));
+            sp.setThueVAT(Double.parseDouble(thueVATField.getText().trim()));
+            sp.setSoLuongTon(Integer.parseInt(soLuongTonField.getText().trim()));
+            sp.setSoLuongTonToiThieu(
+                    Integer.parseInt(soLuongTonToiThieuField.getText().trim()));
+            sp.setTrangThai("Đang bán".equals(trangThaiCombo.getValue()));
+            sp.setDuongDanAnh(duongDanAnhDaChon);
+
+            if (sanPhamService.them(sp)) {
+                hienThongBao("Thêm sản phẩm thành công.", false);
+            } else {
+                hienThongBao("Không thể thêm sản phẩm.", true);
+            }
+        } catch (RuntimeException e) {
+            hienThongBao(e.getMessage(), true);
+        }
     }
 
     @FXML
