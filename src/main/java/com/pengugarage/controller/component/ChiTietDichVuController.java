@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import java.util.function.Consumer;
 import com.pengugarage.service.DichVuService;
 import javafx.scene.control.Alert;
+import javafx.scene.input.KeyCode;
 
 /**
  * Controller cho Component Xem & Chỉnh Sửa Chi Tiết Dịch Vụ (chi-tiet-dich-vu.fxml)
@@ -37,6 +38,19 @@ public class ChiTietDichVuController {
     public void initialize() {
         trangThaiCombo.setItems(FXCollections.observableArrayList("Đang áp dụng", "Ngừng áp dụng"));
         anChiTiet();
+
+        // Nhấn Enter để lưu
+        javafx.application.Platform.runLater(() -> {
+            rootPane.addEventFilter(
+                    javafx.scene.input.KeyEvent.KEY_PRESSED,
+                    event -> {
+                        if (event.getCode() == KeyCode.ENTER) {
+                            onLuuThayDoiClick();
+                            event.consume();
+                        }
+                    }
+            );
+        });
     }
 
     public void setOnDongCallback(Runnable callback) {
@@ -81,6 +95,26 @@ public class ChiTietDichVuController {
                 hienThongBao("Tên dịch vụ không được để trống.", false);
                 tenDichVuField.requestFocus();
                 return;}
+            tenDichVu = tenDichVu.trim();
+
+            String[] words = tenDichVu
+                    .toLowerCase(java.util.Locale.forLanguageTag("vi"))
+                    .split("\\s+");
+
+            StringBuilder tenChuanHoa = new StringBuilder();
+
+            for (String word : words) {
+                if (!word.isEmpty()) {
+                    if (tenChuanHoa.length() > 0) {
+                        tenChuanHoa.append(" ");
+                    }
+                    tenChuanHoa.append(
+                            word.substring(0, 1)
+                                    .toUpperCase(java.util.Locale.forLanguageTag("vi"))
+                    );
+                    tenChuanHoa.append(word.substring(1));}}
+
+            tenDichVu = tenChuanHoa.toString();
 
             //Lấy và kiểm tra đơn giá
             String donGiaText = donGiaField.getText();
