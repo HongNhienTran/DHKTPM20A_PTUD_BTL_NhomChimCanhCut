@@ -22,7 +22,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-
+import org.apache.poi.ss.usermodel.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Locale;
 /**
  * Controller quản lý Sản Phẩm & Phụ Tùng gara (M02-T01).
  * Hỗ trợ tra cứu danh sách, bộ lọc đa tiêu chí, tích hợp component xem chi tiết sản phẩm.
@@ -354,17 +358,150 @@ public class SanPhamController {
     public void onNhapFileClick() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Chọn file danh sách sản phẩm Excel");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("File Excel (*.xlsx, *.xls)", "*.xlsx", "*.xls"),
-                new FileChooser.ExtensionFilter("Tất cả các file (*.*)", "*.*")
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "File Excel (*.xlsx, *.xls)", "*.xlsx", "*.xls"
+                )
         );
-        Stage stage = (sanPhamTable != null && sanPhamTable.getScene() != null)
-                ? (Stage) sanPhamTable.getScene().getWindow() : null;
+
+        Stage stage = sanPhamTable.getScene() != null
+                ? (Stage) sanPhamTable.getScene().getWindow()
+                : null;
+
         File file = fileChooser.showOpenDialog(stage);
-        if (file != null) {
-            // TODO: Phong thực hiện đọc dữ liệu từ file Excel và gọi SanPhamService.themDanhSachSanPham() (Task M02-T03)
-            hienThongBao("Đã chọn file: " + file.getName() + " - Chức năng import Excel do Phong thực hiện (Task M02-T03)", true);
+        if (file == null) {
+            return;
         }
+
+        try {
+            List<SanPham> danhSach = docSanPhamExcel(file);
+            if (danhSach.isEmpty()) {
+                hienThongBao("File Excel không có dòng sản phẩm nào.", false);
+                return;
+            }
+
+            if (sanPhamService.themDanhSachSanPham(danhSach)) {
+                taiDuLieuTuDatabase();
+                hienThongBao("Đã nhập thành công " + danhSach.size() + " sản phẩm.", true);
+            } else {
+                hienThongBao("Không thể nhập danh sách sản phẩm.", false);
+            }
+        } catch (IOException | RuntimeException e) {
+            hienThongBao("Nhập Excel thất bại: " + e.getMessage(), false);
+        }
+    }
+
+    private List<SanPham> docSanPhamExcel(File file) throws IOException {
+        String[] tieuDe = {
+                "ma_san_pham",
+                "ten_san_pham",
+                "danh_muc_id",
+                "don_vi_tinh",
+                "gia_nhap",
+                "don_gia_ban",
+                "thue_vat",
+                "so_luong_ton",
+                "so_luong_ton_toi_thieu",
+                "trang_thai",
+                "duong_dan_anh"
+        };
+
+        try (Workbook workbook = WorkbookFactory.create(file)) {
+            if (workbook.getNumberOfSheets() == 0) {
+                throw new IllegalArgumentException("File không có sheet dữ liệu.");
+            }
+
+            Sheet sheet = workbook.getSheetAt(0);
+            FormulaEvaluator evaluator =
+                    workbook.getCreationHelper().createFormulaEvaluator();
+
+            Row header = sheet.getRow(0);
+            for (int i = 0; i < tieuDe.length; i++) {
+                if (!tieuDe[i].equalsIgnoreCase(docO(header, i, evaluator))) {
+                    throw new IllegalArgumentException(
+                            "Tiêu đề cột " + (i + 1) + " phải là \"" + tieuDe[i] + "\"."
+                    );
+                }
+            }
+
+            List<SanPham> danhSach = new ArrayList<>();
+
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                String[] o = new String[tieuDe.length];
+
+                boolean dongTrong = true;
+                for (int i = 0; i < o.length; i++) {
+                    o[i] = docO(row, i, evaluator);
+                    if (!o[i].isBlank()) {
+                        dongTrong = false;
+                    }
+                }
+
+                if (dongTrong) {
+                    continue;
+                }
+
+                try {
+                    SanPham sp = new SanPham();
+                    sp.setMaSanPham(o[0]);
+                    sp.setTenSanPham(o[1]);
+                    sp.setDanhMucId(Integer.parseInt(o[2]));
+                    sp.setDonViTinh(o[3]);
+                    sp.setGiaNhap(Double.parseDouble(o[4]));
+                    sp.setDonGiaBan(Double.parseDouble(o[5]));
+                    sp.setThueVAT(Double.parseDouble(o[6]));
+                    sp.setSoLuongTon(Integer.parseInt(o[7]));
+                    sp.setSoLuongTonToiThieu(Integer.parseInt(o[8]));
+                    sp.setTrangThai(docTrangThai(o[9]));
+                    sp.setDuongDanAnh(o[10].isBlank() ? null : o[10]);
+
+                    danhSach.add(sp);
+                } catch (RuntimeException e) {
+                    throw new IllegalArgumentException(
+                            "Dữ liệu dòng " + (rowIndex + 1) + ": " + e.getMessage(),
+                            e
+                    );
+                }
+            }
+
+            return danhSach;
+        }
+    }
+
+    private String docO(Row row, int index, FormulaEvaluator evaluator) {
+        if (row == null) {
+            return "";
+        }
+
+        org.apache.poi.ss.usermodel.Cell cell = row.getCell(index, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+        if (cell == null) {
+            return "";
+        }
+
+        CellValue value = evaluator.evaluate(cell);
+        if (value == null) {
+            return "";
+        }
+
+        return switch (value.getCellType()) {
+            case STRING -> value.getStringValue().trim();
+            case NUMERIC -> BigDecimal.valueOf(value.getNumberValue())
+                    .stripTrailingZeros()
+                    .toPlainString();
+            case BOOLEAN -> Boolean.toString(value.getBooleanValue());
+            default -> "";
+        };
+    }
+
+    private boolean docTrangThai(String value) {
+        return switch (value.trim().toLowerCase(Locale.ROOT)) {
+            case "1", "true", "đang bán" -> true;
+            case "0", "false", "ngừng kinh doanh" -> false;
+            default -> throw new IllegalArgumentException(
+                    "Trạng thái chỉ nhận 1/0, Đang bán hoặc Ngừng kinh doanh."
+            );
+        };
     }
 
     @FXML
