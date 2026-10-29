@@ -3,9 +3,11 @@ package com.pengugarage.service;
 import com.pengugarage.dao.MaKhuyenMaiDAO;
 import com.pengugarage.model.entity.MaKhuyenMai;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 
-public class MaKhuyenMaiService {
+public class MaKhuyenMaiService extends Component {
     private final MaKhuyenMaiDAO maKhuyenMaiDAO;
 
     public MaKhuyenMaiService() {
@@ -30,6 +32,10 @@ public class MaKhuyenMaiService {
     // =========================================================================
     public boolean them(MaKhuyenMai km) {
         // TODO: Tuấn thực hiện chức năng nhập thông tin mã khuyến mãi và thêm (Task M03-T02)
+        if(km == null) {
+            JOptionPane.showConfirmDialog(this,"","",JOptionPane.ERROR_MESSAGE);
+        return false;}
+        if(maKhuyenMaiDAO.kiemTraTrungMa(km) == true) {return false;}
         return maKhuyenMaiDAO.them(km);
     }
 }

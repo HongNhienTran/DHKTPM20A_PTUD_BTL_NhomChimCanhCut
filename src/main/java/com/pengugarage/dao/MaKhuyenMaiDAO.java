@@ -4,10 +4,7 @@ import com.pengugarage.model.entity.MaKhuyenMai;
 import com.pengugarage.model.enums.LoaiGiamGia;
 import com.pengugarage.util.CoSoDuLieuUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,11 +49,43 @@ public class MaKhuyenMaiDAO {
     // TASK M03-T02: Nhập thông tin mã khuyến mãi và thêm
     // Người thực hiện: Tuấn
     // =========================================================================
-    public boolean them(MaKhuyenMai km) {
+    public boolean them(MaKhuyenMai km)  {
         // TODO: Tuấn thực hiện chức năng nhập thông tin mã khuyến mãi và thêm
+        String sql = "Insert into `ma_khuyen_mai`(ma_khuyen_mai,loai_giam,gia_tri_giam,gia_tri_toi_thieu_ap_dung,ngay_bat_dau_ap_dung,ngay_het_han,so_luong_ton,trang_thai) values (?,?,?,?,?,?,?,?)";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setNString(1,km.getMaKhuyenMai());
+            ps.setNString(2,km.getLoaiGiam().toString());
+            ps.setDouble(3,km.getGiaTriGiam());
+            ps.setDouble(4,km.getGiaTriToiThieuApDung());
+            ps.setDate(5, Date.valueOf(km.getNgayBatDauApDung().toLocalDate()));
+            ps.setDate(6, Date.valueOf(km.getNgayHetHan().toLocalDate()));
+            ps.setInt(7, km.getSoLuongTon());
+
+            ps.setBoolean(8,km.isTrangThai());
+            int m = ps.executeUpdate();
+            if(m>0){
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
         return false;
     }
-
+public boolean kiemTraTrungMa(MaKhuyenMai km) {
+    String sql = "select 1 from `ma_khuyen_mai` where ma_khuyen_mai = ?";
+    try (Connection conn = CoSoDuLieuUtil.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setNString(1, km.getMaKhuyenMai());
+        ResultSet rs= ps.executeQuery();
+        if(rs.next()){return true;}
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+    return false;
+}
     private MaKhuyenMai mapResultSetToMaKhuyenMai(ResultSet rs) throws SQLException {
         MaKhuyenMai maKhuyenMai = new MaKhuyenMai();
         maKhuyenMai.setId(rs.getInt("id"));

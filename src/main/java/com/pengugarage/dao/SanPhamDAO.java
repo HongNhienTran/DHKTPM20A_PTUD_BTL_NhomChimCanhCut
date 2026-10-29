@@ -88,6 +88,29 @@ public class SanPhamDAO {
     // =========================================================================
     public boolean them(SanPham sp) {
         // TODO: Phong thực hiện chức năng nhập 1 thông tin sản phẩm và thêm
+        String sql = "Update `san_pham` set ten_san_pham =?,don_vi_tinh=?,so_luong_ton=?,so_luong_ton_toi_thieu=?,gia_nhap=?,don_gia_ban=?,thue_vat=?,trang_thai=?,duong_dan_anh=?,danh_muc_id=? WHERE ma_san_pham = ?";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);)
+              {
+                  ps.setString(1, sp.getTenSanPham());
+                  ps.setString(2, sp.getDonViTinh());
+                  ps.setInt(3, sp.getSoLuongTon());
+                  ps.setInt(4,sp.getSoLuongTonToiThieu());
+                  ps.setDouble(5,sp.getGiaNhap());
+                  ps.setDouble(6,sp.getDonGiaBan());
+                  ps.setDouble(7,sp.getThueVAT());
+                  ps.setBoolean(8,sp.isTrangThai());
+                  ps.setString(9,sp.getDuongDanAnh());
+                  ps.setInt(10,sp.getDanhMucId());
+                  ps.setString(11,sp.getMaSanPham());
+                  int n = ps.executeUpdate();
+                  if(n>0){
+                      return true;
+                  }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
         return false;
     }
 
