@@ -52,6 +52,12 @@ public class SanPhamService {
     // =========================================================================
     public boolean capNhat(SanPham sp) {
         // TODO: Tuấn thực hiện chức năng cập nhật thông tin sản phẩm
+        if(sp==null){
+            return false;
+        }
+        if(new SanPhamDAO().layChiTietSanPhamTheoId(sp.getId()) == null){
+            return false;
+        }
         return sanPhamDAO.capNhat(sp);
     }
 

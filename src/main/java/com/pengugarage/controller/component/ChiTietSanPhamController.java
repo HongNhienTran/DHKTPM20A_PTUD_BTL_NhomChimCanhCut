@@ -1,8 +1,11 @@
 package com.pengugarage.controller.component;
 
+import com.pengugarage.controller.SanPhamController;
+import com.pengugarage.dao.SanPhamDAO;
 import com.pengugarage.model.entity.DanhMucSanPham;
 import com.pengugarage.model.entity.SanPham;
 import com.pengugarage.service.DanhMucService;
+import com.pengugarage.service.MaKhuyenMaiService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -16,6 +19,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.util.List;
 import java.util.function.Consumer;
@@ -24,7 +29,7 @@ import java.util.function.Consumer;
  * Controller cho Component Xem & Chỉnh Sửa Chi Tiết Sản Phẩm (chi-tiet-san-pham.fxml).
  * Hỗ trợ các trường TextField, ComboBox danh mục, chọn lại ảnh, thay đổi trạng thái và nút Lưu.
  */
-public class ChiTietSanPhamController {
+public class ChiTietSanPhamController extends Component {
 
     @FXML private VBox rootPane;
     @FXML private Label detailMaSPLabel;
@@ -193,8 +198,79 @@ public class ChiTietSanPhamController {
     // =========================================================================
     @FXML
     public void onLuuThayDoiClick() {
-        // TODO: Tuấn thực hiện chức năng chỉnh sửa và lưu cập nhật thông tin sản phẩm (Task M02-T04)
+        try {
+            int sltontoithieu=Integer.parseInt(soLuongTonField.getText());
+            if(sltontoithieu<0){
+                JOptionPane.showMessageDialog(this,"Số lượng tồn tối thiểu phải là số nguyên lớn hơn 0","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(this,"Số lượng tồn tối thiểu phải là số nguyên","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            int slton=Integer.parseInt(soLuongTonField.getText());
+            int sltontoithieu=Integer.parseInt(soLuongTonField.getText());
+            if(slton< sltontoithieu) {
+                JOptionPane.showMessageDialog(this,"Số lượng tồn phải là số nguyên lớn hơn số lượng tồn tối thiểu","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(this,"Số lượng tồn phải là số nguyên","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            int gianhap=Integer.parseInt(giaNhapField.getText());
+            if(gianhap <0){
+                JOptionPane.showMessageDialog(this,"Giá nhập phải là số nguyên lớn hơn 0","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(this,"Giá nhập phải là số nguyên","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            int gianhap=Integer.parseInt(giaNhapField.getText());
+            int giaban=Integer.parseInt(donGiaBanField.getText());
+            if(gianhap>giaban){
+                JOptionPane.showMessageDialog(this,"Giá bán phải lớn hơn giá nhập","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(this,"Giá bán là số nguyên","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            double thueVAT=Double.parseDouble(thueVATField.getText());
+            if(thueVAT <0){
+                JOptionPane.showMessageDialog(this,"thuế VAT phải là số nguyên lớn hơn 0","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(this,"thuế VAT phải là số nguyên","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        SanPham sp = new SanPham();
+        sp.setMaSanPham(sanPhamHienTai.getMaSanPham());
+        sp.setTenSanPham(tenSanPhamField.getText());
+        sp.setDanhMuc(danhMucCombo.getValue());
+        sp.setDonViTinh(donViTinhField.getText());
+        if(trangThaiCombo.getValue().toString() =="Đang kinh doanh"){
+            sp.setTrangThai(true);
+        }else{
+            sp.setTrangThai(false);
+        }
+        sp.setGiaNhap(Double.parseDouble(giaNhapField.getText()));
+        sp.setDonGiaBan(Double.parseDouble( donGiaBanField.getText()));
+        sp.setSoLuongTon(Integer.parseInt(soLuongTonField.getText()));
+        sp.setSoLuongTonToiThieu(Integer.parseInt(soLuongTonToiThieuField.getText()));
+        sp.setThueVAT(Double.parseDouble(thueVATField.getText()));
+        sp.setAnhSanPham(duongDanAnhDaChon);
+        int n= JOptionPane.showConfirmDialog(this,"Xác nhận cập nhật?","Xác nhận",JOptionPane.YES_NO_OPTION);
         hienThongBao("Chức năng chỉnh sửa sản phẩm do Tuấn thực hiện (Task M02-T04)", false);
+        if((new SanPhamDAO().them(sp) == true) &&n ==JOptionPane.YES_OPTION){
+            hienThongBao("Cập nhật thành công", true);
+        }else {hienThongBao("Cập nhật không thành công", false);}
     }
 
     /**
