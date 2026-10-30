@@ -265,7 +265,7 @@ public class ChiTietSanPhamController extends Component {
         sp.setSoLuongTon(Integer.parseInt(soLuongTonField.getText()));
         sp.setSoLuongTonToiThieu(Integer.parseInt(soLuongTonToiThieuField.getText()));
         sp.setThueVAT(Double.parseDouble(thueVATField.getText()));
-
+        sp.setAnhSanPham(duongDanAnhDaChon);
         int n= JOptionPane.showConfirmDialog(this,"Xác nhận cập nhật?","Xác nhận",JOptionPane.YES_NO_OPTION);
         hienThongBao("Chức năng chỉnh sửa sản phẩm do Tuấn thực hiện (Task M02-T04)", false);
         if((new SanPhamDAO().them(sp) == true) &&n ==JOptionPane.YES_OPTION){
