@@ -263,7 +263,7 @@ public class ChiTietSanPhamController extends Component {
         sp.setTenSanPham(tenSanPhamField.getText());
         sp.setDanhMuc(danhMucCombo.getValue());
         sp.setDonViTinh(donViTinhField.getText());
-        if(trangThaiCombo.getValue().toString() =="Đang kinh doanh"){
+        if(trangThaiCombo.getValue().toString().equals("Đang kinh doanh")){
             sp.setTrangThai(true);
         }else{
             sp.setTrangThai(false);
