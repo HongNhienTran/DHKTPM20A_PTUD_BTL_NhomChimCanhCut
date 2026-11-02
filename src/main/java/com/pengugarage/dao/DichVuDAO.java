@@ -52,8 +52,23 @@ public class DichVuDAO {
     // Người thực hiện: Tân
     // =========================================================================
     public boolean them(DichVu dv) {
-        // TODO: Tân thực hiện chức năng nhập thông tin dịch vụ và thêm
-        return false;
+        String sql = "INSERT INTO `dich_vu` " +
+                "(`ma_dich_vu`, `ten_dich_vu`, `mo_ta`, `don_gia`, `thue_vat`, `trang_thai`) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, dv.getMaDichVu());
+            ps.setString(2, dv.getTenDichVu());
+            ps.setString(3, dv.getMoTa());
+            ps.setDouble(4, dv.getDonGia());
+            ps.setDouble(5, dv.getThueVAT());
+            ps.setBoolean(6, dv.isTrangThai());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // =========================================================================
@@ -61,8 +76,28 @@ public class DichVuDAO {
     // Người thực hiện: Tân
     // =========================================================================
     public boolean capNhat(DichVu dv) {
-        // TODO: Tân thực hiện chức năng cập nhật thông tin dịch vụ
-        return false;
+        String sql = "UPDATE `dich_vu` SET " +
+                "`ten_dich_vu` = ?, " +
+                "`mo_ta` = ?, " +
+                "`don_gia` = ?, " +
+                "`thue_vat` = ?, " +
+                "`trang_thai` = ? " +
+                "WHERE `id` = ?";
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, dv.getTenDichVu());
+            ps.setString(2, dv.getMoTa());
+            ps.setDouble(3, dv.getDonGia());
+            ps.setDouble(4, dv.getThueVAT());
+            ps.setBoolean(5, dv.isTrangThai());
+            ps.setInt(6, dv.getId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private DichVu mapResultSetToDichVu(ResultSet rs) throws SQLException {
@@ -75,5 +110,21 @@ public class DichVuDAO {
         dichVu.setThueVAT(rs.getDouble("thue_vat"));
         dichVu.setTrangThai(rs.getBoolean("trang_thai"));
         return dichVu;
+    }
+
+    public boolean tonTaiMaDichVu(String maDichVu) {
+        String sql = "SELECT COUNT(*) FROM dich_vu WHERE ma_dich_vu = ?";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maDichVu);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
     }
 }

@@ -200,7 +200,8 @@ public class DichVuController {
         // Hiển thị modal nhập thông tin dịch vụ mới (Task M03-T02 - Tân)
         DieuHuongUtil.moModal(dichVuTable,
                 "/com/pengugarage/view/quanly/component/modal-them-dich-vu.fxml",
-                "Pengu Garage - Thêm Dịch Vụ Mới (Task M03-T02 - Tân)");
+                "Pengu Garage - Thêm Dịch Vụ Mới ");
+        taiDuLieuTuDatabase();
     }
 
 
