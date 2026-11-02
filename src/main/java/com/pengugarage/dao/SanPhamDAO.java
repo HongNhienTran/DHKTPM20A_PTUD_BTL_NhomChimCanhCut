@@ -2,12 +2,14 @@ package com.pengugarage.dao;
 
 import com.pengugarage.model.entity.DanhMucSanPham;
 import com.pengugarage.model.entity.SanPham;
+import com.pengugarage.model.enums.DonViTinh;
 import com.pengugarage.util.CoSoDuLieuUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +49,7 @@ public class SanPhamDAO {
                 list.add(rs.getString("don_vi_tinh").trim());
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi truy vấn danh sách đơn vị tính: " + e.getMessage());
+            return list;
         }
         return list;
     }
@@ -86,37 +88,97 @@ public class SanPhamDAO {
     // TASK M02-T03: Nhập 1 thông tin sản phẩm và thêm, thêm bằng file import (exel)
     // Người thực hiện: Phong
     // =========================================================================
-    public boolean them(SanPham sp) {
-        // TODO: Phong thực hiện chức năng nhập 1 thông tin sản phẩm và thêm
-        String sql = "Update `san_pham` set ten_san_pham =?,don_vi_tinh=?,so_luong_ton=?,so_luong_ton_toi_thieu=?,gia_nhap=?,don_gia_ban=?,thue_vat=?,trang_thai=?,duong_dan_anh=?,danh_muc_id=? WHERE ma_san_pham = ?";
+    public boolean kiemTraMaSanPhamTonTai(String maSanPham) {
+        String sql = "SELECT 1 FROM san_pham WHERE ma_san_pham = ? LIMIT 1";
         try (Connection conn = CoSoDuLieuUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);)
-              {
-                  ps.setString(1, sp.getTenSanPham());
-                  ps.setString(2, sp.getDonViTinh());
-                  ps.setInt(3, sp.getSoLuongTon());
-                  ps.setInt(4,sp.getSoLuongTonToiThieu());
-                  ps.setDouble(5,sp.getGiaNhap());
-                  ps.setDouble(6,sp.getDonGiaBan());
-                  ps.setDouble(7,sp.getThueVAT());
-                  ps.setBoolean(8,sp.isTrangThai());
-                  ps.setString(9,sp.getDuongDanAnh());
-                  ps.setInt(10,sp.getDanhMucId());
-                  ps.setString(11,sp.getMaSanPham());
-                  int n = ps.executeUpdate();
-                  if(n>0){
-                      return true;
-                  }
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maSanPham);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Lỗi kiểm tra mã sản phẩm: " + maSanPham, e);
+        }
+    }
+
+    public boolean them(SanPham sp) {
+        if (sp == null) {
             return false;
         }
-        return false;
+        String sql = """
+        INSERT INTO san_pham
+            (danh_muc_id, ma_san_pham, ten_san_pham, don_vi_tinh,
+             so_luong_ton, so_luong_ton_toi_thieu, gia_nhap,
+             don_gia_ban, thue_vat, trang_thai, duong_dan_anh)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ganThamSoThemSanPham(ps, sp);
+            int n = ps.executeUpdate();
+            if (n > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        sp.setId(rs.getInt(1));
+                    }
+                }
+                return true;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi thêm sản phẩm: " + sp.getMaSanPham() + " (" + e.getMessage() + ")", e);
+        }
     }
 
     public boolean themDanhSachSanPham(List<SanPham> danhSach) {
-        // TODO: Phong thực hiện chức năng thêm danh sách sản phẩm bằng file import (exel)
-        return false;
+        if (danhSach == null || danhSach.isEmpty()) {
+            return false;
+        }
+
+        String sql = """
+        INSERT INTO san_pham
+            (danh_muc_id, ma_san_pham, ten_san_pham, don_vi_tinh,
+             so_luong_ton, so_luong_ton_toi_thieu, gia_nhap,
+             don_gia_ban, thue_vat, trang_thai, duong_dan_anh)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                for (SanPham sp : danhSach) {
+                    ganThamSoThemSanPham(ps, sp);
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi import danh sách sản phẩm", e);
+        }
+    }
+
+    private void ganThamSoThemSanPham(PreparedStatement ps, SanPham sp) throws SQLException {
+        ps.setInt(1, sp.getDanhMucId());
+        ps.setString(2, sp.getMaSanPham());
+        ps.setString(3, sp.getTenSanPham());
+        ps.setString(4, sp.getDonViTinh() != null ? sp.getDonViTinh().name() : DonViTinh.CAI.name());
+        ps.setInt(5, sp.getSoLuongTon());
+        ps.setInt(6, sp.getSoLuongTonToiThieu());
+        ps.setDouble(7, sp.getGiaNhap());
+        ps.setDouble(8, sp.getDonGiaBan());
+        ps.setDouble(9, sp.getThueVAT());
+        ps.setBoolean(10, sp.isTrangThai());
+        ps.setString(11, sp.getDuongDanAnh());
     }
 
     // =========================================================================
@@ -124,8 +186,34 @@ public class SanPhamDAO {
     // Người thực hiện: Tuấn
     // =========================================================================
     public boolean capNhat(SanPham sp) {
-        // TODO: Tuấn thực hiện chức năng cập nhật thông tin sản phẩm
-        return false;
+        if (sp == null) {
+            return false;
+        }
+        String sql = """
+            UPDATE `san_pham`
+            SET ten_san_pham = ?, don_vi_tinh = ?, so_luong_ton = ?, so_luong_ton_toi_thieu = ?,
+                gia_nhap = ?, don_gia_ban = ?, thue_vat = ?, trang_thai = ?, duong_dan_anh = ?, danh_muc_id = ?
+            WHERE (id = ? AND id > 0) OR ma_san_pham = ?
+            """;
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, sp.getTenSanPham());
+            ps.setString(2, sp.getDonViTinh() != null ? sp.getDonViTinh().name() : DonViTinh.CAI.name());
+            ps.setInt(3, sp.getSoLuongTon());
+            ps.setInt(4, sp.getSoLuongTonToiThieu());
+            ps.setDouble(5, sp.getGiaNhap());
+            ps.setDouble(6, sp.getDonGiaBan());
+            ps.setDouble(7, sp.getThueVAT());
+            ps.setBoolean(8, sp.isTrangThai());
+            ps.setString(9, sp.getDuongDanAnh());
+            ps.setInt(10, sp.getDanhMucId());
+            ps.setInt(11, sp.getId());
+            ps.setString(12, sp.getMaSanPham());
+            int n = ps.executeUpdate();
+            return n > 0;
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     private SanPham mapResultSetToSanPham(ResultSet rs) throws SQLException {
@@ -133,7 +221,7 @@ public class SanPhamDAO {
         sanPham.setId(rs.getInt("id"));
         sanPham.setMaSanPham(rs.getString("ma_san_pham"));
         sanPham.setTenSanPham(rs.getString("ten_san_pham"));
-        sanPham.setDonViTinh(rs.getString("don_vi_tinh"));
+        sanPham.setDonViTinh(SanPham.parseDonViTinh(rs.getString("don_vi_tinh")));
         sanPham.setSoLuongTon(rs.getInt("so_luong_ton"));
         sanPham.setSoLuongTonToiThieu(rs.getInt("so_luong_ton_toi_thieu"));
         sanPham.setGiaNhap(rs.getDouble("gia_nhap"));

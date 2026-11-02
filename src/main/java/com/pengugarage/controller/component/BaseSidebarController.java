@@ -60,7 +60,7 @@ public abstract class BaseSidebarController {
         } else if (chucVu == ChucVu.KY_THUAT_VIEN) {
             return "Kỹ thuật viên";
         } else if (chucVu == ChucVu.LE_TAN) {
-            return "Lễ tân & Thu ngân";
+            return "Tiếp nhận & Bán hàng";
         }
         return chucVu.name();
     }

@@ -7,15 +7,11 @@ import com.pengugarage.util.CoSoDuLieuUtil;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Data Access Object cho thực thể Nhân Viên (`nhan_vien`).
  */
 public class NhanVienDAO {
-
-    private static final Logger LOGGER = Logger.getLogger(NhanVienDAO.class.getName());
 
     /**
      * Lấy toàn bộ danh sách nhân viên
@@ -32,7 +28,7 @@ public class NhanVienDAO {
                 list.add(mapResultSetToNhanVien(rs));
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi lấy danh sách nhân viên", e);
+            return list;
         }
         return list;
     }
@@ -52,7 +48,7 @@ public class NhanVienDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi tìm nhân viên theo id: " + id, e);
+            return null;
         }
         return null;
     }
@@ -72,7 +68,7 @@ public class NhanVienDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi tìm nhân viên theo mã: " + maNhanVien, e);
+            return null;
         }
         return null;
     }
@@ -92,7 +88,7 @@ public class NhanVienDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi tìm nhân viên theo SĐT: " + soDienThoai, e);
+            return null;
         }
         return null;
     }
@@ -124,7 +120,7 @@ public class NhanVienDAO {
                 return true;
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi thêm nhân viên mới", e);
+            return false;
         }
         return false;
     }
@@ -148,9 +144,8 @@ public class NhanVienDAO {
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi cập nhật nhân viên: " + nv.getId(), e);
+            return false;
         }
-        return false;
     }
 
     /**
@@ -165,9 +160,8 @@ public class NhanVienDAO {
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi đổi trạng thái nhân viên: " + id, e);
+            return false;
         }
-        return false;
     }
 
     /**
@@ -185,7 +179,7 @@ public class NhanVienDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi đếm số lượng nhân viên", e);
+            return 0;
         }
         return 0;
     }

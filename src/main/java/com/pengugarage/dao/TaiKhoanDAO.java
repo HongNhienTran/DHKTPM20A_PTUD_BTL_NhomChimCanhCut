@@ -8,15 +8,11 @@ import com.pengugarage.util.CoSoDuLieuUtil;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Data Access Object cho bảng `tai_khoan` liên kết với bảng `nhan_vien`.
  */
 public class TaiKhoanDAO {
-
-    private static final Logger LOGGER = Logger.getLogger(TaiKhoanDAO.class.getName());
 
     /**
      * Tìm tài khoản kèm thông tin nhân viên theo tên đăng nhập.
@@ -54,8 +50,7 @@ public class TaiKhoanDAO {
                     
                     try {
                         nv.setChucVu(ChucVu.valueOf(rs.getString("chuc_vu")));
-                    } catch (IllegalArgumentException e) {
-                        LOGGER.warning("Không thể parse ChucVu: " + rs.getString("chuc_vu"));
+                    } catch (IllegalArgumentException ignored) {
                     }
                     nv.setTrangThai(rs.getBoolean("trang_thai"));
 
@@ -64,7 +59,7 @@ public class TaiKhoanDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi truy vấn tài khoản theo tên đăng nhập: " + tenDangNhap, e);
+            return null;
         }
 
         return null;
@@ -110,7 +105,7 @@ public class TaiKhoanDAO {
                 list.add(tk);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi lấy danh sách tài khoản", e);
+            return list;
         }
         return list;
     }
@@ -135,7 +130,7 @@ public class TaiKhoanDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi tìm tài khoản theo nhân viên id: " + nhanVienId, e);
+            return null;
         }
         return null;
     }
@@ -162,7 +157,7 @@ public class TaiKhoanDAO {
                 return true;
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi tạo tài khoản mới", e);
+            return false;
         }
         return false;
     }
@@ -179,8 +174,7 @@ public class TaiKhoanDAO {
             ps.setInt(2, taiKhoanId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Lỗi đổi mật khẩu tài khoản: " + taiKhoanId, e);
+            return false;
         }
-        return false;
     }
 }

@@ -19,8 +19,8 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.pengugarage.controller.DangNhapController"
       stylesheets="@../../css/style.css"
-      styleClass="dark-root, login-background"
-      prefHeight="680.0" prefWidth="1080.0">
+      styleClass="login-background"
+      prefHeight="700.0" prefWidth="1100.0">
 
     <!-- ================================================================= -->
     <!-- CỘT BÊN TRÁI: THƯƠNG HIỆU GARA XE (LOGO LỚN)                      -->
@@ -92,13 +92,13 @@
                         <PasswordField fx:id="passwordField"
                                        promptText="Nhập mật khẩu của bạn"
                                        styleClass="dark-text-field"
-                                       style="-fx-padding: 11px 40px 11px 14px;" />
+                                       style="-fx-padding: 12px 42px 12px 16px;" />
                         
                         <!-- Ô văn bản mật khẩu hiển thị khi toggle xem -->
                         <TextField fx:id="passwordTextField"
                                    promptText="Nhập mật khẩu của bạn"
                                    styleClass="dark-text-field"
-                                   style="-fx-padding: 11px 40px 11px 14px;"
+                                   style="-fx-padding: 12px 42px 12px 16px;"
                                    managed="false"
                                    visible="false" />
 
@@ -144,7 +144,7 @@
                             HBox.hgrow="ALWAYS"
                             maxWidth="Infinity"
                             styleClass="quick-role-btn, quick-role-btn-tech" />
-                    <Button text="👩‍💼 Lễ tân"
+                    <Button text="👩‍💼 Tiếp nhận"
                             onAction="#onQuickFrontClick"
                             HBox.hgrow="ALWAYS"
                             maxWidth="Infinity"
