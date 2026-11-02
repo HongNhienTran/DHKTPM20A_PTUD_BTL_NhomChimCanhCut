@@ -9,7 +9,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.text.DecimalFormat;
@@ -55,7 +60,12 @@ public class DichVuController {
         // Đăng ký callback cho component chi tiết phía dưới
         if (chiTietDichVuController != null) {
             chiTietDichVuController.setOnDongCallback(() -> dichVuTable.getSelectionModel().clearSelection());
-            chiTietDichVuController.setOnLuuCallback(dv -> dichVuTable.refresh());
+            chiTietDichVuController.setOnLuuCallback(dv -> {
+                dichVuTable.refresh();
+                onTimKiemClick();
+                capNhatTongSo();
+                hienThongBao("Cập nhật dịch vụ '" + dv.getTenDichVu() + "' thành công!", true);
+            });
             chiTietDichVuController.anChiTiet();
         }
 
@@ -76,15 +86,15 @@ public class DichVuController {
         colTenDV.setCellValueFactory(new PropertyValueFactory<>("tenDichVu"));
         colMoTa.setCellValueFactory(new PropertyValueFactory<>("moTa"));
 
-        colDonGia.setCellValueFactory(cellData -> 
-            new SimpleStringProperty(tienFormat.format(cellData.getValue().getDonGia()))
+        colDonGia.setCellValueFactory(cellData ->
+                new SimpleStringProperty(tienFormat.format(cellData.getValue().getDonGia()))
         );
         colDonGia.setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold; -fx-text-fill: #f47b31;");
 
-        colThueVAT.setCellValueFactory(cellData -> 
-            new SimpleStringProperty(cellData.getValue().getThueVAT() + "%")
+        colThueVAT.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getThueVAT() + "%")
         );
-        colThueVAT.setStyle("-fx-alignment: CENTER; -fx-text-fill: #cbd5e1;");
+        colThueVAT.setStyle("-fx-alignment: CENTER; -fx-text-fill: #475569;");
 
         colTrangThai.setCellValueFactory(cellData -> {
             boolean tt = cellData.getValue().isTrangThai();
@@ -200,10 +210,9 @@ public class DichVuController {
         // Hiển thị modal nhập thông tin dịch vụ mới (Task M03-T02 - Tân)
         DieuHuongUtil.moModal(dichVuTable,
                 "/com/pengugarage/view/quanly/component/modal-them-dich-vu.fxml",
-                "Pengu Garage - Thêm Dịch Vụ Mới ");
+                "Pengu Garage - Thêm Dịch Vụ Mới");
         taiDuLieuTuDatabase();
     }
-
 
     @FXML
     public void onBackToDashboardClick() {

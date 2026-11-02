@@ -3,6 +3,7 @@ package com.pengugarage.controller;
 import com.pengugarage.controller.component.ChiTietSanPhamController;
 import com.pengugarage.model.entity.DanhMucSanPham;
 import com.pengugarage.model.entity.SanPham;
+import com.pengugarage.model.enums.DonViTinh;
 import com.pengugarage.service.DanhMucService;
 import com.pengugarage.service.SanPhamService;
 import com.pengugarage.util.DieuHuongUtil;
@@ -101,7 +102,10 @@ public class SanPhamController {
             return new SimpleStringProperty(dm != null ? dm.getTenDanhMuc() : "Chưa phân loại");
         });
 
-        colDVT.setCellValueFactory(new PropertyValueFactory<>("donViTinh"));
+        colDVT.setCellValueFactory(cellData -> {
+            DonViTinh dvt = cellData.getValue().getDonViTinh();
+            return new SimpleStringProperty(layTenHienThiDVT(dvt));
+        });
 
         colGiaBan.setCellValueFactory(cellData -> 
             new SimpleStringProperty(tienFormat.format(cellData.getValue().getDonGiaBan()))
@@ -280,7 +284,8 @@ public class SanPhamController {
             if (!keyword.isEmpty()) {
                 boolean matchMa = sp.getMaSanPham() != null && sp.getMaSanPham().toLowerCase().contains(keyword);
                 boolean matchTen = sp.getTenSanPham() != null && sp.getTenSanPham().toLowerCase().contains(keyword);
-                boolean matchDVT = sp.getDonViTinh() != null && sp.getDonViTinh().toLowerCase().contains(keyword);
+                boolean matchDVT = sp.getDonViTinh() != null && 
+                        (sp.getDonViTinh().name().toLowerCase().contains(keyword) || layTenHienThiDVT(sp.getDonViTinh()).toLowerCase().contains(keyword));
                 if (!matchMa && !matchTen && !matchDVT) {
                     return false;
                 }
@@ -518,6 +523,27 @@ public class SanPhamController {
         DieuHuongUtil.chuyenManHinh(sanPhamTable,
                 "/com/pengugarage/view/quanly/dashboard-view.fxml",
                 "Pengu Garage Service ERP - Dashboard Quản Lý");
+    }
+
+    public static String layTenHienThiDVT(DonViTinh dvt) {
+        if (dvt == null) return "";
+        return switch (dvt) {
+            case CAI -> "Cái";
+            case BO -> "Bộ";
+            case CHAI -> "Chai";
+            case CAN -> "Can";
+            case BINH -> "Bình";
+            case LIT -> "Lít";
+            case HOP -> "Hộp";
+            case CUON -> "Cuộn";
+            case TUYP -> "Tuýp";
+            case MIENG -> "Miếng";
+            case BICH -> "Bịch";
+            case THUNG -> "Thùng";
+            case KG -> "Kg";
+            case MET -> "Mét";
+            case CHIEC -> "Chiếc";
+        };
     }
 
     private void hienThongBao(String msg, boolean thanhCong) {

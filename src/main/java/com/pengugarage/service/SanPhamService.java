@@ -2,10 +2,11 @@ package com.pengugarage.service;
 
 import com.pengugarage.dao.SanPhamDAO;
 import com.pengugarage.model.entity.SanPham;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.List;
 
 public class SanPhamService {
     private final SanPhamDAO sanPhamDAO;
@@ -34,19 +35,24 @@ public class SanPhamService {
         return sanPhamDAO.layDanhSachDonViTinh();
     }
 
+    public boolean kiemTraMaSanPhamTonTai(String maSanPham) {
+        if (maSanPham == null || maSanPham.isBlank()) {
+            return false;
+        }
+        return sanPhamDAO.kiemTraMaSanPhamTonTai(maSanPham.trim());
+    }
+
     // =========================================================================
     // TASK M02-T03: Nhập 1 thông tin sản phẩm và thêm, thêm bằng file import (exel)
     // Người thực hiện: Phong
     // =========================================================================
     public boolean them(SanPham sp) {
-        // TODO: Phong thực hiện chức năng nhập 1 thông tin sản phẩm và thêm
         Set<String> maTrongDanhSach = new HashSet<>();
         kiemTraSanPham(sp, maTrongDanhSach);
         return sanPhamDAO.them(sp);
     }
 
     public boolean themDanhSachSanPham(List<SanPham> danhSach) {
-        // TODO: Phong thực hiện chức năng thêm danh sách sản phẩm bằng file import (exel)
         if (danhSach == null || danhSach.isEmpty()) {
             throw new IllegalArgumentException("File Excel không có sản phẩm.");
         }
@@ -57,6 +63,7 @@ public class SanPhamService {
         }
         return sanPhamDAO.themDanhSachSanPham(danhSach);
     }
+
     private void kiemTraSanPham(SanPham sp, Set<String> maTrongDanhSach) {
         if (sp == null) {
             throw new IllegalArgumentException("Thông tin sản phẩm không hợp lệ.");
@@ -80,7 +87,7 @@ public class SanPhamService {
         if (sp.getDanhMucId() <= 0) {
             throw new IllegalArgumentException("Vui lòng chọn danh mục hợp lệ.");
         }
-        if (sp.getDonViTinh() == null || sp.getDonViTinh().isBlank()) {
+        if (sp.getDonViTinh() == null) {
             throw new IllegalArgumentException("Đơn vị tính không được để trống.");
         }
         if (!Double.isFinite(sp.getGiaNhap()) || !Double.isFinite(sp.getDonGiaBan())
@@ -96,7 +103,6 @@ public class SanPhamService {
 
         sp.setMaSanPham(ma);
         sp.setTenSanPham(sp.getTenSanPham().trim());
-        sp.setDonViTinh(sp.getDonViTinh().trim());
     }
 
     // =========================================================================
@@ -104,13 +110,37 @@ public class SanPhamService {
     // Người thực hiện: Tuấn
     // =========================================================================
     public boolean capNhat(SanPham sp) {
-        // TODO: Tuấn thực hiện chức năng cập nhật thông tin sản phẩm
-        if(sp==null){
-            return false;
+        if (sp == null) {
+            throw new IllegalArgumentException("Thông tin sản phẩm không hợp lệ.");
         }
-        if(new SanPhamDAO().layChiTietSanPhamTheoId(sp.getId()) == null){
-            return false;
+        if (sp.getId() <= 0 && (sp.getMaSanPham() == null || sp.getMaSanPham().isBlank())) {
+            throw new IllegalArgumentException("Không xác định được sản phẩm cần cập nhật.");
         }
+        if (sp.getTenSanPham() == null || sp.getTenSanPham().isBlank()) {
+            throw new IllegalArgumentException("Tên sản phẩm không được để trống.");
+        }
+        if (sp.getDanhMucId() <= 0) {
+            throw new IllegalArgumentException("Vui lòng chọn danh mục hợp lệ.");
+        }
+        if (sp.getDonViTinh() == null) {
+            throw new IllegalArgumentException("Đơn vị tính không được để trống.");
+        }
+        if (!Double.isFinite(sp.getGiaNhap()) || sp.getGiaNhap() < 0) {
+            throw new IllegalArgumentException("Giá nhập không được nhỏ hơn 0.");
+        }
+        if (!Double.isFinite(sp.getDonGiaBan()) || sp.getDonGiaBan() < sp.getGiaNhap()) {
+            throw new IllegalArgumentException("Giá bán phải lớn hơn hoặc bằng giá nhập.");
+        }
+        if (!Double.isFinite(sp.getThueVAT()) || sp.getThueVAT() < 0 || sp.getThueVAT() > 100) {
+            throw new IllegalArgumentException("Thuế VAT phải nằm trong khoảng 0–100.");
+        }
+        if (sp.getSoLuongTon() < 0) {
+            throw new IllegalArgumentException("Số lượng tồn phải từ 0 trở lên.");
+        }
+        if (sp.getSoLuongTonToiThieu() < 0) {
+            throw new IllegalArgumentException("Số lượng tồn tối thiểu phải từ 0 trở lên.");
+        }
+
         return sanPhamDAO.capNhat(sp);
     }
 
