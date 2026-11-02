@@ -198,6 +198,14 @@ public class ChiTietSanPhamController extends Component {
     // =========================================================================
     @FXML
     public void onLuuThayDoiClick() {
+        if(tenSanPhamField.getText().isEmpty()){
+            JOptionPane.showMessageDialog(this,"Tên sản phẩm không được để trống","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if(donViTinhField.getText().isEmpty()){
+            JOptionPane.showMessageDialog(this,"Đơn vị tính không được để trống","Lỗi nhập liệu",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         try {
             int sltontoithieu=Integer.parseInt(soLuongTonField.getText());
             if(sltontoithieu<0){
