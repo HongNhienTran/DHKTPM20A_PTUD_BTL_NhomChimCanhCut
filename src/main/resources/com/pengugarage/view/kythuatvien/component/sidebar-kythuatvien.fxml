@@ -35,9 +35,9 @@
     <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
         <VBox fx:id="boxChucNang" spacing="4.0" style="-fx-padding: 10px 10px;">
             
-            <!-- Dashboard Kỹ Thuật Viên -->
+            <!-- Dashboard -->
             <Button fx:id="btnDashboard" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDashboardClick"
-                    styleClass="sidebar-nav-btn" text="📊 Dashboard Kỹ thuật" />
+                    styleClass="sidebar-nav-btn" text="📊 Dashboard" />
 
             <!-- Nhóm 1: Ca sửa chữa & Phân công -->
             <Label fx:id="lblSectionCaSua" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="CA SỬA &amp; PHÂN CÔNG" />

@@ -38,12 +38,8 @@
                 </image>
             </ImageView>
         </StackPane>
-        <VBox alignment="CENTER_LEFT" spacing="0.0">
-            <Label style="-fx-text-fill: #102A46; -fx-font-size: 15px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
-                   text="PENGU GARAGE" />
-            <Label style="-fx-text-fill: #059669; -fx-font-size: 10px; -fx-font-weight: 800; -fx-letter-spacing: 0.5px;"
-                   text="TIẾP NHẬN &amp; BÁN HÀNG" />
-        </VBox>
+        <Label style="-fx-text-fill: #102A46; -fx-font-size: 16px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
+               text="PENGU GARAGE" />
     </HBox>
 
     <Region prefWidth="12.0" />
@@ -54,13 +50,13 @@
         <Button fx:id="btnHeaderDashboard" onAction="#onDashboardClick"
                 styleClass="header-nav-btn" text="📊 Dashboard" />
 
-        <!-- Đề mục 2: Tiếp nhận & Check-in -->
+        <!-- Đề mục 2: Tiếp nhận -->
         <MenuButton fx:id="menuHeaderTiepNhan"
-                    styleClass="header-nav-btn" text="📋 Tiếp nhận &amp; Check-in">
+                    styleClass="header-nav-btn" text="💼 Tiếp nhận">
             <items>
-                <MenuItem onAction="#onTiepNhanXeClick" text="🚗 Tiếp nhận xe mới (Check-in)" />
+                <MenuItem onAction="#onTiepNhanXeClick" text="🚗 Tiếp nhận xe (Check-in)" />
                 <MenuItem onAction="#onHangDoiXeClick" text="⏳ Hàng đợi xe tại xưởng" />
-                <MenuItem onAction="#onHoSoKhachHangClick" text="👥 Hồ sơ xe &amp; Khách hàng" />
+                <MenuItem onAction="#onHoSoKhachHangClick" text="👥 Hồ sơ khách hàng" />
             </items>
         </MenuButton>
 
@@ -68,29 +64,21 @@
         <MenuButton fx:id="menuHeaderBanHang"
                     styleClass="header-nav-btn" text="🛒 Bán hàng">
             <items>
-                <MenuItem onAction="#onBanHangClick" text="🛒 Tạo đơn bán hàng &amp; Phụ tùng" />
-                <MenuItem onAction="#onTraCuuGiaClick" text="🔍 Tra cứu sản phẩm &amp; Bảng giá" />
-                <MenuItem onAction="#onDonHangBanLeClick" text="📑 Danh sách đơn bán lẻ" />
+                <MenuItem onAction="#onBanHangClick" text="🛒 Tạo đơn bán hàng" />
+                <MenuItem onAction="#onTraCuuGiaClick" text="🔍 Tra cứu sản phẩm" />
             </items>
         </MenuButton>
 
         <!-- Đề mục 4: Quản lý hóa đơn -->
         <MenuButton fx:id="menuHeaderHoaDon"
-                    styleClass="header-nav-btn" text="🧾 Quản lý hóa đơn">
+                    styleClass="header-nav-btn" text="📄 Quản lý hóa đơn">
             <items>
-                <MenuItem onAction="#onLapHoaDonClick" text="🧾 Lập hóa đơn thanh toán" />
-                <MenuItem onAction="#onBanGiaoXeClick" text="🔑 Bàn giao xe cho khách" />
-                <MenuItem onAction="#onNhatKyThuNganClick" text="📑 Danh sách &amp; Nhật ký hóa đơn" />
+                <MenuItem onAction="#onLapHoaDonClick" text="📄 Lập hóa đơn thanh toán" />
+                <MenuItem onAction="#onDanhSachHoaDonClick" text="📑 Danh sách hóa đơn" />
             </items>
         </MenuButton>
 
-        <!-- Đề mục 5: Lịch hẹn khách hàng -->
-        <MenuButton fx:id="menuHeaderLichHen"
-                    styleClass="header-nav-btn" text="📅 Lịch hẹn khách">
-            <items>
-                <MenuItem onAction="#onDatLichHenClick" text="📅 Đặt lịch hẹn bảo dưỡng" />
-            </items>
-        </MenuButton>
+
     </HBox>
 
     <Region HBox.hgrow="ALWAYS" />

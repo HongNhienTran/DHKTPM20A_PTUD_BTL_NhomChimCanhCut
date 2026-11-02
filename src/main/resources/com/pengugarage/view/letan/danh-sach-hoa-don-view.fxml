@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- ===================================================================== -->
+<!-- MÀN HÌNH DANH SÁCH & QUẢN LÝ TOÀN BỘ HÓA ĐƠN                          -->
+<!-- (danh-sach-hoa-don-view.fxml)                                         -->
+<!-- Dành cho role Lễ tân & Thu ngân (Tiếp nhận & Bán hàng)                -->
+<!-- ===================================================================== -->
+
+<VBox prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #f8fafc;"
+      stylesheets="@../../css/style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.DanhSachHoaDonController">
+
+    <!-- 1. Thanh Header Lễ Tân bên trên -->
+    <fx:include source="component/header-letan.fxml" />
+
+    <!-- 2. Thân Trang: Sidebar đóng mở bên trái + Vùng nội dung chính -->
+    <HBox VBox.vgrow="ALWAYS" style="-fx-background-color: #f8fafc;">
+
+        <!-- Sidebar Lễ Tân bên trái -->
+        <fx:include source="component/sidebar-letan.fxml" />
+
+        <!-- Vùng Nội Dung Làm Việc Chính -->
+        <VBox spacing="14.0" style="-fx-background-color: #f8fafc;" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets bottom="16.0" left="20.0" right="20.0" top="16.0" />
+            </padding>
+
+            <!-- Top Title Bar & Nút Hành Động -->
+            <HBox alignment="CENTER_LEFT" spacing="16.0">
+                <VBox spacing="2.0">
+                    <Label style="-fx-text-fill: #102A46; -fx-font-size: 22px; -fx-font-weight: 900;"
+                           text="Danh Sách &amp; Nhật Ký Hóa Đơn" />
+                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 13px;"
+                           text="Quản lý toàn bộ hóa đơn bán lẻ phụ tùng và dịch vụ sửa chữa trong hệ thống" />
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Nút Xuất file Excel báo cáo -->
+                <Button fx:id="btnXuatExcel" onAction="#onXuatExcelClick"
+                        style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-text-fill: #102A46; -fx-font-weight: 700; -fx-font-size: 12.5px; -fx-padding: 8px 16px; -fx-background-radius: 8px; -fx-border-radius: 8px; -fx-cursor: hand;"
+                        text="📥 Xuất Báo Cáo" />
+
+                <!-- Nút Làm Mới -->
+                <Button fx:id="btnLamMoi" onAction="#onLamMoiClick"
+                        style="-fx-background-color: #102A46; -fx-text-fill: #ffffff; -fx-font-weight: 700; -fx-font-size: 12.5px; -fx-padding: 8px 16px; -fx-background-radius: 8px; -fx-cursor: hand;"
+                        text="🔄 Làm Mới Dữ Liệu" />
+            </HBox>
+
+            <!-- 4 Thẻ Thống Kê Nhanh (Metric Cards) -->
+            <HBox spacing="12.0">
+                <!-- Thẻ 1: Tổng số hóa đơn -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #ffffff; -fx-padding: 12px 16px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px;">
+                    <VBox alignment="CENTER" prefHeight="40.0" prefWidth="40.0"
+                          style="-fx-background-color: #e0f2fe; -fx-background-radius: 8px;">
+                        <Label style="-fx-font-size: 18px;" text="📄" />
+                    </VBox>
+                    <VBox spacing="1.0">
+                        <Label style="-fx-text-fill: #64748b; -fx-font-size: 11.5px; -fx-font-weight: 600;" text="TỔNG HÓA ĐƠN" />
+                        <Label fx:id="lblTongHoaDon" style="-fx-text-fill: #102a46; -fx-font-size: 18px; -fx-font-weight: 900;" text="0" />
+                    </VBox>
+                </HBox>
+
+                <!-- Thẻ 2: Đã thanh toán -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #ffffff; -fx-padding: 12px 16px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px;">
+                    <VBox alignment="CENTER" prefHeight="40.0" prefWidth="40.0"
+                          style="-fx-background-color: #dcfce7; -fx-background-radius: 8px;">
+                        <Label style="-fx-font-size: 18px;" text="✅" />
+                    </VBox>
+                    <VBox spacing="1.0">
+                        <Label style="-fx-text-fill: #64748b; -fx-font-size: 11.5px; -fx-font-weight: 600;" text="ĐÃ THANH TOÁN" />
+                        <Label fx:id="lblDaThanhToan" style="-fx-text-fill: #059669; -fx-font-size: 18px; -fx-font-weight: 900;" text="0" />
+                    </VBox>
+                </HBox>
+
+                <!-- Thẻ 3: Chờ thanh toán -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #ffffff; -fx-padding: 12px 16px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px;">
+                    <VBox alignment="CENTER" prefHeight="40.0" prefWidth="40.0"
+                          style="-fx-background-color: #fef3c7; -fx-background-radius: 8px;">
+                        <Label style="-fx-font-size: 18px;" text="⏳" />
+                    </VBox>
+                    <VBox spacing="1.0">
+                        <Label style="-fx-text-fill: #64748b; -fx-font-size: 11.5px; -fx-font-weight: 600;" text="CHỜ THANH TOÁN" />
+                        <Label fx:id="lblChoThanhToan" style="-fx-text-fill: #d97706; -fx-font-size: 18px; -fx-font-weight: 900;" text="0" />
+                    </VBox>
+                </HBox>
+
+                <!-- Thẻ 4: Tổng doanh thu thu về -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #ffffff; -fx-padding: 12px 16px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px;">
+                    <VBox alignment="CENTER" prefHeight="40.0" prefWidth="40.0"
+                          style="-fx-background-color: #f1f5f9; -fx-background-radius: 8px;">
+                        <Label style="-fx-font-size: 18px;" text="💰" />
+                    </VBox>
+                    <VBox spacing="1.0">
+                        <Label style="-fx-text-fill: #64748b; -fx-font-size: 11.5px; -fx-font-weight: 600;" text="TỔNG THU (ĐÃ TT)" />
+                        <Label fx:id="lblTongDoanhThu" style="-fx-text-fill: #173b61; -fx-font-size: 18px; -fx-font-weight: 900;" text="0 đ" />
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <!-- Thanh Lọc & Tìm Kiếm Đa Tiêu Chí -->
+            <HBox alignment="CENTER_LEFT" spacing="10.0"
+                  style="-fx-background-color: #ffffff; -fx-padding: 10px 16px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px;">
+                <!-- Tìm kiếm theo text -->
+                <TextField fx:id="txtTimKiem"
+                           promptText="🔍 Tìm kiếm theo Mã HĐ, Tên khách hàng, SĐT..."
+                           style="-fx-background-color: #f8fafc; -fx-border-color: #cbd5e1; -fx-text-fill: #0f172a; -fx-prompt-text-fill: #94a3b8; -fx-padding: 7px 14px; -fx-background-radius: 8px; -fx-border-radius: 8px; -fx-font-size: 13px;"
+                           HBox.hgrow="ALWAYS" />
+
+                <!-- Lọc Loại hóa đơn -->
+                <ComboBox fx:id="cboLoaiHoaDon" prefWidth="160.0" promptText="Loại hóa đơn"
+                          styleClass="light-combo-box" />
+
+                <!-- Lọc Trạng thái thanh toán -->
+                <ComboBox fx:id="cboTrangThai" prefWidth="160.0" promptText="Trạng thái TT"
+                          styleClass="light-combo-box" />
+
+                <!-- Từ ngày -->
+                <DatePicker fx:id="dpTuNgay" prefWidth="135.0" promptText="Từ ngày"
+                            style="-fx-background-color: #f8fafc; -fx-border-color: #cbd5e1; -fx-border-radius: 8px;" />
+
+                <!-- Đến ngày -->
+                <DatePicker fx:id="dpDenNgay" prefWidth="135.0" promptText="Đến ngày"
+                            style="-fx-background-color: #f8fafc; -fx-border-color: #cbd5e1; -fx-border-radius: 8px;" />
+
+                <!-- Nút Lọc Tìm -->
+                <Button fx:id="btnTimKiem" onAction="#onTimKiemClick"
+                        style="-fx-background-color: #173b61; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 12.5px; -fx-padding: 7px 16px; -fx-background-radius: 8px; -fx-cursor: hand;"
+                        text="Tìm kiếm" />
+
+                <!-- Nút Đặt lại bộ lọc (Xóa lọc) -->
+                <Button fx:id="btnDatLaiBoLoc" graphicTextGap="0.0" onAction="#onDatLaiBoLocClick"
+                        style="-fx-background-color: #f1f5f9; -fx-border-color: #cbd5e1; -fx-border-radius: 8px; -fx-text-fill: #334155; -fx-padding: 7px 14px; -fx-background-radius: 8px; -fx-cursor: hand;"
+                        text="🔄" />
+            </HBox>
+
+            <!-- Bảng Dữ Liệu Hóa Đơn (TableView) -->
+            <VBox spacing="8.0" VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: #ffffff; -fx-padding: 12px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px;">
+                <HBox alignment="CENTER_LEFT">
+                    <Label style="-fx-text-fill: #102a46; -fx-font-size: 14px; -fx-font-weight: 800;" text="Danh Sách Bản Ghi Hóa Đơn" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label fx:id="lblSoBanGhi" style="-fx-text-fill: #64748b; -fx-font-size: 12px; -fx-font-weight: 600;" text="Hiển thị: 0 hóa đơn" />
+                </HBox>
+
+                <TableView fx:id="tblHoaDon" VBox.vgrow="ALWAYS" styleClass="garage-table">
+                    <columns>
+                        <TableColumn fx:id="colStt" prefWidth="45.0" text="STT" />
+                        <TableColumn fx:id="colMaHoaDon" prefWidth="110.0" text="Mã Hóa Đơn" />
+                        <TableColumn fx:id="colLoaiHoaDon" prefWidth="110.0" text="Phân Loại" />
+                        <TableColumn fx:id="colKhachHang" prefWidth="150.0" text="Khách Hàng" />
+                        <TableColumn fx:id="colSdt" prefWidth="110.0" text="Số Điện Thoại" />
+                        <TableColumn fx:id="colThoiGianLap" prefWidth="135.0" text="Thời Gian Lập" />
+                        <TableColumn fx:id="colNhanVienLap" prefWidth="130.0" text="Nhân Viên Lập" />
+                        <TableColumn fx:id="colTongTien" prefWidth="110.0" text="Tiền Hàng" />
+                        <TableColumn fx:id="colKhuyenMai" prefWidth="95.0" text="Khuyến Mãi" />
+                        <TableColumn fx:id="colTongThanhToan" prefWidth="125.0" text="Tổng Thanh Toán" />
+                        <TableColumn fx:id="colPhuongThuc" prefWidth="115.0" text="Hình Thức TT" />
+                        <TableColumn fx:id="colTrangThai" prefWidth="130.0" text="Trạng Thái" />
+                        <TableColumn fx:id="colThaoTac" prefWidth="110.0" text="Thao Tác" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+
+            <!-- Card Chi Tiết Nhanh Khi Chọn Hóa Đơn (Quick Detail Drawer) -->
+            <VBox fx:id="boxChiTietHoaDon" spacing="8.0" prefHeight="180.0"
+                  style="-fx-background-color: #ffffff; -fx-padding: 12px 16px; -fx-background-radius: 10px; -fx-border-color: #cbd5e1; -fx-border-radius: 10px;">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <Label style="-fx-text-fill: #102a46; -fx-font-size: 13px; -fx-font-weight: 800;" text="📋 CHI TIẾT CÁC HẠNG MỤC CỦA HÓA ĐƠN:" />
+                    <Label fx:id="lblChiTietMaHD" style="-fx-text-fill: #f47b31; -fx-font-weight: bold; -fx-font-size: 13px;" text="Chưa chọn hóa đơn" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label fx:id="lblChiTietGhiChu" style="-fx-text-fill: #64748b; -fx-font-size: 12px;" text="Ghi chú: -" />
+                </HBox>
+
+                <!-- Bảng chi tiết các mặt hàng trong hóa đơn đã chọn -->
+                <TableView fx:id="tblChiTiet" VBox.vgrow="ALWAYS" styleClass="garage-table">
+                    <columns>
+                        <TableColumn fx:id="colChiTietStt" prefWidth="40.0" text="#" />
+                        <TableColumn fx:id="colChiTietLoai" prefWidth="90.0" text="Loại" />
+                        <TableColumn fx:id="colChiTietTenHangMuc" prefWidth="240.0" text="Tên Sản Phẩm / Dịch Vụ" />
+                        <TableColumn fx:id="colChiTietSoLuong" prefWidth="70.0" text="Số Lượng" />
+                        <TableColumn fx:id="colChiTietDonGia" prefWidth="110.0" text="Đơn Giá" />
+                        <TableColumn fx:id="colChiTietThue" prefWidth="80.0" text="Thuế VAT" />
+                        <TableColumn fx:id="colChiTietThanhTien" prefWidth="120.0" text="Thành Tiền" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+
+        </VBox>
+    </HBox>
+
+</VBox>
+

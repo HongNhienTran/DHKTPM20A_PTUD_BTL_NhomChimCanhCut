@@ -53,7 +53,7 @@
             <Button fx:id="btnQuanLyPhuongTien" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyPhuongTienClick"
                     styleClass="sidebar-nav-btn" text="🚗 Quản lý phương tiện" />
             <Button fx:id="btnQuanLyHoaDon" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyHoaDonClick"
-                    styleClass="sidebar-nav-btn" text="🧾 Quản lý hóa đơn" />
+                    styleClass="sidebar-nav-btn" text="📄 Quản lý hóa đơn" />
             <Button fx:id="btnQuanLyKhachHang" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyKhachHangClick"
                     styleClass="sidebar-nav-btn" text="👥 Quản lý khách hàng" />
 

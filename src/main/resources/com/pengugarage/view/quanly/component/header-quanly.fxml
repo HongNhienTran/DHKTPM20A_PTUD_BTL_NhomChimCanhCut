@@ -65,7 +65,7 @@
                     styleClass="header-nav-btn" text="🚗 Hạng mục vận hành">
             <items>
                 <MenuItem onAction="#onQuanLyPhuongTienClick" text="🚗 Quản lý phương tiện" />
-                <MenuItem onAction="#onQuanLyHoaDonClick" text="🧾 Quản lý hóa đơn" />
+                <MenuItem onAction="#onQuanLyHoaDonClick" text="📄 Quản lý hóa đơn" />
                 <MenuItem onAction="#onQuanLyKhachHangClick" text="👥 Quản lý khách hàng" />
             </items>
         </MenuButton>

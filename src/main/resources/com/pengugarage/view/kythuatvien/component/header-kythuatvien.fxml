@@ -37,12 +37,8 @@
                 </image>
             </ImageView>
         </StackPane>
-        <VBox alignment="CENTER_LEFT" spacing="0.0">
-            <Label style="-fx-text-fill: #102A46; -fx-font-size: 15px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
-                   text="PENGU GARAGE" />
-            <Label style="-fx-text-fill: #f47b31; -fx-font-size: 10px; -fx-font-weight: 800; -fx-letter-spacing: 0.5px;"
-                   text="KHÔNG GIAN KỸ THUẬT VIÊN" />
-        </VBox>
+        <Label style="-fx-text-fill: #102A46; -fx-font-size: 16px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
+               text="PENGU GARAGE" />
     </HBox>
 
     <Region prefWidth="12.0" />

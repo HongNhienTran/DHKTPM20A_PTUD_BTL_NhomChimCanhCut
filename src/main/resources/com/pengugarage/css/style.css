@@ -951,3 +951,230 @@
 .menu-button:hover .arrow {
     -fx-background-color: #173b61;
 }
+
+/* ==========================================================================
+   POS BÁN HÀNG & PHỤ TÙNG (LIGHT MODERN UI - BRAND PALETTE)
+   ========================================================================== */
+
+/* Thanh tìm kiếm sản phẩm lớn */
+.pos-search-field {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #94a3b8;
+    -fx-font-size: 13.5px;
+    -fx-font-weight: 600;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 9px 14px;
+    -fx-border-width: 1.2px;
+}
+
+.pos-search-field:focused {
+    -fx-border-color: #f47b31;
+    -fx-effect: dropshadow(three-pass-box, rgba(244, 123, 49, 0.25), 6, 0, 0, 0);
+}
+
+/* Tab đa hóa đơn */
+.pos-tab-btn {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #475569;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 8px 8px 0 0;
+    -fx-border-color: #cbd5e1 #cbd5e1 transparent #cbd5e1;
+    -fx-border-radius: 8px 8px 0 0;
+    -fx-border-width: 1px;
+    -fx-padding: 6px 12px;
+    -fx-cursor: hand;
+}
+
+.pos-tab-btn:hover {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #102a46;
+}
+
+.pos-tab-btn-active {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #102a46;
+    -fx-font-weight: 800;
+    -fx-border-color: #f47b31 #cbd5e1 transparent #cbd5e1;
+    -fx-border-width: 2.5px 1px 0 1px;
+}
+
+/* Nút thêm tab mới (+) */
+.pos-tab-add-btn {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: 900;
+    -fx-font-size: 13px;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 4px 9px;
+    -fx-cursor: hand;
+}
+
+.pos-tab-add-btn:hover {
+    -fx-background-color: #ebf3fa;
+    -fx-text-fill: #102a46;
+    -fx-border-color: #173b61;
+}
+
+/* Ngăn kéo Menu sản phẩm ở dưới đáy (Collapsible Product Drawer) */
+.pos-drawer-header {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1px 0 1px 0;
+    -fx-padding: 6px 12px;
+}
+
+/* Nút danh mục trong ngăn kéo */
+.pos-category-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-padding: 5px 12px;
+    -fx-cursor: hand;
+}
+
+.pos-category-btn:hover {
+    -fx-background-color: #ebf3fa;
+    -fx-text-fill: #102a46;
+    -fx-border-color: #bfd7ee;
+}
+
+.pos-category-btn-active {
+    -fx-background-color: #102A46;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #102A46;
+}
+
+/* Nút mũi tên kéo lên / kéo xuống ngăn kéo */
+.pos-drawer-toggle-btn {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #102a46;
+    -fx-font-weight: 800;
+    -fx-font-size: 12px;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 4px 10px;
+    -fx-cursor: hand;
+}
+
+.pos-drawer-toggle-btn:hover {
+    -fx-background-color: #ebf3fa;
+    -fx-border-color: #173b61;
+}
+
+/* Thẻ sản phẩm trong ngăn kéo */
+.pos-product-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-width: 1px;
+    -fx-padding: 10px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(16, 42, 70, 0.04), 6, 0, 0, 1);
+}
+
+.pos-product-card:hover {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #f47b31;
+    -fx-effect: dropshadow(three-pass-box, rgba(244, 123, 49, 0.22), 10, 0, 0, 2);
+}
+
+.pos-card-img-placeholder {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-alignment: center;
+}
+
+.pos-card-title {
+    -fx-text-fill: #102a46;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 800;
+}
+
+.pos-card-price {
+    -fx-text-fill: #f47b31;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.pos-card-stock {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+}
+
+/* Khung chi tiết thanh toán bên phải */
+.pos-checkout-panel {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 0 1px;
+    -fx-padding: 16px 18px;
+}
+
+.pos-summary-label {
+    -fx-text-fill: #475569;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.pos-summary-value {
+    -fx-text-fill: #102a46;
+    -fx-font-size: 13.5px;
+    -fx-font-weight: 700;
+}
+
+.pos-summary-total-label {
+    -fx-text-fill: #102a46;
+    -fx-font-size: 14.5px;
+    -fx-font-weight: 800;
+}
+
+.pos-summary-total-value {
+    -fx-text-fill: #f47b31;
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+}
+
+/* Nút số lượng trong giỏ hàng (+/-) */
+.pos-qty-btn {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #102a46;
+    -fx-font-weight: 900;
+    -fx-font-size: 11px;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 2px 7px;
+    -fx-cursor: hand;
+}
+
+.pos-qty-btn:hover {
+    -fx-background-color: #e2e8f0;
+}
+
+.pos-delete-item-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-padding: 3px 6px;
+    -fx-background-radius: 4px;
+}
+
+.pos-delete-item-btn:hover {
+    -fx-text-fill: #b91c1c;
+    -fx-background-color: #fee2e2;
+}

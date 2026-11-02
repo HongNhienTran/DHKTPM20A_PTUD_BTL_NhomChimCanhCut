@@ -36,39 +36,34 @@
     <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
         <VBox fx:id="boxChucNang" spacing="4.0" style="-fx-padding: 10px 10px;">
             
-            <!-- Dashboard Tiếp nhận -->
+            <!-- Dashboard -->
             <Button fx:id="btnDashboard" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDashboardClick"
-                    styleClass="sidebar-nav-btn" text="📊 Dashboard Tiếp nhận" />
+                    styleClass="sidebar-nav-btn" text="📊 Dashboard" />
 
-            <!-- Nhóm 1: Tiếp nhận & Điều phối -->
-            <Label fx:id="lblSectionTiepNhan" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="TIẾP NHẬN &amp; ĐIỀU PHỐI" />
+            <!-- Nhóm 1: Tiếp nhận -->
+            <Label fx:id="lblSectionTiepNhan" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="TIẾP NHẬN" />
             <Button fx:id="btnTiepNhanXe" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTiepNhanXeClick"
                     styleClass="sidebar-nav-btn" text="🚗 Tiếp nhận xe (Check-in)" />
             <Button fx:id="btnHangDoiXe" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onHangDoiXeClick"
                     styleClass="sidebar-nav-btn" text="⏳ Hàng đợi xe tại xưởng" />
             <Button fx:id="btnHoSoKhachHang" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onHoSoKhachHangClick"
-                    styleClass="sidebar-nav-btn" text="👥 Hồ sơ xe &amp; Khách hàng" />
+                    styleClass="sidebar-nav-btn" text="👥 Hồ sơ khách hàng" />
 
             <!-- Nhóm 2: Bán hàng & Phụ tùng -->
             <Label fx:id="lblSectionBanHang" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="BÁN HÀNG &amp; PHỤ TÙNG" />
             <Button fx:id="btnTaoDonBanHang" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTaoDonBanHangClick"
                     styleClass="sidebar-nav-btn" text="🛒 Tạo đơn bán hàng" />
             <Button fx:id="btnTraCuuGia" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTraCuuGiaClick"
-                    styleClass="sidebar-nav-btn" text="🔍 Tra cứu sản phẩm &amp; Giá" />
+                    styleClass="sidebar-nav-btn" text="🔍 Tra cứu sản phẩm" />
 
             <!-- Nhóm 3: Quản lý hóa đơn -->
             <Label fx:id="lblSectionHoaDon" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="QUẢN LÝ HÓA ĐƠN" />
             <Button fx:id="btnLapHoaDon" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onLapHoaDonClick"
-                    styleClass="sidebar-nav-btn" text="🧾 Lập hóa đơn thanh toán" />
+                    styleClass="sidebar-nav-btn" text="📄 Lập hóa đơn thanh toán" />
             <Button fx:id="btnDanhSachHoaDon" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDanhSachHoaDonClick"
                     styleClass="sidebar-nav-btn" text="📑 Danh sách hóa đơn" />
-            <Button fx:id="btnBanGiaoXe" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onBanGiaoXeClick"
-                    styleClass="sidebar-nav-btn" text="🔑 Bàn giao xe cho khách" />
 
-            <!-- Nhóm 4: Lịch hẹn -->
-            <Label fx:id="lblSectionLichHen" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="LỊCH HẸN BẢO DƯỠNG" />
-            <Button fx:id="btnDatLichHen" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDatLichHenClick"
-                    styleClass="sidebar-nav-btn" text="📅 Đặt lịch hẹn khách hàng" />
+
         </VBox>
     </ScrollPane>
 

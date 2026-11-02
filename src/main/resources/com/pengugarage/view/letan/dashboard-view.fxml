@@ -179,7 +179,7 @@
                                 <Button text="🛒 Tạo Đơn Bán Hàng Phụ Tùng" maxWidth="Infinity"
                                         styleClass="primary-button" />
 
-                                <Button text="🧾 Quản Lý &amp; Lập Hóa Đơn" maxWidth="Infinity"
+                                <Button text="📄 Quản Lý &amp; Lập Hóa Đơn" maxWidth="Infinity"
                                         styleClass="secondary-button" />
 
                                 <Button text="📅 Đặt Lịch Hẹn Khách Hàng" maxWidth="Infinity"

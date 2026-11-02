@@ -31,9 +31,6 @@ public class HeaderLeTanController extends BaseSidebarController {
     @FXML
     private MenuButton menuHeaderHoaDon;
 
-    @FXML
-    private MenuButton menuHeaderLichHen;
-
     @Override
     public void initialize() {
         super.initialize();
@@ -51,16 +48,13 @@ public class HeaderLeTanController extends BaseSidebarController {
         setControlActive(menuHeaderTiepNhan, false);
         setControlActive(menuHeaderBanHang, false);
         setControlActive(menuHeaderHoaDon, false);
-        setControlActive(menuHeaderLichHen, false);
 
         if (path.contains("tiep-nhan") || path.contains("hang-doi") || path.contains("ho-so")) {
             setControlActive(menuHeaderTiepNhan, true);
-        } else if (path.contains("ban-hang") || path.contains("don-hang") || path.contains("tra-cuu-gia")) {
+        } else if (path.contains("ban-hang") || path.contains("don-hang") || path.contains("tra-cuu")) {
             setControlActive(menuHeaderBanHang, true);
         } else if (path.contains("hoa-don") || path.contains("ban-giao") || path.contains("nhat-ky")) {
             setControlActive(menuHeaderHoaDon, true);
-        } else if (path.contains("lich-hen")) {
-            setControlActive(menuHeaderLichHen, true);
         } else {
             setControlActive(btnHeaderDashboard, true);
         }
@@ -82,7 +76,7 @@ public class HeaderLeTanController extends BaseSidebarController {
     public void onDashboardClick(ActionEvent event) {
         DieuHuongUtil.chuyenManHinh(rootHeader,
                 "/com/pengugarage/view/letan/dashboard-view.fxml",
-                "Pengu Garage Service ERP - Dashboard Tiếp Nhận & Bán Hàng");
+                "Pengu Garage Service ERP - Dashboard");
     }
 
     @FXML
@@ -97,44 +91,44 @@ public class HeaderLeTanController extends BaseSidebarController {
 
     @FXML
     public void onHoSoKhachHangClick(ActionEvent event) {
-        thongBaoPhatTrien("Hồ sơ xe & Khách hàng");
+        DieuHuongUtil.chuyenManHinh(rootHeader,
+                "/com/pengugarage/view/letan/ho-so-khach-hang-view.fxml",
+                "Pengu Garage Service ERP - Hồ Sơ Khách Hàng");
     }
 
     // Các sự kiện Bán hàng
     @FXML
     public void onBanHangClick(ActionEvent event) {
-        thongBaoPhatTrien("Tạo đơn bán hàng & Phụ tùng");
+        DieuHuongUtil.chuyenManHinh(rootHeader,
+                "/com/pengugarage/view/letan/ban-hang-view.fxml",
+                "Pengu Garage Service ERP - Bán Hàng & Phụ Tùng");
     }
 
     @FXML
     public void onTraCuuGiaClick(ActionEvent event) {
-        thongBaoPhatTrien("Tra cứu sản phẩm & Bảng giá");
-    }
-
-    @FXML
-    public void onDonHangBanLeClick(ActionEvent event) {
-        thongBaoPhatTrien("Danh sách đơn bán lẻ");
+        DieuHuongUtil.chuyenManHinh(rootHeader,
+                "/com/pengugarage/view/letan/tra-cuu-san-pham-view.fxml",
+                "Pengu Garage Service ERP - Tra Cứu Sản Phẩm");
     }
 
     // Các sự kiện Quản lý hóa đơn
     @FXML
     public void onLapHoaDonClick(ActionEvent event) {
-        thongBaoPhatTrien("Lập hóa đơn thanh toán");
+        DieuHuongUtil.chuyenManHinh(rootHeader,
+                "/com/pengugarage/view/letan/lap-hoa-don-view.fxml",
+                "Pengu Garage Service ERP - Lập Hóa Đơn & Thu Ngân");
     }
 
     @FXML
-    public void onBanGiaoXeClick(ActionEvent event) {
-        thongBaoPhatTrien("Bàn giao xe cho khách");
+    public void onDanhSachHoaDonClick(ActionEvent event) {
+        DieuHuongUtil.chuyenManHinh(rootHeader,
+                "/com/pengugarage/view/letan/danh-sach-hoa-don-view.fxml",
+                "Pengu Garage Service ERP - Danh Sách Hóa Đơn");
     }
 
     @FXML
     public void onNhatKyThuNganClick(ActionEvent event) {
-        thongBaoPhatTrien("Danh sách & Nhật ký hóa đơn");
-    }
-
-    @FXML
-    public void onDatLichHenClick(ActionEvent event) {
-        thongBaoPhatTrien("Đặt lịch hẹn khách hàng");
+        onDanhSachHoaDonClick(event);
     }
 
     private void thongBaoPhatTrien(String tenChucNang) {
