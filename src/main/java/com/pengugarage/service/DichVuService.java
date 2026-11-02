@@ -29,7 +29,26 @@ public class DichVuService {
     // Người thực hiện: Tân
     // =========================================================================
     public boolean them(DichVu dv) {
-        // TODO: Tân thực hiện chức năng nhập thông tin dịch vụ và thêm
+        if (dv == null) {
+            throw new IllegalArgumentException(
+                    "Thông tin dịch vụ không được để trống."
+            );}
+        if (dv.getMaDichVu() == null || dv.getMaDichVu().trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Mã dịch vụ không được để trống."
+            );}
+        if (dv.getTenDichVu() == null || dv.getTenDichVu().trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Tên dịch vụ không được để trống."
+            );}
+        if (dv.getDonGia() < 0) {
+            throw new IllegalArgumentException(
+                    "Đơn giá không được âm."
+            );}
+        if (dichVuDAO.tonTaiMaDichVu(dv.getMaDichVu().trim())) {
+            throw new IllegalArgumentException(
+                    "Mã dịch vụ đã tồn tại."
+            );}
         return dichVuDAO.them(dv);
     }
 
@@ -38,7 +57,32 @@ public class DichVuService {
     // Người thực hiện: Tân
     // =========================================================================
     public boolean capNhat(DichVu dv) {
-        // TODO: Tân thực hiện chức năng cập nhật thông tin dịch vụ
-        return dichVuDAO.capNhat(dv);
-    }
+        if (dv == null) {
+            throw new IllegalArgumentException(
+                    "Thông tin dịch vụ không được để trống."
+            );}
+        if (dv.getTenDichVu() == null
+                || dv.getTenDichVu().trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Tên dịch vụ không được để trống."
+            );}
+        if (!Double.isFinite(dv.getDonGia()) || dv.getDonGia() < 0) {
+            throw new IllegalArgumentException(
+                    "Đơn giá phải là số không âm."
+            );}
+        if (!Double.isFinite(dv.getThueVAT())
+                || dv.getThueVAT() < 0
+                || dv.getThueVAT() > 100) {
+            throw new IllegalArgumentException(
+                    "Thuế VAT phải từ 0 đến 100%."
+            );}
+        DichVu dichVuHienTai =
+                dichVuDAO.layChiTietDichVuTheoID(dv.getId());
+
+        if (dichVuHienTai == null) {
+            throw new IllegalArgumentException(
+                    "Dịch vụ cần cập nhật không tồn tại."
+            );}
+        dv.setTenDichVu(dv.getTenDichVu().trim());
+        return dichVuDAO.capNhat(dv);}
 }
