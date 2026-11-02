@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- ================================================================= -->
+<!-- COMPONENT HEADER DÀNH CHO ROLE TIẾP NHẬN & BÁN HÀNG               -->
+<!-- (header-letan.fxml)                                               -->
+<!-- Bố cục thanh ngang trên cùng: Light Modern UI, Bảng màu Logo Pengu-->
+<!-- ================================================================= -->
+
+<HBox fx:id="rootHeader" alignment="CENTER_LEFT" prefHeight="58.0" spacing="16.0"
+      style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1px 0;"
+      stylesheets="@../../../css/style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.component.HeaderLeTanController">
+
+    <padding>
+        <Insets left="20.0" right="20.0" />
+    </padding>
+
+    <!-- 1. Logo & Brand Title -->
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <StackPane maxHeight="38.0" maxWidth="38.0"
+                   style="-fx-background-color: #ebf3fa; -fx-background-radius: 8px; -fx-padding: 4px; -fx-border-color: #bfd7ee; -fx-border-radius: 8px;">
+            <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@../../../images/logo_pengu-garage.png" />
+                </image>
+            </ImageView>
+        </StackPane>
+        <VBox alignment="CENTER_LEFT" spacing="0.0">
+            <Label style="-fx-text-fill: #102A46; -fx-font-size: 15px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
+                   text="PENGU GARAGE" />
+            <Label style="-fx-text-fill: #059669; -fx-font-size: 10px; -fx-font-weight: 800; -fx-letter-spacing: 0.5px;"
+                   text="TIẾP NHẬN &amp; BÁN HÀNG" />
+        </VBox>
+    </HBox>
+
+    <Region prefWidth="12.0" />
+
+    <!-- 2. Danh mục lớn nằm ngang (Header Tabs) -->
+    <HBox alignment="CENTER_LEFT" spacing="8.0">
+        <!-- Đề mục 1: Dashboard -->
+        <Button fx:id="btnHeaderDashboard" onAction="#onDashboardClick"
+                styleClass="header-nav-btn" text="📊 Dashboard" />
+
+        <!-- Đề mục 2: Tiếp nhận & Check-in -->
+        <MenuButton fx:id="menuHeaderTiepNhan"
+                    styleClass="header-nav-btn" text="📋 Tiếp nhận &amp; Check-in">
+            <items>
+                <MenuItem onAction="#onTiepNhanXeClick" text="🚗 Tiếp nhận xe mới (Check-in)" />
+                <MenuItem onAction="#onHangDoiXeClick" text="⏳ Hàng đợi xe tại xưởng" />
+                <MenuItem onAction="#onHoSoKhachHangClick" text="👥 Hồ sơ xe &amp; Khách hàng" />
+            </items>
+        </MenuButton>
+
+        <!-- Đề mục 3: Bán hàng -->
+        <MenuButton fx:id="menuHeaderBanHang"
+                    styleClass="header-nav-btn" text="🛒 Bán hàng">
+            <items>
+                <MenuItem onAction="#onBanHangClick" text="🛒 Tạo đơn bán hàng &amp; Phụ tùng" />
+                <MenuItem onAction="#onTraCuuGiaClick" text="🔍 Tra cứu sản phẩm &amp; Bảng giá" />
+                <MenuItem onAction="#onDonHangBanLeClick" text="📑 Danh sách đơn bán lẻ" />
+            </items>
+        </MenuButton>
+
+        <!-- Đề mục 4: Quản lý hóa đơn -->
+        <MenuButton fx:id="menuHeaderHoaDon"
+                    styleClass="header-nav-btn" text="🧾 Quản lý hóa đơn">
+            <items>
+                <MenuItem onAction="#onLapHoaDonClick" text="🧾 Lập hóa đơn thanh toán" />
+                <MenuItem onAction="#onBanGiaoXeClick" text="🔑 Bàn giao xe cho khách" />
+                <MenuItem onAction="#onNhatKyThuNganClick" text="📑 Danh sách &amp; Nhật ký hóa đơn" />
+            </items>
+        </MenuButton>
+
+        <!-- Đề mục 5: Lịch hẹn khách hàng -->
+        <MenuButton fx:id="menuHeaderLichHen"
+                    styleClass="header-nav-btn" text="📅 Lịch hẹn khách">
+            <items>
+                <MenuItem onAction="#onDatLichHenClick" text="📅 Đặt lịch hẹn bảo dưỡng" />
+            </items>
+        </MenuButton>
+    </HBox>
+
+    <Region HBox.hgrow="ALWAYS" />
+
+    <!-- 3. User Badge & Nút Đăng xuất -->
+    <HBox alignment="CENTER_RIGHT" spacing="14.0">
+        <!-- User avatar & info -->
+        <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <StackPane maxHeight="34.0" maxWidth="34.0"
+                       style="-fx-background-color: #059669; -fx-background-radius: 50%; -fx-pref-width: 34px; -fx-pref-height: 34px;">
+                <Label fx:id="userAvatarLabel"
+                       style="-fx-text-fill: #ffffff; -fx-font-weight: 900; -fx-font-size: 13.5px;"
+                       text="A" />
+            </StackPane>
+            <VBox alignment="CENTER_LEFT" spacing="1.0">
+                <Label fx:id="userNameLabel"
+                       style="-fx-text-fill: #102A46; -fx-font-weight: 800; -fx-font-size: 12.5px;"
+                       text="Lê Thị Lan Anh" />
+                <Label fx:id="userRoleLabel"
+                       style="-fx-text-fill: #059669; -fx-font-size: 11px; -fx-font-weight: 700;"
+                       text="Tiếp nhận &amp; Bán hàng" />
+            </VBox>
+        </HBox>
+
+        <!-- Divider line -->
+        <Region prefHeight="24.0" prefWidth="1.0" style="-fx-background-color: #e2e8f0;" />
+
+        <!-- Nút Đăng xuất -->
+        <Button onAction="#onLogoutClick"
+                style="-fx-background-color: #fef2f2; -fx-text-fill: #dc2626; -fx-border-color: #fecaca; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-font-size: 12px; -fx-font-weight: 700; -fx-padding: 6px 12px; -fx-cursor: hand;"
+                text="Đăng xuất" />
+    </HBox>
+
+</HBox>

@@ -1,12 +1,16 @@
 package com.pengugarage.controller.component;
 
+import com.pengugarage.controller.SanPhamController;
 import com.pengugarage.model.entity.DanhMucSanPham;
 import com.pengugarage.model.entity.SanPham;
+import com.pengugarage.model.enums.DonViTinh;
 import com.pengugarage.service.DanhMucService;
+import com.pengugarage.service.SanPhamService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -37,7 +41,7 @@ public class ChiTietSanPhamController {
     // Form chỉnh sửa dạng TextField & ComboBox
     @FXML private TextField tenSanPhamField;
     @FXML private ComboBox<DanhMucSanPham> danhMucCombo;
-    @FXML private TextField donViTinhField;
+    @FXML private ComboBox<DonViTinh> donViTinhCombo;
     @FXML private ComboBox<String> trangThaiCombo;
     @FXML private TextField donGiaBanField;
     @FXML private TextField giaNhapField;
@@ -46,8 +50,18 @@ public class ChiTietSanPhamController {
     @FXML private TextField thueVATField;
     @FXML private Button btnLuuThayDoi;
 
+    // Các nhãn hiển thị lỗi chữ đỏ ngay dưới từng ô input
+    @FXML private Label errTenSP;
+    @FXML private Label errDanhMuc;
+    @FXML private Label errDonViTinh;
+    @FXML private Label errDonGiaBan;
+    @FXML private Label errGiaNhap;
+    @FXML private Label errSoLuongTon;
+    @FXML private Label errSoLuongTonToiThieu;
+    @FXML private Label errThueVAT;
+
     private final DanhMucService danhMucService = new DanhMucService();
-    private final com.pengugarage.service.SanPhamService sanPhamService = new com.pengugarage.service.SanPhamService();
+    private final SanPhamService sanPhamService = new SanPhamService();
     private SanPham sanPhamHienTai;
     private String duongDanAnhDaChon;
 
@@ -56,19 +70,23 @@ public class ChiTietSanPhamController {
 
     @FXML
     public void initialize() {
-        // 1. Nạp danh sách trạng thái kinh doanh
         trangThaiCombo.setItems(FXCollections.observableArrayList("Đang kinh doanh", "Ngừng kinh doanh"));
+        donViTinhCombo.setItems(FXCollections.observableArrayList(DonViTinh.values()));
+        donViTinhCombo.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(DonViTinh dvt) {
+                return SanPhamController.layTenHienThiDVT(dvt);
+            }
 
-        // 2. Nạp danh sách danh mục từ Database
+            @Override
+            public DonViTinh fromString(String string) {
+                return SanPham.parseDonViTinh(string);
+            }
+        });
         napDanhSachDanhMuc();
-
-        // 3. Mặc định ẩn khung chi tiết khi chưa click chọn sản phẩm
         anChiTiet();
     }
 
-    /**
-     * Nạp danh mục từ CSDL vào ComboBox
-     */
     private void napDanhSachDanhMuc() {
         try {
             List<DanhMucSanPham> dsDM = danhMucService.layTatCa();
@@ -99,9 +117,40 @@ public class ChiTietSanPhamController {
         this.onLuuCallback = callback;
     }
 
-    /**
-     * Sổ khung chi tiết ra và đổ dữ liệu vào các TextField/ComboBox
-     */
+    private void xoaTatCaLoi() {
+        datLoiInput(tenSanPhamField, errTenSP, null, false);
+        datLoiInput(danhMucCombo, errDanhMuc, null, false);
+        datLoiInput(donViTinhCombo, errDonViTinh, null, false);
+        datLoiInput(donGiaBanField, errDonGiaBan, null, true);
+        datLoiInput(giaNhapField, errGiaNhap, null, false);
+        datLoiInput(soLuongTonField, errSoLuongTon, null, false);
+        datLoiInput(soLuongTonToiThieuField, errSoLuongTonToiThieu, null, false);
+        datLoiInput(thueVATField, errThueVAT, null, false);
+        if (thongBaoLuuLabel != null) {
+            thongBaoLuuLabel.setText("");
+        }
+    }
+
+    private void datLoiInput(Control control, Label errLabel, String loiMsg, boolean isDonGia) {
+        if (errLabel != null) {
+            if (loiMsg != null && !loiMsg.isEmpty()) {
+                errLabel.setText("⚠ " + loiMsg);
+                errLabel.setVisible(true);
+                errLabel.setManaged(true);
+            } else {
+                errLabel.setText("");
+                errLabel.setVisible(false);
+                errLabel.setManaged(false);
+            }
+        }
+        if (control != null) {
+            control.getStyleClass().remove("input-error");
+            if (loiMsg != null && !loiMsg.isEmpty()) {
+                control.getStyleClass().add("input-error");
+            }
+        }
+    }
+
     public void hienThiChiTiet(SanPham sp) {
         if (sp == null) {
             anChiTiet();
@@ -109,51 +158,49 @@ public class ChiTietSanPhamController {
         }
 
         this.sanPhamHienTai = sp;
-        this.duongDanAnhDaChon = sp.getAnhSanPham();
+        this.duongDanAnhDaChon = sp.getDuongDanAnh();
+
         setHienThi(true);
-        xoaThongBao();
+        xoaTatCaLoi();
 
         detailMaSPLabel.setText(sp.getMaSanPham() != null ? sp.getMaSanPham() : "---");
         tenSanPhamField.setText(sp.getTenSanPham() != null ? sp.getTenSanPham() : "");
-        donViTinhField.setText(sp.getDonViTinh() != null ? sp.getDonViTinh() : "");
+        donViTinhCombo.setValue(sp.getDonViTinh());
         donGiaBanField.setText(String.format("%.0f", sp.getDonGiaBan()));
         giaNhapField.setText(String.format("%.0f", sp.getGiaNhap()));
         soLuongTonField.setText(String.valueOf(sp.getSoLuongTon()));
         soLuongTonToiThieuField.setText(String.valueOf(sp.getSoLuongTonToiThieu()));
         thueVATField.setText(String.valueOf(sp.getThueVAT()));
+        trangThaiCombo.setValue(sp.isTrangThai() ? "Đang kinh doanh" : "Ngừng kinh doanh");
 
-        // Chọn danh mục tương ứng
-        if (danhMucCombo.getItems() != null && !danhMucCombo.getItems().isEmpty()) {
+        // Đồng bộ danh mục tương ứng
+        if (sp.getDanhMuc() != null && danhMucCombo.getItems() != null) {
             for (DanhMucSanPham dm : danhMucCombo.getItems()) {
-                if (dm.getId() == sp.getDanhMucId() || 
-                    (sp.getDanhMuc() != null && dm.getId() == sp.getDanhMuc().getId())) {
+                if (dm.getId() == sp.getDanhMuc().getId()) {
                     danhMucCombo.setValue(dm);
                     break;
                 }
             }
         }
 
-        // Chọn trạng thái kinh doanh
-        trangThaiCombo.setValue(sp.isTrangThai() ? "Đang kinh doanh" : "Ngừng kinh doanh");
-
-        // Tải ảnh xem trước
-        taiAnhSanPham(duongDanAnhDaChon);
+        hienThiHinhAnh(this.duongDanAnhDaChon);
     }
 
-    /**
-     * Tải và hiển thị ảnh lên khung preview
-     */
-    public void taiAnhSanPham(String duongDanAnh) {
-        if (duongDanAnh != null && !duongDanAnh.isBlank()) {
+    private void hienThiHinhAnh(String duongDan) {
+        if (duongDan != null && !duongDan.trim().isEmpty()) {
             try {
-                File file = new File(duongDanAnh);
-                if (file.exists() && file.isFile()) {
-                    previewImageView.setImage(new Image(file.toURI().toString()));
-                    previewImageView.setVisible(true);
-                    previewPlaceholderLabel.setVisible(false);
-                    return;
-                } else if (getClass().getResource(duongDanAnh) != null) {
-                    previewImageView.setImage(new Image(getClass().getResource(duongDanAnh).toExternalForm()));
+                File fileAnh = new File(duongDan);
+                Image img;
+                if (fileAnh.exists()) {
+                    img = new Image(fileAnh.toURI().toString());
+                } else if (duongDan.startsWith("http") || duongDan.startsWith("file:")) {
+                    img = new Image(duongDan);
+                } else {
+                    img = new Image(getClass().getResourceAsStream(duongDan));
+                }
+
+                if (img != null && !img.isError()) {
+                    previewImageView.setImage(img);
                     previewImageView.setVisible(true);
                     previewPlaceholderLabel.setVisible(false);
                     return;
@@ -166,47 +213,190 @@ public class ChiTietSanPhamController {
         previewPlaceholderLabel.setVisible(true);
     }
 
-    /**
-     * Sự kiện nút Chọn / Đổi hình ảnh
-     */
     @FXML
     public void onChonAnhClick() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Chọn Hình Ảnh Cho Sản Phẩm");
+        fileChooser.setTitle("Chọn hình ảnh phụ tùng / sản phẩm");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Tệp hình ảnh (*.png, *.jpg, *.jpeg, *.webp)", "*.png", "*.jpg", "*.jpeg", "*.webp")
+                new FileChooser.ExtensionFilter("Tệp hình ảnh", "*.png", "*.jpg", "*.jpeg", "*.webp")
         );
 
         Stage stage = (Stage) rootPane.getScene().getWindow();
-        File file = fileChooser.showOpenDialog(stage);
+        File selectedFile = fileChooser.showOpenDialog(stage);
 
-        if (file != null) {
-            duongDanAnhDaChon = file.getAbsolutePath();
-            taiAnhSanPham(duongDanAnhDaChon);
-            hienThongBao("Đã chọn ảnh mới. Hãy bấm Lưu thay đổi!", true);
+        if (selectedFile != null) {
+            this.duongDanAnhDaChon = selectedFile.getAbsolutePath();
+            hienThiHinhAnh(this.duongDanAnhDaChon);
+            hienThongBao("Đã chọn ảnh mới. Hãy bấm 'Lưu Thay Đổi' để cập nhật!", true);
         }
     }
 
-    // =========================================================================
-    // TASK M02-T04: Hiển thị thông tin sản phẩm và cho phép chỉnh sửa
-    // Người thực hiện: Tuấn
-    // =========================================================================
     @FXML
     public void onLuuThayDoiClick() {
-        // TODO: Tuấn thực hiện chức năng chỉnh sửa và lưu cập nhật thông tin sản phẩm (Task M02-T04)
-        hienThongBao("Chức năng chỉnh sửa sản phẩm do Tuấn thực hiện (Task M02-T04)", false);
+        if (sanPhamHienTai == null) {
+            hienThongBao("Vui lòng chọn sản phẩm cần cập nhật!", false);
+            return;
+        }
+
+        xoaTatCaLoi();
+
+        // 1. Kiểm tra Tên sản phẩm
+        String tenSP = tenSanPhamField.getText() != null ? tenSanPhamField.getText().trim() : "";
+        if (tenSP.isEmpty()) {
+            datLoiInput(tenSanPhamField, errTenSP, "Tên sản phẩm không được để trống!", false);
+            tenSanPhamField.requestFocus();
+            return;
+        }
+
+        // 2. Kiểm tra Danh mục
+        DanhMucSanPham danhMuc = danhMucCombo.getValue();
+        if (danhMuc == null) {
+            datLoiInput(danhMucCombo, errDanhMuc, "Vui lòng chọn danh mục cho sản phẩm!", false);
+            danhMucCombo.requestFocus();
+            return;
+        }
+
+        // 3. Kiểm tra Đơn vị tính
+        DonViTinh dvt = donViTinhCombo.getValue();
+        if (dvt == null) {
+            datLoiInput(donViTinhCombo, errDonViTinh, "Vui lòng chọn đơn vị tính!", false);
+            donViTinhCombo.requestFocus();
+            return;
+        }
+
+        // 4. Kiểm tra Giá nhập
+        double giaNhap = 0;
+        String giaNhapTxt = giaNhapField.getText() != null ? giaNhapField.getText().trim().replace(",", "") : "";
+        if (!giaNhapTxt.isEmpty()) {
+            try {
+                giaNhap = Double.parseDouble(giaNhapTxt);
+                if (giaNhap < 0) {
+                    datLoiInput(giaNhapField, errGiaNhap, "Giá nhập không được nhỏ hơn 0!", false);
+                    giaNhapField.requestFocus();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                datLoiInput(giaNhapField, errGiaNhap, "Giá nhập phải là số hợp lệ!", false);
+                giaNhapField.requestFocus();
+                return;
+            }
+        }
+
+        // 5. Kiểm tra Đơn giá bán
+        double giaBan = 0;
+        String giaBanTxt = donGiaBanField.getText() != null ? donGiaBanField.getText().trim().replace(",", "") : "";
+        if (giaBanTxt.isEmpty()) {
+            datLoiInput(donGiaBanField, errDonGiaBan, "Đơn giá bán không được để trống!", true);
+            donGiaBanField.requestFocus();
+            return;
+        }
+        try {
+            giaBan = Double.parseDouble(giaBanTxt);
+            if (giaBan < 0) {
+                datLoiInput(donGiaBanField, errDonGiaBan, "Đơn giá bán không được nhỏ hơn 0!", true);
+                donGiaBanField.requestFocus();
+                return;
+            }
+            if (giaBan < giaNhap) {
+                datLoiInput(donGiaBanField, errDonGiaBan, "Giá bán phải lớn hơn hoặc bằng giá nhập!", true);
+                donGiaBanField.requestFocus();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            datLoiInput(donGiaBanField, errDonGiaBan, "Đơn giá bán phải là số hợp lệ!", true);
+            donGiaBanField.requestFocus();
+            return;
+        }
+
+        // 6. Kiểm tra Số lượng tồn
+        int slTon = 0;
+        String slTonTxt = soLuongTonField.getText() != null ? soLuongTonField.getText().trim() : "";
+        if (!slTonTxt.isEmpty()) {
+            try {
+                slTon = Integer.parseInt(slTonTxt);
+                if (slTon < 0) {
+                    datLoiInput(soLuongTonField, errSoLuongTon, "Số lượng tồn phải từ 0 trở lên!", false);
+                    soLuongTonField.requestFocus();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                datLoiInput(soLuongTonField, errSoLuongTon, "Số lượng tồn phải là số nguyên!", false);
+                soLuongTonField.requestFocus();
+                return;
+            }
+        }
+
+        // 7. Kiểm tra Số lượng tồn tối thiểu
+        int slTonToiThieu = 0;
+        String slTonMinTxt = soLuongTonToiThieuField.getText() != null ? soLuongTonToiThieuField.getText().trim() : "";
+        if (!slTonMinTxt.isEmpty()) {
+            try {
+                slTonToiThieu = Integer.parseInt(slTonMinTxt);
+                if (slTonToiThieu < 0) {
+                    datLoiInput(soLuongTonToiThieuField, errSoLuongTonToiThieu, "Tồn tối thiểu phải từ 0 trở lên!", false);
+                    soLuongTonToiThieuField.requestFocus();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                datLoiInput(soLuongTonToiThieuField, errSoLuongTonToiThieu, "Số lượng tồn tối thiểu phải là số nguyên!", false);
+                soLuongTonToiThieuField.requestFocus();
+                return;
+            }
+        }
+
+        // 8. Kiểm tra Thuế VAT
+        double vat = 10.0;
+        String vatTxt = thueVATField.getText() != null ? thueVATField.getText().trim() : "";
+        if (!vatTxt.isEmpty()) {
+            try {
+                vat = Double.parseDouble(vatTxt);
+                if (vat < 0 || vat > 100) {
+                    datLoiInput(thueVATField, errThueVAT, "Thuế VAT phải từ 0 đến 100%!", false);
+                    thueVATField.requestFocus();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                datLoiInput(thueVATField, errThueVAT, "Thuế VAT phải là số hợp lệ!", false);
+                thueVATField.requestFocus();
+                return;
+            }
+        }
+
+        // Gán các giá trị mới vào entity
+        sanPhamHienTai.setTenSanPham(tenSP);
+        sanPhamHienTai.setDanhMucId(danhMuc.getId());
+        sanPhamHienTai.setDanhMuc(danhMuc);
+        sanPhamHienTai.setDonViTinh(dvt);
+        sanPhamHienTai.setGiaNhap(giaNhap);
+        sanPhamHienTai.setDonGiaBan(giaBan);
+        sanPhamHienTai.setSoLuongTon(slTon);
+        sanPhamHienTai.setSoLuongTonToiThieu(slTonToiThieu);
+        sanPhamHienTai.setThueVAT(vat);
+        sanPhamHienTai.setTrangThai("Đang kinh doanh".equals(trangThaiCombo.getValue()));
+        sanPhamHienTai.setDuongDanAnh(this.duongDanAnhDaChon);
+
+        // Lưu xuống database qua Service
+        try {
+            boolean kq = sanPhamService.capNhat(sanPhamHienTai);
+            if (kq) {
+                hienThongBao("Cập nhật sản phẩm '" + sanPhamHienTai.getMaSanPham() + "' thành công!", true);
+                if (onLuuCallback != null) {
+                    onLuuCallback.accept(sanPhamHienTai);
+                }
+            } else {
+                hienThongBao("Cập nhật thất bại. Vui lòng kiểm tra lại!", false);
+            }
+        } catch (IllegalArgumentException ex) {
+            hienThongBao(ex.getMessage(), false);
+        } catch (Exception ex) {
+            hienThongBao("Lỗi khi cập nhật sản phẩm: " + ex.getMessage(), false);
+        }
     }
 
-    /**
-     * Thu gọn khung chi tiết
-     */
     public void anChiTiet() {
         setHienThi(false);
     }
 
-    /**
-     * Bật / tắt hiển thị khung
-     */
     public void setHienThi(boolean hienThi) {
         if (rootPane != null) {
             rootPane.setVisible(hienThi);
@@ -224,18 +414,10 @@ public class ChiTietSanPhamController {
 
     private void hienThongBao(String msg, boolean thanhCong) {
         thongBaoLuuLabel.setText(msg);
-        thongBaoLuuLabel.setStyle(thanhCong ? "-fx-text-fill: #10b981;" : "-fx-text-fill: #ef4444;");
-    }
-
-    private void xoaThongBao() {
-        thongBaoLuuLabel.setText("");
+        thongBaoLuuLabel.setStyle(thanhCong ? "-fx-text-fill: #10b981; -fx-font-weight: bold;" : "-fx-text-fill: #ef4444; -fx-font-weight: bold;");
     }
 
     public SanPham getSanPhamHienTai() {
         return sanPhamHienTai;
-    }
-
-    public String getDuongDanAnhDaChon() {
-        return duongDanAnhDaChon;
     }
 }

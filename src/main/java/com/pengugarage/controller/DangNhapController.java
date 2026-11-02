@@ -203,11 +203,11 @@ public class DangNhapController {
     private void showAlert(String message, boolean isError) {
         alertLabel.setText(message);
         if (isError) {
-            alertBox.setStyle("-fx-background-color: rgba(220, 38, 38, 0.15); -fx-border-color: #ef4444; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 8px 12px;");
-            alertLabel.setStyle("-fx-text-fill: #fca5a5; -fx-font-weight: bold; -fx-font-size: 12px;");
+            alertBox.setStyle("-fx-background-color: #fee2e2; -fx-border-color: #ef4444; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 8px 12px;");
+            alertLabel.setStyle("-fx-text-fill: #b91c1c; -fx-font-weight: bold; -fx-font-size: 12px;");
         } else {
-            alertBox.setStyle("-fx-background-color: rgba(16, 185, 129, 0.15); -fx-border-color: #10b981; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 8px 12px;");
-            alertLabel.setStyle("-fx-text-fill: #86efac; -fx-font-weight: bold; -fx-font-size: 12px;");
+            alertBox.setStyle("-fx-background-color: #ecfdf5; -fx-border-color: #10b981; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 8px 12px;");
+            alertLabel.setStyle("-fx-text-fill: #047857; -fx-font-weight: bold; -fx-font-size: 12px;");
         }
         alertBox.setVisible(true);
         alertBox.setManaged(true);
@@ -244,7 +244,7 @@ public class DangNhapController {
             tieuDe = "Pengu Garage Service ERP - Dashboard Kỹ Thuật Viên";
         } else if (chucVu == ChucVu.LE_TAN) {
             fxmlPath = "/com/pengugarage/view/letan/dashboard-view.fxml";
-            tieuDe = "Pengu Garage Service ERP - Dashboard Lễ Tân & Thu Ngân";
+            tieuDe = "Pengu Garage Service ERP - Dashboard Tiếp Nhận & Bán Hàng";
         } else {
             // Mặc định hoặc Quản lý
             fxmlPath = "/com/pengugarage/view/quanly/dashboard-view.fxml";

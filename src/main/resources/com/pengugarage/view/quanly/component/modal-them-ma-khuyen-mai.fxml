@@ -6,7 +6,6 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -54,9 +53,11 @@
         <!-- Mã Khuyến Mãi -->
         <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
                text="Mã khuyến mãi (*):" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <TextField fx:id="maKMField" promptText="VD: KM-HE2026, GIAM50K..."
-                   style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;"
-                   GridPane.rowIndex="0" GridPane.columnIndex="1" />
+        <VBox spacing="3.0" GridPane.rowIndex="0" GridPane.columnIndex="1">
+            <TextField fx:id="maKMField" promptText="VD: KM-HE2026, GIAM50K..."
+                       style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+            <Label fx:id="errMaKM" managed="false" style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-font-weight: bold;" text="" visible="false" />
+        </VBox>
 
         <!-- Loại Giảm Giá -->
         <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
@@ -68,58 +69,77 @@
         <!-- Giá Trị Giảm -->
         <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
                text="Giá trị giảm (*):" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <TextField fx:id="giaTriGiamField" promptText="VD: 10 (cho %) hoặc 50000 (cho VNĐ)"
-                   style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;"
-                   GridPane.rowIndex="2" GridPane.columnIndex="1" />
+        <VBox spacing="3.0" GridPane.rowIndex="2" GridPane.columnIndex="1">
+            <TextField fx:id="giaTriGiamField" promptText="VD: 10 (cho %) hoặc 50000 (cho VNĐ)"
+                       style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+            <Label fx:id="errGiaTriGiam" managed="false" style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-font-weight: bold;" text="" visible="false" />
+        </VBox>
 
         <!-- Giá Trị Tối Thiểu Áp Dụng -->
         <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
                text="Hóa đơn tối thiểu (VNĐ):" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-        <TextField fx:id="giaTriToiThieuField" promptText="VD: 500000"
-                   style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;"
-                   GridPane.rowIndex="3" GridPane.columnIndex="1" />
+        <VBox spacing="3.0" GridPane.rowIndex="3" GridPane.columnIndex="1">
+            <TextField fx:id="giaTriToiThieuField" promptText="VD: 500000"
+                       style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+            <Label fx:id="errGiaTriToiThieu" managed="false" style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-font-weight: bold;" text="" visible="false" />
+        </VBox>
 
         <!-- Ngày Bắt Đầu Áp Dụng -->
         <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
                text="Ngày bắt đầu (Lịch chọn):" GridPane.rowIndex="4" GridPane.columnIndex="0" />
-        <DatePicker fx:id="ngayBatDauPicker" promptText="dd/MM/yyyy" maxWidth="Infinity"
-                    style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px;"
-                    GridPane.rowIndex="4" GridPane.columnIndex="1" />
+        <VBox spacing="3.0" GridPane.rowIndex="4" GridPane.columnIndex="1">
+            <DatePicker fx:id="ngayBatDauPicker" promptText="dd/MM/yyyy" maxWidth="Infinity"
+                        style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px;" />
+            <Label fx:id="errNgayBatDau" managed="false" style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-font-weight: bold;" text="" visible="false" />
+        </VBox>
 
         <!-- Ngày Hết Hạn -->
         <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
                text="Ngày hết hạn (Lịch chọn):" GridPane.rowIndex="5" GridPane.columnIndex="0" />
-        <DatePicker fx:id="ngayHetHanPicker" promptText="dd/MM/yyyy" maxWidth="Infinity"
-                    style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px;"
-                    GridPane.rowIndex="5" GridPane.columnIndex="1" />
-
+        <VBox spacing="3.0" GridPane.rowIndex="5" GridPane.columnIndex="1">
+            <DatePicker fx:id="ngayHetHanPicker" promptText="dd/MM/yyyy" maxWidth="Infinity"
+                        style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px;" />
+            <Label fx:id="errNgayHetHan" managed="false" style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-font-weight: bold;" text="" visible="false" />
+        </VBox>
 
         <!-- Số Lượng Tồn / Phát Hành -->
         <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
                text="Số lượng phát hành:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
-        <TextField fx:id="soLuongTonField" promptText="VD: 100"
-                   style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;"
-                   GridPane.rowIndex="6" GridPane.columnIndex="1" />
+        <VBox spacing="3.0" GridPane.rowIndex="6" GridPane.columnIndex="1">
+            <TextField fx:id="soLuongTonField" promptText="VD: 100"
+                       style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-prompt-text-fill: #94A3B8; -fx-padding: 8px 12px; -fx-background-radius: 6px; -fx-border-radius: 6px;" />
+            <Label fx:id="errSoLuongTon" managed="false" style="-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-font-weight: bold;" text="" visible="false" />
+        </VBox>
 
         <!-- Trạng Thái -->
         <Label style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-font-size: 13px;"
-               text="Trạng thái:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+               text="Trạng thái áp dụng:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
         <ComboBox fx:id="trangThaiCombo" prefWidth="250.0"
                   style="-fx-background-color: #FFFFFF; -fx-border-color: #CBD5E1; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 3px;"
                   GridPane.rowIndex="7" GridPane.columnIndex="1" />
+        <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+        </rowConstraints>
     </GridPane>
 
-    <!-- Nhãn thông báo -->
+    <!-- Nhãn thông báo chung -->
     <Label fx:id="thongBaoLabel" style="-fx-font-size: 12px; -fx-font-weight: bold;" text="" />
 
-    <!-- Footer Action Buttons -->
+    <!-- Action Buttons -->
     <HBox alignment="CENTER_RIGHT" spacing="12.0">
         <Button onAction="#onDongClick"
                 style="-fx-background-color: #223e60; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-background-radius: 8px; -fx-cursor: hand;"
                 text="Hủy bỏ" />
         <Button onAction="#onLuuClick"
                 style="-fx-background-color: #f47b31; -fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-padding: 10px 24px; -fx-background-radius: 8px; -fx-cursor: hand;"
-                text="Lưu Khuyến Mãi" />
+                text="Lưu Mã Khuyến Mãi" />
     </HBox>
 
 </VBox>

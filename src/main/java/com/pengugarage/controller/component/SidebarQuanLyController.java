@@ -4,9 +4,10 @@ import com.pengugarage.util.DieuHuongUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 
 import java.util.Arrays;
@@ -14,13 +15,36 @@ import java.util.List;
 
 /**
  * Controller cho Sidebar của nhóm Quản Lý.
- * Tự động xác định màn hình đang hiển thị và kích hoạt khung (Active highlight)
- * cho chức năng tương ứng trên sidebar.
+ * Hỗ trợ ĐÓNG / MỞ (Collapsible) thanh menu và highlight nút chức năng đang active
+ * theo đúng BẢNG MÀU THƯƠNG HIỆU trích từ Logo Pengu Garage:
+ * - Brand Navy: #102A46 / #173B61
+ * - Action Orange: #F47B31
+ * - Surface Light: #FFFFFF / #F4F7FA
  */
 public class SidebarQuanLyController extends BaseSidebarController {
 
+    private static boolean isSidebarCollapsed = false;
+
     @FXML
     private VBox rootSidebar;
+
+    @FXML
+    private Label lblTenHangMuc;
+
+    @FXML
+    private Button btnToggleSidebar;
+
+    @FXML
+    private VBox boxChucNang;
+
+    @FXML
+    private Label lblSectionCungCap;
+
+    @FXML
+    private Label lblSectionVanHanh;
+
+    @FXML
+    private Label lblSectionQuanTri;
 
     @FXML
     private Button btnDashboard;
@@ -49,66 +73,120 @@ public class SidebarQuanLyController extends BaseSidebarController {
     @FXML
     private Button btnBaoCaoThongKe;
 
+    @FXML
+    private Button btnHuongDanSuDung;
+
     private Button currentActiveButton;
-
-    private static final String STYLE_ACTIVE =
-            "-fx-background-color: #1a385c; " +
-            "-fx-text-fill: #ffffff; " +
-            "-fx-font-weight: 800; " +
-            "-fx-font-size: 14.5px; " +
-            "-fx-background-radius: 8px; " +
-            "-fx-border-color: #2b5588; " +
-            "-fx-border-radius: 8px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-padding: 10px 14px; " +
-            "-fx-cursor: hand;";
-
-    private static final String STYLE_DASHBOARD_INACTIVE =
-            "-fx-background-color: transparent; " +
-            "-fx-text-fill: #cbd5e1; " +
-            "-fx-font-weight: 800; " +
-            "-fx-font-size: 14.5px; " +
-            "-fx-background-radius: 8px; " +
-            "-fx-border-color: transparent; " +
-            "-fx-border-radius: 8px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-padding: 10px 14px; " +
-            "-fx-cursor: hand;";
-
-    private static final String STYLE_INACTIVE =
-            "-fx-background-color: transparent; " +
-            "-fx-text-fill: #cbd5e1; " +
-            "-fx-font-weight: 750; " +
-            "-fx-font-size: 14.5px; " +
-            "-fx-background-radius: 8px; " +
-            "-fx-border-color: transparent; " +
-            "-fx-border-radius: 8px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-padding: 10px 14px; " +
-            "-fx-cursor: hand;";
-
-    private static final String STYLE_HOVER =
-            "-fx-background-color: #142438; " +
-            "-fx-text-fill: #ffffff; " +
-            "-fx-font-weight: 800; " +
-            "-fx-font-size: 14.5px; " +
-            "-fx-background-radius: 8px; " +
-            "-fx-border-color: #1c3554; " +
-            "-fx-border-radius: 8px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-padding: 10px 14px; " +
-            "-fx-cursor: hand;";
 
     @Override
     public void initialize() {
         super.initialize();
-        khoiTaoSuKienHover();
-
-        // Cập nhật trạng thái active ngay lập tức
+        khoiTaoTooltip();
+        capNhatTrangThaiCollapse();
         capNhatKhungChucNangHienTai();
-
-        // Và chạy lại sau khi Scene được gắn hoàn tất để đảm bảo chính xác 100%
         Platform.runLater(this::capNhatKhungChucNangHienTai);
+    }
+
+    private void khoiTaoTooltip() {
+        if (btnDashboard != null) btnDashboard.setTooltip(new Tooltip("Dashboard tổng quan"));
+        if (btnQuanLySanPham != null) btnQuanLySanPham.setTooltip(new Tooltip("Quản lý sản phẩm & phụ tùng"));
+        if (btnQuanLyDichVu != null) btnQuanLyDichVu.setTooltip(new Tooltip("Quản lý dịch vụ kỹ thuật"));
+        if (btnQuanLyMaKhuyenMai != null) btnQuanLyMaKhuyenMai.setTooltip(new Tooltip("Quản lý mã khuyến mãi"));
+        if (btnQuanLyPhuongTien != null) btnQuanLyPhuongTien.setTooltip(new Tooltip("Quản lý phương tiện"));
+        if (btnQuanLyHoaDon != null) btnQuanLyHoaDon.setTooltip(new Tooltip("Quản lý hóa đơn"));
+        if (btnQuanLyKhachHang != null) btnQuanLyKhachHang.setTooltip(new Tooltip("Quản lý khách hàng"));
+        if (btnQuanLyNhanVien != null) btnQuanLyNhanVien.setTooltip(new Tooltip("Quản lý nhân viên & tài khoản"));
+        if (btnBaoCaoThongKe != null) btnBaoCaoThongKe.setTooltip(new Tooltip("Thống kê & báo cáo"));
+        if (btnHuongDanSuDung != null) btnHuongDanSuDung.setTooltip(new Tooltip("Hướng dẫn sử dụng"));
+    }
+
+    @FXML
+    public void onToggleSidebarClick() {
+        isSidebarCollapsed = !isSidebarCollapsed;
+        capNhatTrangThaiCollapse();
+    }
+
+    private void capNhatTrangThaiCollapse() {
+        if (rootSidebar == null) return;
+
+        if (isSidebarCollapsed) {
+            rootSidebar.setPrefWidth(62.0);
+            rootSidebar.setMinWidth(62.0);
+            rootSidebar.setMaxWidth(62.0);
+
+            if (lblTenHangMuc != null) {
+                lblTenHangMuc.setVisible(false);
+                lblTenHangMuc.setManaged(false);
+            }
+            if (lblSectionCungCap != null) {
+                lblSectionCungCap.setVisible(false);
+                lblSectionCungCap.setManaged(false);
+            }
+            if (lblSectionVanHanh != null) {
+                lblSectionVanHanh.setVisible(false);
+                lblSectionVanHanh.setManaged(false);
+            }
+            if (lblSectionQuanTri != null) {
+                lblSectionQuanTri.setVisible(false);
+                lblSectionQuanTri.setManaged(false);
+            }
+
+            if (btnToggleSidebar != null) btnToggleSidebar.setText(">");
+
+            // Đặt text dạng icon thu nhỏ
+            if (btnDashboard != null) btnDashboard.setText("📊");
+            if (btnQuanLySanPham != null) btnQuanLySanPham.setText("📦");
+            if (btnQuanLyDichVu != null) btnQuanLyDichVu.setText("🔧");
+            if (btnQuanLyMaKhuyenMai != null) btnQuanLyMaKhuyenMai.setText("🏷️");
+            if (btnQuanLyPhuongTien != null) btnQuanLyPhuongTien.setText("🚗");
+            if (btnQuanLyHoaDon != null) btnQuanLyHoaDon.setText("🧾");
+            if (btnQuanLyKhachHang != null) btnQuanLyKhachHang.setText("👥");
+            if (btnQuanLyNhanVien != null) btnQuanLyNhanVien.setText("👨‍🔧");
+            if (btnBaoCaoThongKe != null) btnBaoCaoThongKe.setText("📈");
+            if (btnHuongDanSuDung != null) {
+                btnHuongDanSuDung.setText("❗");
+                btnHuongDanSuDung.setStyle("-fx-alignment: CENTER;");
+            }
+
+        } else {
+            rootSidebar.setPrefWidth(230.0);
+            rootSidebar.setMinWidth(230.0);
+            rootSidebar.setMaxWidth(230.0);
+
+            if (lblTenHangMuc != null) {
+                lblTenHangMuc.setVisible(true);
+                lblTenHangMuc.setManaged(true);
+            }
+            if (lblSectionCungCap != null) {
+                lblSectionCungCap.setVisible(true);
+                lblSectionCungCap.setManaged(true);
+            }
+            if (lblSectionVanHanh != null) {
+                lblSectionVanHanh.setVisible(true);
+                lblSectionVanHanh.setManaged(true);
+            }
+            if (lblSectionQuanTri != null) {
+                lblSectionQuanTri.setVisible(true);
+                lblSectionQuanTri.setManaged(true);
+            }
+
+            if (btnToggleSidebar != null) btnToggleSidebar.setText("<");
+
+            // Khôi phục text đầy đủ
+            if (btnDashboard != null) btnDashboard.setText("📊 Dashboard");
+            if (btnQuanLySanPham != null) btnQuanLySanPham.setText("📦 Sản phẩm & Phụ tùng");
+            if (btnQuanLyDichVu != null) btnQuanLyDichVu.setText("🔧 Dịch vụ kỹ thuật");
+            if (btnQuanLyMaKhuyenMai != null) btnQuanLyMaKhuyenMai.setText("🏷️ Mã khuyến mãi");
+            if (btnQuanLyPhuongTien != null) btnQuanLyPhuongTien.setText("🚗 Quản lý phương tiện");
+            if (btnQuanLyHoaDon != null) btnQuanLyHoaDon.setText("🧾 Quản lý hóa đơn");
+            if (btnQuanLyKhachHang != null) btnQuanLyKhachHang.setText("👥 Quản lý khách hàng");
+            if (btnQuanLyNhanVien != null) btnQuanLyNhanVien.setText("👨‍🔧 Quản lý nhân viên");
+            if (btnBaoCaoThongKe != null) btnBaoCaoThongKe.setText("📊 Báo cáo & Thống kê");
+            if (btnHuongDanSuDung != null) {
+                btnHuongDanSuDung.setText("❗ Hướng dẫn sử dụng");
+                btnHuongDanSuDung.setStyle("-fx-alignment: CENTER_LEFT;");
+            }
+        }
     }
 
     private List<Button> layDanhSachTatCaNut() {
@@ -125,29 +203,12 @@ public class SidebarQuanLyController extends BaseSidebarController {
         );
     }
 
-    private void khoiTaoSuKienHover() {
-        for (Button btn : layDanhSachTatCaNut()) {
-            if (btn == null) continue;
-            btn.setOnMouseEntered(e -> {
-                if (btn != currentActiveButton) {
-                    btn.setStyle(STYLE_HOVER);
-                }
-            });
-            btn.setOnMouseExited(e -> {
-                if (btn != currentActiveButton) {
-                    btn.setStyle(btn == btnDashboard ? STYLE_DASHBOARD_INACTIVE : STYLE_INACTIVE);
-                }
-            });
-        }
-    }
-
     /**
-     * Xác định trang quản lý hiện tại để kích hoạt khung tương ứng
+     * Cập nhật nút active và đề mục hạng mục theo trang hiện tại
      */
     public void capNhatKhungChucNangHienTai() {
         String path = DieuHuongUtil.getCurrentFxmlPath();
 
-        // Kiểm tra qua thuộc tính root của Scene nếu path chưa được set
         if ((path == null || path.isEmpty()) && rootSidebar != null && rootSidebar.getScene() != null) {
             Parent root = rootSidebar.getScene().getRoot();
             if (root != null && root.getProperties().containsKey("fxmlPath")) {
@@ -155,162 +216,133 @@ public class SidebarQuanLyController extends BaseSidebarController {
             }
         }
 
-        // Fallback nhận diện đặc trưng UI của Scene
-        if ((path == null || path.isEmpty()) && rootSidebar != null && rootSidebar.getScene() != null) {
-            Scene scene = rootSidebar.getScene();
-            if (scene.lookup("#tableSanPham") != null || scene.lookup("#btnThemSanPham") != null || scene.lookup("#tenSanPhamField") != null) {
-                path = "san-pham";
-            } else if (scene.lookup("#tableDichVu") != null || scene.lookup("#btnThemDichVu") != null || scene.lookup("#tenDichVuField") != null) {
-                path = "dich-vu";
-            } else if (scene.lookup("#tableKhuyenMai") != null || scene.lookup("#btnThemKhuyenMai") != null || scene.lookup("#maKhuyenMaiField") != null) {
-                path = "ma-khuyen-mai";
-            } else if (scene.lookup("#tableNhanVien") != null || scene.lookup("#btnThemNhanVien") != null || scene.lookup("#hoTenField") != null) {
-                path = "nhan-vien";
-            } else {
-                path = "dashboard";
-            }
-        }
-
         if (path == null) {
             path = "dashboard";
         }
 
-        // Đặt khung nổi bật cho nút tương ứng
         if (path.contains("san-pham")) {
+            datTieuDeHangMuc("HẠNG MỤC CUNG CẤP");
             datTrangThaiActive(btnQuanLySanPham);
         } else if (path.contains("dich-vu")) {
+            datTieuDeHangMuc("HẠNG MỤC CUNG CẤP");
             datTrangThaiActive(btnQuanLyDichVu);
         } else if (path.contains("ma-khuyen-mai")) {
+            datTieuDeHangMuc("HẠNG MỤC CUNG CẤP");
             datTrangThaiActive(btnQuanLyMaKhuyenMai);
         } else if (path.contains("nhan-vien")) {
+            datTieuDeHangMuc("QUẢN TRỊ CỬA HÀNG");
             datTrangThaiActive(btnQuanLyNhanVien);
         } else if (path.contains("phuong-tien")) {
+            datTieuDeHangMuc("VẬN HÀNH GARA");
             datTrangThaiActive(btnQuanLyPhuongTien);
         } else if (path.contains("hoa-don")) {
+            datTieuDeHangMuc("VẬN HÀNH GARA");
             datTrangThaiActive(btnQuanLyHoaDon);
         } else if (path.contains("khach-hang")) {
+            datTieuDeHangMuc("VẬN HÀNH GARA");
             datTrangThaiActive(btnQuanLyKhachHang);
         } else if (path.contains("thong-ke") || path.contains("bao-cao")) {
+            datTieuDeHangMuc("QUẢN TRỊ CỬA HÀNG");
             datTrangThaiActive(btnBaoCaoThongKe);
         } else {
+            datTieuDeHangMuc("BẢNG ĐIỀU KHIỂN");
             datTrangThaiActive(btnDashboard);
         }
     }
 
+    private void datTieuDeHangMuc(String tieuDe) {
+        if (lblTenHangMuc != null) {
+            lblTenHangMuc.setText(tieuDe);
+        }
+    }
+
     private void datTrangThaiActive(Button targetBtn) {
+        if (targetBtn == null) return;
+
         currentActiveButton = targetBtn;
+
         for (Button btn : layDanhSachTatCaNut()) {
             if (btn == null) continue;
+            btn.getStyleClass().remove("sidebar-nav-btn-active");
             if (btn == targetBtn) {
-                btn.setStyle(STYLE_ACTIVE);
-                btn.getStyleClass().remove("sidebar-nav-btn");
-                if (!btn.getStyleClass().contains("sidebar-nav-btn-active")) {
-                    btn.getStyleClass().add("sidebar-nav-btn-active");
-                }
-            } else {
-                btn.setStyle(btn == btnDashboard ? STYLE_DASHBOARD_INACTIVE : STYLE_INACTIVE);
-                btn.getStyleClass().remove("sidebar-nav-btn-active");
-                if (!btn.getStyleClass().contains("sidebar-nav-btn")) {
-                    btn.getStyleClass().add("sidebar-nav-btn");
-                }
+                btn.getStyleClass().add("sidebar-nav-btn-active");
             }
         }
     }
 
     // =========================================================================
-    // SỰ KIỆN ĐIỀU HƯỚNG CÁC TRANG QUẢN LÝ
+    // SỰ KIỆN ĐIỀU HƯỚNG TỪ SIDEBAR
     // =========================================================================
 
     @FXML
     public void onDashboardClick() {
-        DieuHuongUtil.chuyenManHinh(userNameLabel,
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
                 "/com/pengugarage/view/quanly/dashboard-view.fxml",
                 "Pengu Garage Service ERP - Dashboard Quản Lý");
     }
 
     @FXML
     public void onQuanLySanPhamClick() {
-        if (getClass().getResource("/com/pengugarage/view/quanly/san-pham-view.fxml") != null) {
-            DieuHuongUtil.chuyenManHinh(userNameLabel,
-                    "/com/pengugarage/view/quanly/san-pham-view.fxml",
-                    "Pengu Garage Service ERP - Quản Lý Sản Phẩm & Phụ Tùng");
-        }
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/quanly/san-pham-view.fxml",
+                "Pengu Garage Service ERP - Quản Lý Sản Phẩm & Phụ Tùng");
     }
 
     @FXML
     public void onQuanLyDichVuClick() {
-        if (getClass().getResource("/com/pengugarage/view/quanly/dich-vu-view.fxml") != null) {
-            DieuHuongUtil.chuyenManHinh(userNameLabel,
-                    "/com/pengugarage/view/quanly/dich-vu-view.fxml",
-                    "Pengu Garage Service ERP - Quản Lý Dịch Vụ Gara");
-        }
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/quanly/dich-vu-view.fxml",
+                "Pengu Garage Service ERP - Quản Lý Dịch Vụ Sửa Chữa");
     }
 
     @FXML
     public void onQuanLyMaKhuyenMaiClick() {
-        if (getClass().getResource("/com/pengugarage/view/quanly/ma-khuyen-mai-view.fxml") != null) {
-            DieuHuongUtil.chuyenManHinh(userNameLabel,
-                    "/com/pengugarage/view/quanly/ma-khuyen-mai-view.fxml",
-                    "Pengu Garage Service ERP - Quản Lý Mã Khuyến Mãi");
-        }
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/quanly/ma-khuyen-mai-view.fxml",
+                "Pengu Garage Service ERP - Quản Lý Mã Khuyến Mãi");
+    }
+
+    @FXML
+    public void onQuanLyPhuongTienClick() {
+        thongBaoPhatTrien("Quản lý phương tiện");
+    }
+
+    @FXML
+    public void onQuanLyHoaDonClick() {
+        thongBaoPhatTrien("Quản lý hóa đơn");
+    }
+
+    @FXML
+    public void onQuanLyKhachHangClick() {
+        thongBaoPhatTrien("Quản lý khách hàng");
     }
 
     @FXML
     public void onQuanLyNhanVienClick() {
-        DieuHuongUtil.chuyenManHinh(userNameLabel,
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
                 "/com/pengugarage/view/quanly/nhan-vien-view.fxml",
                 "Pengu Garage Service ERP - Quản Lý Nhân Sự & Tài Khoản");
     }
 
     @FXML
-    public void onQuanLyPhuongTienClick() {
-        if (getClass().getResource("/com/pengugarage/view/quanly/phuong-tien-view.fxml") != null) {
-            DieuHuongUtil.chuyenManHinh(userNameLabel,
-                    "/com/pengugarage/view/quanly/phuong-tien-view.fxml",
-                    "Pengu Garage Service ERP - Quản Lý Phương Tiện");
-        } else {
-            hienThongBaoChuaPhatTrien("Quản lý phương tiện");
-        }
-    }
-
-    @FXML
-    public void onQuanLyHoaDonClick() {
-        if (getClass().getResource("/com/pengugarage/view/quanly/hoa-don-view.fxml") != null) {
-            DieuHuongUtil.chuyenManHinh(userNameLabel,
-                    "/com/pengugarage/view/quanly/hoa-don-view.fxml",
-                    "Pengu Garage Service ERP - Quản Lý Hóa Đơn");
-        } else {
-            hienThongBaoChuaPhatTrien("Quản lý hóa đơn");
-        }
-    }
-
-    @FXML
-    public void onQuanLyKhachHangClick() {
-        if (getClass().getResource("/com/pengugarage/view/quanly/khach-hang-view.fxml") != null) {
-            DieuHuongUtil.chuyenManHinh(userNameLabel,
-                    "/com/pengugarage/view/quanly/khach-hang-view.fxml",
-                    "Pengu Garage Service ERP - Quản Lý Khách Hàng");
-        } else {
-            hienThongBaoChuaPhatTrien("Quản lý khách hàng");
-        }
-    }
-
-    @FXML
     public void onBaoCaoThongKeClick() {
-        if (getClass().getResource("/com/pengugarage/view/quanly/bao-cao-view.fxml") != null) {
-            DieuHuongUtil.chuyenManHinh(userNameLabel,
-                    "/com/pengugarage/view/quanly/bao-cao-view.fxml",
-                    "Pengu Garage Service ERP - Báo Cáo & Thống Kê");
-        } else {
-            hienThongBaoChuaPhatTrien("Thống kê & báo cáo");
-        }
+        thongBaoPhatTrien("Thống kê & báo cáo");
     }
 
-    private void hienThongBaoChuaPhatTrien(String tenChucNang) {
+    @FXML
+    public void onHuongDanSuDungClick() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thông báo hệ thống");
-        alert.setHeaderText("Chức năng: " + tenChucNang);
-        alert.setContentText("Chức năng " + tenChucNang + " đang được hoàn thiện và sẽ sẵn sàng trong bản cập nhật tiếp theo.");
+        alert.setTitle("Hướng dẫn sử dụng");
+        alert.setHeaderText("Hệ thống Trợ giúp & Hướng dẫn sử dụng");
+        alert.setContentText("Chức năng Hướng dẫn sử dụng hệ thống đang được hoàn thiện!");
+        alert.showAndWait();
+    }
+
+    private void thongBaoPhatTrien(String tenChucNang) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Thông báo");
+        alert.setHeaderText(null);
+        alert.setContentText("Chức năng \"" + tenChucNang + "\" đang được hoàn thiện!");
         alert.showAndWait();
     }
 }
