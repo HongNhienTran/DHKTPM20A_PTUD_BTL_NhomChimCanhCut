@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 /**
  * Controller cho Màn hình Bán Hàng & Phụ Tùng (POS Bán Lẻ)
  * Thiết kế giao diện Light Modern UI đồng bộ với hệ thống Pengu Garage:
@@ -103,7 +105,7 @@ public class BanHangController {
     private int demHoaDon = 1;
     private boolean isDrawerExpanded = true;
     private Integer danhMucDangChonId = null; // null = Tất cả
-
+    private static final String MA_KHACH_VANG_LAI = "KH0000000";
     // Chạy thao tác cập nhật kho ở luồng nền, tránh đơ giao diện
     private final ExecutorService khoExecutor =
             Executors.newSingleThreadExecutor(r -> {
@@ -304,6 +306,17 @@ public class BanHangController {
         ToggleGroup groupPayment = new ToggleGroup();
         if (rbTienMat != null) rbTienMat.setToggleGroup(groupPayment);
         if (rbChuyenKhoan != null) rbChuyenKhoan.setToggleGroup(groupPayment);
+        if (rbTienMat != null) rbTienMat.setSelected(true);
+
+        // Tiền mặt: cho nhập tiền khách đưa. Chuyển khoản: khóa ô nhập
+        groupPayment.selectedToggleProperty().addListener((obs, cu, moi) -> {
+            boolean tienMat = moi != rbChuyenKhoan;
+            if (txtTienKhachDua != null) {
+                txtTienKhachDua.setDisable(!tienMat);
+                if (!tienMat) txtTienKhachDua.clear();
+            }
+        });
+
 
         // Cấu hình ComboBox Mã khuyến mãi
         if (cboKhuyenMai != null) {
@@ -1124,6 +1137,19 @@ public class BanHangController {
     // =========================================================================
     // TODO: [M06-T03 - Tân] CHỌN PHƯƠNG THỨC THANH TOÁN TIỀN MẶT & TÍNH TIỀN THỪA
     // =========================================================================
+
+
+    /** Quy ước: HD-{BH/DV}-{maKH}-{ddMMyy}. Ví dụ: HD-BH-KH0000126-181026 */
+    private String taoMaHoaDonBanHang(KhachHang kh, LocalDateTime thoiGian) {
+        String maKh = MA_KHACH_VANG_LAI;
+        if (kh != null && kh.getId() != 0
+                && kh.getMaKhachHang() != null && !kh.getMaKhachHang().isBlank()) {
+            maKh = kh.getMaKhachHang().trim();
+        }
+        String ngay = thoiGian.format(DateTimeFormatter.ofPattern("ddMMyy"));
+        return "HD-BH-" + maKh + "-" + ngay;
+    }
+
     @FXML
     public void onThanhToanClick() {
         if (donHangHienTai == null || donHangHienTai.danhSachItem.isEmpty()) {
@@ -1131,59 +1157,79 @@ public class BanHangController {
             return;
         }
 
+        DonBanHangTab donHang = donHangHienTai;
+
+        // 1. Tổng tiền hàng
         double tongTien = 0;
-        for (ChiTietBanHang item : donHangHienTai.danhSachItem) {
+        for (ChiTietBanHang item : donHang.danhSachItem) {
             tongTien += item.getThanhTien();
         }
 
-        // Tính tiền khuyến mãi theo mã đã chọn
+        // 2. Tiền khuyến mãi
         double tienKm = 0;
-        String thongTinKM = "Không áp dụng";
-        if (donHangHienTai.maKhuyenMai != null && donHangHienTai.maKhuyenMai.getId() > 0) {
-            MaKhuyenMai mkm = donHangHienTai.maKhuyenMai;
-            if (tongTien >= mkm.getGiaTriToiThieuApDung()) {
-                if (mkm.getLoaiGiam() == LoaiGiamGia.PHAN_TRAM) {
-                    tienKm = tongTien * (mkm.getGiaTriGiam() / 100.0);
-                    thongTinKM = mkm.getMaKhuyenMai() + " (-" + (int) mkm.getGiaTriGiam() + "% = -" + tienFormat.format(tienKm) + ")";
-                } else {
-                    tienKm = Math.min(tongTien, mkm.getGiaTriGiam());
-                    thongTinKM = mkm.getMaKhuyenMai() + " (-" + tienFormat.format(tienKm) + ")";
-                }
+        String maKm = "";
+        MaKhuyenMai mkm = donHang.maKhuyenMai;
+        if (mkm != null && mkm.getId() > 0 && tongTien >= mkm.getGiaTriToiThieuApDung()) {
+            if (mkm.getLoaiGiam() == LoaiGiamGia.PHAN_TRAM) {
+                tienKm = tongTien * (mkm.getGiaTriGiam() / 100.0);
             } else {
-                thongTinKM = mkm.getMaKhuyenMai() + " (Chưa đạt đơn tối thiểu " + tienFormat.format(mkm.getGiaTriToiThieuApDung()) + ")";
+                tienKm = Math.min(tongTien, mkm.getGiaTriGiam());
             }
+            maKm = mkm.getMaKhuyenMai();
         }
-
         double khachCanTra = Math.max(0, tongTien - tienKm);
-        String pttt = (rbChuyenKhoan != null && rbChuyenKhoan.isSelected()) ? "Chuyển khoản (QR)" : "Tiền mặt";
 
-        // Nếu là tiền mặt và khách đưa chưa đủ
-        if ("Tiền mặt".equals(pttt) && donHangHienTai.tienKhachDua < khachCanTra) {
-            thongBao("Chưa đủ tiền", "Số tiền khách đưa (" + tienFormat.format(donHangHienTai.tienKhachDua) + 
-                    ") chưa đủ để thanh toán (" + tienFormat.format(khachCanTra) + ")!");
-            if (txtTienKhachDua != null) txtTienKhachDua.requestFocus();
-            return;
+        // 3. Phương thức thanh toán + tính tiền thừa
+        boolean tienMat = rbChuyenKhoan == null || !rbChuyenKhoan.isSelected();
+        double tienKhachDua;
+        double tienThua = 0;
+
+        if (tienMat) {
+            tienKhachDua = donHang.tienKhachDua;
+            if (tienKhachDua <= 0) {
+                thongBao("Chưa nhập tiền", "Vui lòng nhập số tiền khách đưa.");
+                if (txtTienKhachDua != null) txtTienKhachDua.requestFocus();
+                return;
+            }
+            if (tienKhachDua < khachCanTra - 0.5) {
+                thongBao("Chưa đủ tiền", "Khách đưa " + tienFormat.format(tienKhachDua)
+                        + ", còn thiếu " + tienFormat.format(khachCanTra - tienKhachDua) + "!");
+                if (txtTienKhachDua != null) txtTienKhachDua.requestFocus();
+                return;
+            }
+            tienThua = Math.max(0, tienKhachDua - khachCanTra);
+        } else {
+            tienKhachDua = khachCanTra;
         }
 
-        // Tạo mã hóa đơn ngẫu nhiên
-        String maHD = "HD_LE_" + System.currentTimeMillis() % 1000000;
+        // 4. Gom dữ liệu để in hóa đơn
+        HoaDonBanLeView.DuLieu dl = new HoaDonBanLeView.DuLieu();
+        dl.maHoaDon = taoMaHoaDonBanHang(donHang.khachHang, dl.thoiGian);
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thanh toán thành công");
-        alert.setHeaderText("ĐÃ HOÀN TẤT THANH TOÁN " + donHangHienTai.tenTab);
-        alert.setContentText(
-                "Mã hóa đơn: " + maHD + "\n" +
-                "Khách hàng: " + (donHangHienTai.khachHang != null ? donHangHienTai.khachHang.getHoTen() : "Khách lẻ") + "\n" +
-                "Tổng tiền hàng: " + tienFormat.format(tongTien) + "\n" +
-                "Mã khuyến mãi: " + thongTinKM + "\n" +
-                "Thực thu: " + tienFormat.format(khachCanTra) + "\n" +
-                "Phương thức: " + pttt + "\n\n" +
-                "Hóa đơn đã được lập thành công và sẵn sàng để in biên nhận."
-        );
-        alert.showAndWait();
+        KhachHang kh = donHang.khachHang;
+        if (kh != null && kh.getId() != 0) {
+            dl.tenKhach = kh.getHoTen();
+            dl.soDienThoai = kh.getSoDienThoai() != null ? kh.getSoDienThoai() : "";
+            dl.diaChi = kh.getDiaChi() != null ? kh.getDiaChi() : "";
+        }
 
-        // Đóng tab hoặc làm sạch đơn vừa thanh toán
-        dongHoaDon(donHangHienTai, true);
+        for (ChiTietBanHang item : donHang.danhSachItem) {
+            dl.dong.add(new HoaDonBanLeView.Dong(
+                    item.getTenSanPham(), item.getDonViTinh(),
+                    item.getSoLuong(), item.getDonGia(), item.getThanhTien()));
+        }
+
+        dl.tongTienHang = tongTien;
+        dl.tienKhuyenMai = tienKm;
+        dl.maKhuyenMai = maKm;
+        dl.khachCanTra = khachCanTra;
+        dl.tienKhachDua = tienKhachDua;
+        dl.tienThua = tienThua;
+        dl.tienMat = tienMat;
+
+        // 5. Hiện hóa đơn (có nút In), đóng cửa sổ xong mới làm sạch đơn
+        HoaDonBanLeView.hienThi(tableGioHang.getScene().getWindow(), dl);
+        dongHoaDon(donHang, true);
     }
 
     // =========================================================================
