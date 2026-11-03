@@ -131,7 +131,19 @@ public class KhachHangDAO {
      */
     public boolean capNhat(KhachHang kh) {
         // TODO: [M05-T04 - Phong] Viết SQL UPDATE KhachHang SET ho_ten = ?, so_dien_thoai = ?, dia_chi = ?, gioi_tinh = ? WHERE id = ?
-        return false;
+        String sql = "UPDATE khach_hang SET ho_ten = ?, so_dien_thoai = ?, dia_chi = ?, gioi_tinh = ? WHERE id = ?";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, kh.getHoTen());
+            ps.setString(2, kh.getSoDienThoai());
+            ps.setString(3, kh.getDiaChi());
+            ps.setString(4, kh.getGioiTinh());
+            ps.setInt(5, kh.getId());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi khi cập nhật khách hàng: " + e.getMessage());
+        }
     }
 
     /**

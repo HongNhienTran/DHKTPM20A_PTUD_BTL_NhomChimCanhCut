@@ -374,7 +374,19 @@ public class HoSoKhachHangController {
             }
         } else {
             // TODO: Xử lý nhánh cập nhật (M05-T04)
-            // Gọi khachHangDAO.capNhat(khachHangDangChon) ở đây
+            khachHangDangChon.setHoTen(hoTen);
+            khachHangDangChon.setSoDienThoai(sdt);
+            khachHangDangChon.setDiaChi(diaChi);
+            khachHangDangChon.setGioiTinh(gioiTinh);
+            boolean ketQua = khachHangDAO.capNhat(khachHangDangChon);
+
+            if (ketQua) {
+                hienThiThongBao("Thành công", "Đã cập nhật hồ sơ khách hàng thành công!");
+                taiDanhSachKhachHang(); // Reload lại bảng để hiển thị dữ liệu mới
+                lamMoiForm();           // Xóa trắng form, thoát khỏi chế độ chỉnh sửa
+            } else {
+                hienThiCanhBao("Thất bại", "Đã xảy ra lỗi khi cập nhật. Vui lòng thử lại!");
+            }
         }
     }
 
