@@ -4,6 +4,11 @@ import com.pengugarage.dao.DanhMucDAO;
 import com.pengugarage.dao.KhachHangDAO;
 import com.pengugarage.dao.MaKhuyenMaiDAO;
 import com.pengugarage.dao.SanPhamDAO;
+import com.pengugarage.dao.HoaDonDAO;
+import com.pengugarage.model.entity.HoaDon;
+import com.pengugarage.model.entity.ChiTietHoaDon;
+import com.pengugarage.model.enums.LoaiHoaDon;
+import com.pengugarage.model.enums.TrangThaiThanhToan;
 import com.pengugarage.model.entity.DanhMucSanPham;
 import com.pengugarage.model.entity.KhachHang;
 import com.pengugarage.model.entity.MaKhuyenMai;
@@ -30,6 +35,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
 /**
  * Controller cho Màn hình Bán Hàng & Phụ Tùng (POS Bán Lẻ)
  * Thiết kế giao diện Light Modern UI đồng bộ với hệ thống Pengu Garage:
@@ -98,7 +104,7 @@ public class BanHangController {
     private final List<SanPham> tatCaSanPham = new ArrayList<>();
     private final List<DanhMucSanPham> tatCaDanhMuc = new ArrayList<>();
     private final ObservableList<MaKhuyenMai> danhSachKhuyenMai = FXCollections.observableArrayList();
-
+    private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
     // Quản lý đa tab hóa đơn
     private final List<DonBanHangTab> danhSachDonHang = new ArrayList<>();
     private DonBanHangTab donHangHienTai;
@@ -1146,7 +1152,7 @@ public class BanHangController {
                 && kh.getMaKhachHang() != null && !kh.getMaKhachHang().isBlank()) {
             maKh = kh.getMaKhachHang().trim();
         }
-        String ngay = thoiGian.format(DateTimeFormatter.ofPattern("ddMMyy"));
+        String ngay = thoiGian.format(DateTimeFormatter.ofPattern("ddMMyy-HHmmss"));
         return "HD-BH-" + maKh + "-" + ngay;
     }
 
@@ -1242,8 +1248,56 @@ public class BanHangController {
             thongBao("Thông báo", "Giỏ hàng đang trống, chưa có thông tin để in tạm tính.");
             return;
         }
-        // TODO: [M06-T04 - Tân] Gọi hoaDonDAO.themHoaDon(...) và hoaDonDAO.themChiTietHoaDon(...)
-        thongBao("In tạm tính", "Lệnh in phiếu tạm tính cho " + donHangHienTai.tenTab + " đã được gửi tới máy in.");
+
+        final DonBanHangTab donHang = donHangHienTai;
+        LocalDateTime now = LocalDateTime.now();
+        KhachHang kh = donHang.khachHang;
+
+        // 1. Dựng đối tượng HoaDon (snapshot tại thời điểm bấm)
+        HoaDon hd = new HoaDon(); // mặc định CHUA_THANH_TOAN
+        hd.setMaHoaDon(taoMaHoaDonBanHang(kh, now));
+        hd.setLoaiHoaDon(LoaiHoaDon.BAN_HANG);
+        hd.setThoiGianLap(now);
+        hd.setTrangThaiThanhToan(TrangThaiThanhToan.CHUA_THANH_TOAN);
+        hd.setNhanVienLapId(layIdNhanVienDangNhap());
+        if (kh != null && kh.getId() != 0) {
+            hd.setKhachHangId(kh.getId());
+        }
+        if (donHang.maKhuyenMai != null && donHang.maKhuyenMai.getId() > 0) {
+            hd.setMaKhuyenMai(donHang.maKhuyenMai);
+        }
+        hd.setGhiChu(txtGhiChu != null ? txtGhiChu.getText() : donHang.ghiChu);
+
+        for (ChiTietBanHang item : donHang.danhSachItem) {
+            ChiTietHoaDon ct = new ChiTietHoaDon();
+            ct.setSanPham(item.getSanPham());   // snapshot đơn giá + VAT, loại SAN_PHAM
+            ct.setSoLuong(item.getSoLuong());   // tính lại thành tiền / thuế
+            hd.getDanhSachChiTiet().add(ct);
+        }
+        hd.tinhTongTien();
+
+        // 2. Lưu DB ở luồng nền
+        btnInTamTinh.setDisable(true);
+        khoExecutor.execute(() -> {
+            int id = hoaDonDAO.luuHoaDonKemChiTiet(hd);
+            Platform.runLater(() -> {
+                btnInTamTinh.setDisable(false);
+                if (id <= 0) {
+                    thongBao("Lỗi", "Không thể lưu hóa đơn tạm. Vui lòng thử lại!");
+                    return;
+                }
+                thongBao("In tạm tính",
+                        "Đã lưu hóa đơn tạm " + hd.getMaHoaDon() + " (chưa thanh toán).");
+                // Tồn kho đã trừ lúc thêm giỏ -> đóng tab KHÔNG hoàn kho
+                dongHoaDon(donHang, true);
+            });
+        });
+    }
+
+    private int layIdNhanVienDangNhap() {
+        // TODO: thay bằng nhân viên đang đăng nhập, ví dụ:
+        // return PhienDangNhap.getNhanVien().getId();
+        return 1;
     }
 
     @FXML
