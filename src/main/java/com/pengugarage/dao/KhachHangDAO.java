@@ -2,7 +2,12 @@ package com.pengugarage.dao;
 
 import com.pengugarage.model.entity.KhachHang;
 import com.pengugarage.model.entity.PhuongTien;
+import com.pengugarage.util.CoSoDuLieuUtil;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +27,25 @@ public class KhachHangDAO {
     public List<KhachHang> layTatCa() {
         List<KhachHang> dsKhachHang = new ArrayList<>();
         // TODO: [M05-T01 - Phong] Viết SQL SELECT * FROM KhachHang ORDER BY id DESC
+        String sql ="SELECT * FROM Khach_hang ORDER BY id DESC";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()){
+            while(rs.next()){
+                KhachHang kh = new KhachHang();
+                kh.setId(rs.getInt("id"));
+                kh.setMaKhachHang(rs.getString("ma_khach_hang"));
+                kh.setHoTen(rs.getString("ho_ten"));
+                kh.setSoDienThoai(rs.getString("so_dien_thoai"));
+                kh.setDiaChi(rs.getString("dia_chi"));
+                kh.setGioiTinh(rs.getString("gioi_tinh"));
+                dsKhachHang.add(kh);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi khi lấy danh sách khách hàng" + e.getMessage()  );
+        }
+
         return dsKhachHang;
     }
 
