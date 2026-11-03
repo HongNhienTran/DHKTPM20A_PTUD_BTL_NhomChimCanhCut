@@ -128,7 +128,8 @@ public class PhuongTienDAO {
                       pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
                       pt.setKhachHangId(rs.getInt("khach_hang_id"));
                       HangXe hx= new HangXe(); hx.setId(rs.getInt("hang_xe_id"));
-                      pt.setHangXe(hx); pt.setBienSoXe(rs.getString("bien_so_xe"));
+                      pt.setHangXe(hx);
+                      pt.setBienSoXe(rs.getString("bien_so_xe"));
                       pt.setMauXe(rs.getString("mau_xe"));
                       pt.setMauSacXe(rs.getString("mau_sac_xe"));
                       pt.setNamSanXuat(rs.getInt("nam_san_xuat"));
@@ -183,7 +184,29 @@ public class PhuongTienDAO {
      */
     public boolean capNhat(PhuongTien pt) {
         // TODO: [M07-T03 - Tuấn] Viết SQL UPDATE PhuongTien SET hang_xe_id = ?, khach_hang_id = ?,
-        // bien_so_xe = ?, mau_xe = ?, mau_sac_xe = ?, nam_san_xuat = ?, nhien_lieu = ?, so_khung = ?, so_may = ? WHERE id = ?
+        String sql = "Update PhuongTien set ma_phuong_tien= ?,hang_xe_id= ?,khach_hang_id=?,bien_so_xe=?,mau_xe=?,mau_sac_xe=?,nam_san_xuat=?,nhien_lieu=?,so_khung=?,so_may=? where id=?";
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, pt.getMaPhuongTien());
+            ps.setInt(2, pt.getHangXeId());
+            ps.setInt(3, pt.getKhachHangId());
+            ps.setString(4, pt.getBienSoXe());
+            ps.setString(5, pt.getMauXe());
+            ps.setString(6, pt.getMauSacXe());
+            ps.setInt(7, pt.getNamSanXuat());
+            ps.setString(8,pt.getNhienLieu().toString());
+            ps.setString(9,pt.getSoKhung());
+            ps.setString(10,pt.getSoMay());
+            ps.setInt(11,pt.getId());
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                return true;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
         return false;
     }
 
