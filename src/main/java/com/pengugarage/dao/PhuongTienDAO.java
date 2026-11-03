@@ -69,7 +69,7 @@ public class PhuongTienDAO {
      */
     public PhuongTien timTheoId(int id) {
         // TODO: [M07-T01 - Tuấn] Viết SQL SELECT * FROM PhuongTien WHERE id = ?
-        String sql = "SELECT * FROM `ma_khuyen_mai` where 'id' = ?";
+        String sql = "SELECT * FROM `phuong_tien` where 'id' = ?";
         try (Connection conn = CoSoDuLieuUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -119,7 +119,7 @@ public class PhuongTienDAO {
     public List<PhuongTien> layTheoKhachHangId(int khachHangId) {
         List<PhuongTien> dsXe = new ArrayList<>();
         // TODO: [M07-T01 - Tuấn] Viết SQL SELECT * FROM PhuongTien WHERE khach_hang_id = ?
-          String sql = "SELECT * FROM `ma_khuyen_mai` where 'khach_hang_id' = ?";
+          String sql = "SELECT * FROM `phuong_tien` where 'khach_hang_id' = ?";
           try (Connection conn = CoSoDuLieuUtil.getConnection();
           PreparedStatement ps = conn.prepareStatement(sql)) { ps.setInt(1, khachHangId);
               try (ResultSet rs = ps.executeQuery()) {
@@ -156,7 +156,7 @@ public class PhuongTienDAO {
      */
     public boolean them(PhuongTien pt) {
         // TODO: [M07-T02 - Tuấn] Viết SQL INSERT INTO PhuongTien (ma_phuong_tien, hang_xe_id, khach_hang_id,
-        String sql = "INSERT INTO PhuongTien (ma_phuong_tien, hang_xe_id, khach_hang_id,bien_so_xe,mau_xe,mau_sac_xe,nam_san_xuat,nhien_lieu,so_khung,so_may) values(?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO 'phuong_tien' (ma_phuong_tien, hang_xe_id, khach_hang_id,bien_so_xe,mau_xe,mau_sac_xe,nam_san_xuat,nhien_lieu,so_khung,so_may) values(?,?,?,?,?,?,?,?,?,?)";
 
         try (Connection conn = CoSoDuLieuUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -188,7 +188,7 @@ public class PhuongTienDAO {
      */
     public boolean capNhat(PhuongTien pt) {
         // TODO: [M07-T03 - Tuấn] Viết SQL UPDATE PhuongTien SET hang_xe_id = ?, khach_hang_id = ?,
-        String sql = "Update PhuongTien set ma_phuong_tien= ?,hang_xe_id= ?,khach_hang_id=?,bien_so_xe=?,mau_xe=?,mau_sac_xe=?,nam_san_xuat=?,nhien_lieu=?,so_khung=?,so_may=? where id=?";
+        String sql = "Update 'phuong_tien' set ma_phuong_tien= ?,hang_xe_id= ?,khach_hang_id=?,bien_so_xe=?,mau_xe=?,mau_sac_xe=?,nam_san_xuat=?,nhien_lieu=?,so_khung=?,so_may=? where id=?";
 
         try (Connection conn = CoSoDuLieuUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
