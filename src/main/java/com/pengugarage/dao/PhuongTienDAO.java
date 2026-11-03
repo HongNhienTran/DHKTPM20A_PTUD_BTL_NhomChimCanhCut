@@ -1,13 +1,12 @@
 package com.pengugarage.dao;
 
-import com.pengugarage.model.entity.ChiTietHoaDon;
-import com.pengugarage.model.entity.HangXe;
-import com.pengugarage.model.entity.PhieuTiepNhan;
-import com.pengugarage.model.entity.PhuongTien;
+import com.pengugarage.model.entity.*;
 import com.pengugarage.model.enums.NhienLieu;
+import com.pengugarage.model.enums.TrangThaiPhieuTiepNhan;
 import com.pengugarage.util.CoSoDuLieuUtil;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,6 +78,9 @@ public class PhuongTienDAO {
                     PhuongTien pt = new PhuongTien();
                     pt.setId(rs.getInt("id"));
                     pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
+                    KhachHang kh= new KhachHang();
+                    kh.setId(rs.getInt("khach_hang_id"));
+                    pt.setKhachHang(kh);
                     pt.setKhachHangId(rs.getInt("khach_hang_id"));
                     HangXe hx= new HangXe();
                     hx.setId(rs.getInt("hang_xe_id"));
@@ -126,6 +128,9 @@ public class PhuongTienDAO {
                       PhuongTien pt = new PhuongTien();
                       pt.setId(rs.getInt("id"));
                       pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
+                      KhachHang kh= new KhachHang();
+                      kh.setId(rs.getInt("khach_hang_id"));
+                      pt.setKhachHang(kh);
                       pt.setKhachHangId(rs.getInt("khach_hang_id"));
                       HangXe hx= new HangXe(); hx.setId(rs.getInt("hang_xe_id"));
                       pt.setHangXe(hx);
@@ -155,7 +160,6 @@ public class PhuongTienDAO {
 
         try (Connection conn = CoSoDuLieuUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, pt.getMaPhuongTien());
             ps.setInt(2, pt.getHangXeId());
             ps.setInt(3, pt.getKhachHangId());
@@ -221,6 +225,32 @@ public class PhuongTienDAO {
     public List<PhieuTiepNhan> layLichSuSuaChua(int phuongTienId) {
         List<PhieuTiepNhan> dsLichSu = new ArrayList<>();
         // TODO: [M07-T04 - Tuấn] Viết SQL SELECT * FROM PhieuTiepNhan WHERE phuong_tien_id = ? ORDER BY thoi_gian_vao DESC
+        String sql = "SELECT * FROM `phieu_tiep_nhan` where phuong_tien_id = ? ORDER BY `thoi_gian_tiep_nhan` DESC";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) { ps.setInt(1, phuongTienId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                {
+                    PhieuTiepNhan ptn = new PhieuTiepNhan();
+                    ptn.setId(rs.getInt("id"));
+                    ptn.setMaTiepNhan(rs.getString("ma_tiep_nhan"));
+                    PhuongTien pt = new PhuongTien();
+                    pt.setId(rs.getInt("phuong_tien_id"));
+                    ptn.setPhuongTien(pt);
+                    ptn.setPhuongTienId(pt.getId());
+                    ptn.setThoiGianTiepNhan(rs.getDate("thoi_gian_tiep_nhan").toLocalDate().atTime(rs.getTime("thoi_gian_tiep_nhan").toLocalTime()));
+                    ptn.setTrangThai(TrangThaiPhieuTiepNhan.valueOf(rs.getString("thoi_gian_tiep_nhan")));
+                    ptn.setSoKMHienTai(rs.getDouble("so_km_hien_tai"));
+                    ptn.setYeuCauKhachHang(rs.getString("yeu_cau_khach_hang"));
+                    ptn.setTinhTrangNoiThat(rs.getString("tinh_trang_noi_that"));
+                    ptn.setTinhTrangNgoaiThat(rs.getString("tinh_trang_ngoai_that"));
+                    ptn.setSoChiaKhoa(rs.getInt("so_chia_khoa"));
+                    ptn.setGhiChu(rs.getString("ghi_chu"));
+                    dsLichSu.add(ptn);
+                }
+                rs.close(); }
+        }
+        catch (SQLException e) { throw new RuntimeException("Lỗi truy vấn phiếu tiếp nhận: " + e.getMessage(), e); }
         return dsLichSu;
     }
 
@@ -233,6 +263,7 @@ public class PhuongTienDAO {
     public List<ChiTietHoaDon> layChiTietHaoMucSuaChua(int phieuTiepNhanId) {
         List<ChiTietHoaDon> dsChiTiet = new ArrayList<>();
         // TODO: [M07-T04 - Tuấn] Viết SQL JOIN HoaDon và ChiTietHoaDon WHERE phieu_tiep_nhan_id = ?
+
         return dsChiTiet;
     }
 }
