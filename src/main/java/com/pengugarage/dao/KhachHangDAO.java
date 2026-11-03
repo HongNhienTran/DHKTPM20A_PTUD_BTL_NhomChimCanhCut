@@ -5,6 +5,10 @@ import com.pengugarage.model.entity.PhuongTien;
 import com.pengugarage.util.CoSoDuLieuUtil;
 
 import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,15 +25,27 @@ public class KhachHangDAO {
      */
     public List<KhachHang> layTatCa() {
         List<KhachHang> dsKhachHang = new ArrayList<>();
-        String sql = "SELECT * FROM khach_hang ORDER BY id DESC";
+
+        // TODO: [M05-T01 - Phong] Viết SQL SELECT * FROM KhachHang ORDER BY id DESC
+        String sql ="SELECT * FROM Khach_hang ORDER BY id DESC";
         try (Connection conn = CoSoDuLieuUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                dsKhachHang.add(mapResultSetToKhachHang(rs));
+                ResultSet rs = ps.executeQuery()){
+            while(rs.next()){
+                KhachHang kh = new KhachHang();
+                kh.setId(rs.getInt("id"));
+                kh.setMaKhachHang(rs.getString("ma_khach_hang"));
+                kh.setHoTen(rs.getString("ho_ten"));
+                kh.setSoDienThoai(rs.getString("so_dien_thoai"));
+                kh.setDiaChi(rs.getString("dia_chi"));
+                kh.setGioiTinh(rs.getString("gioi_tinh"));
+                dsKhachHang.add(kh);
             }
-        } catch (SQLException ignored) {
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi khi lấy danh sách khách hàng" + e.getMessage()  );
         }
+
         return dsKhachHang;
     }
 
@@ -142,8 +158,34 @@ public class KhachHangDAO {
      * @return Danh sách PhuongTien
      */
     public List<PhuongTien> layDanhSachXeCuaKhach(int khachHangId) {
-        PhuongTienDAO phuongTienDAO = new PhuongTienDAO();
-        return phuongTienDAO.layTheoKhachHangId(khachHangId);
+        List<PhuongTien> dsXe = new ArrayList<>();
+        // TODO: [M05-T02 - Phong] Viết SQL SELECT * FROM PhuongTien WHERE khach_hang_id = ?
+        String sql = "SELECT * FROM phuong_tien WHERE khach_hang_id = ?";
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, khachHangId); // Truyền ID khách hàng vào câu SQL
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    PhuongTien pt = new PhuongTien();
+                    pt.setId(rs.getInt("id"));
+                    // Mapping các trường cơ bản
+                    pt.setBienSoXe(rs.getString("bien_so_xe"));
+                    pt.setMauSacXe(rs.getString("mau_sac_xe"));
+                    pt.setNamSanXuat(rs.getInt("nam_san_xuat"));
+
+                    /* Lưu ý: Nếu entity PhuongTien của bạn có liên kết đối tượng HangXe (pt.setHangXe(...))
+                       hoặc các trường khác, bạn cần map thêm tương ứng với cấu trúc bảng ở đây */
+
+                    dsXe.add(pt);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy danh sách xe của khách hàng: " + e.getMessage());
+        }
+        return dsXe;
     }
 
     /**
@@ -153,32 +195,41 @@ public class KhachHangDAO {
      * @return true nếu thêm thành công
      */
     public boolean them(KhachHang kh) {
-        if (kh == null) return false;
+        if (kh == null) {
+            return false;
+        }
+
         if (kh.getMaKhachHang() == null || kh.getMaKhachHang().trim().isEmpty()) {
             kh.setMaKhachHang(sinhMaKhachHangTuDong());
         }
+
         String sql = "INSERT INTO khach_hang (ma_khach_hang, ho_ten, so_dien_thoai, dia_chi, gioi_tinh) VALUES (?, ?, ?, ?, ?)";
+
         try (Connection conn = CoSoDuLieuUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
             ps.setString(1, kh.getMaKhachHang());
             ps.setString(2, kh.getHoTen());
             ps.setString(3, kh.getSoDienThoai());
-            ps.setString(4, kh.getDiaChi() != null ? kh.getDiaChi() : "");
-            ps.setString(5, kh.getGioiTinh() != null ? kh.getGioiTinh() : "Nam");
+            ps.setString(4, kh.getDiaChi());
+            ps.setString(5, kh.getGioiTinh());
 
-            int rows = ps.executeUpdate();
-            if (rows > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        kh.setId(rs.getInt(1));
-                    }
-                }
-                return true;
+            if (ps.executeUpdate() == 0) {
+                return false;
             }
-        } catch (SQLException ignored) {
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    kh.setId(rs.getInt(1));
+                }
+            }
+            return true;
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi khi thêm khách hàng", e);
         }
-        return false;
     }
+
+
 
     /**
      * Cập nhật thông tin hồ sơ khách hàng.
@@ -187,19 +238,21 @@ public class KhachHangDAO {
      * @return true nếu cập nhật thành công
      */
     public boolean capNhat(KhachHang kh) {
-        if (kh == null || kh.getId() <= 0) return false;
+
+        // TODO: [M05-T04 - Phong] Viết SQL UPDATE KhachHang SET ho_ten = ?, so_dien_thoai = ?, dia_chi = ?, gioi_tinh = ? WHERE id = ?
         String sql = "UPDATE khach_hang SET ho_ten = ?, so_dien_thoai = ?, dia_chi = ?, gioi_tinh = ? WHERE id = ?";
         try (Connection conn = CoSoDuLieuUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setString(1, kh.getHoTen());
             ps.setString(2, kh.getSoDienThoai());
-            ps.setString(3, kh.getDiaChi() != null ? kh.getDiaChi() : "");
+            ps.setString(3,  kh.getDiaChi() != null ? kh.getDiaChi() : "");
             ps.setString(4, kh.getGioiTinh() != null ? kh.getGioiTinh() : "Nam");
             ps.setInt(5, kh.getId());
+
             return ps.executeUpdate() > 0;
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi khi cập nhật khách hàng: " + e.getMessage());
         }
-        return false;
     }
 
     /**

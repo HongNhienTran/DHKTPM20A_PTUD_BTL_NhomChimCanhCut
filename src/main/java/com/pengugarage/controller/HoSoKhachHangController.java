@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import java.util.List;
 
 /**
  * Controller cho Màn hình Quản Lý Hồ Sơ Khách Hàng (ho-so-khach-hang-view.fxml).
@@ -264,6 +265,16 @@ public class HoSoKhachHangController {
         }
 
         // TODO: [M05-T02 - Phong] Gọi khachHangDAO.layDanhSachXeCuaKhach(kh.getId()) và nạp vào dsXeKhachHang
+        // Xóa danh sách xe cũ trên bảng (của khách hàng trước đó)
+        dsXeKhachHang.clear();
+
+        // Gọi DAO lấy danh sách xe của khách hàng hiện tại
+        List<PhuongTien> danhSachXeMoi = khachHangDAO.layDanhSachXeCuaKhach(kh.getId());
+
+        // Đổ dữ liệu mới vào ObservableList (bảng tblXeKhachHang sẽ tự động cập nhật)
+        if (danhSachXeMoi != null && !danhSachXeMoi.isEmpty()) {
+            dsXeKhachHang.addAll(danhSachXeMoi);
+        }
     }
 
     private void lamMoiForm() {
@@ -292,6 +303,19 @@ public class HoSoKhachHangController {
         // 1. Gọi khachHangDAO.layTatCa()
         // 2. Cập nhật dsKhachHang và thiết lập FilteredList để tìm kiếm, lọc theo tên, SĐT, giới tính trên giao diện
         // 3. Cập nhật lblTongSoKhachHang và lblSoBanGhi
+        List<KhachHang> danhSachMoi = khachHangDAO.layTatCa();
+
+        // Cập nhật ObservableList
+        dsKhachHang.clear();
+        dsKhachHang.addAll(danhSachMoi);
+
+        // Cập nhật các nhãn thống kê trên UI
+        if (lblTongSoKhachHang != null) {
+            lblTongSoKhachHang.setText(String.valueOf(dsKhachHang.size()));
+        }
+        if (lblSoBanGhi != null) {
+            lblSoBanGhi.setText("Hiển thị " + dsKhachHang.size() + " bản ghi");
+        }
     }
 
     @FXML
@@ -325,11 +349,75 @@ public class HoSoKhachHangController {
         // 2. Nếu khachHangDangChon == null: Thêm mới khachHangDAO.them(new KhachHang(...)) [M05-T03]
         // 3. Nếu khachHangDangChon != null: Cập nhật khachHangDAO.capNhat(...) [M05-T04]
         // 4. Thông báo kết quả và làm mới danh sách
+        String maKH = txtFormMaKH.getText() != null ? txtFormMaKH.getText().trim() : "";
+        String hoTen = txtFormHoTen.getText() != null ? txtFormHoTen.getText().trim() : "";
+        String sdt = txtFormSoDienThoai.getText() != null ? txtFormSoDienThoai.getText().trim() : "";
+        String diaChi = txtFormDiaChi.getText() != null ? txtFormDiaChi.getText().trim() : "";
+        String gioiTinh = cboFormGioiTinh.getValue();
+
+        if (hoTen.isEmpty() || sdt.isEmpty()) {
+            hienThiCanhBao("Lỗi nhập liệu", "Họ tên và Số điện thoại không được để trống!");
+            return;
+        }
+
+        if (!sdt.matches("\\d{10,11}")) {
+            hienThiCanhBao("Lỗi nhập liệu", "Số điện thoại không hợp lệ!");
+            return;
+        }
+        if (khachHangDangChon == null) {
+            KhachHang khMoi = new KhachHang();
+            // Nếu bỏ trống Mã KH, có thể tạo ngẫu nhiên hoặc để tự sinh từ SQL
+            khMoi.setMaKhachHang(maKH.isEmpty() ? taoMaKhachHangTuDong() : maKH);
+            khMoi.setHoTen(hoTen);
+            khMoi.setSoDienThoai(sdt);
+            khMoi.setDiaChi(diaChi);
+            khMoi.setGioiTinh(gioiTinh);
+
+            boolean ketQua = khachHangDAO.them(khMoi);
+
+            if (ketQua) {
+                hienThiThongBao("Thành công", "Đã thêm hồ sơ khách hàng thành công!");
+                taiDanhSachKhachHang(); // Reload lại bảng
+                lamMoiForm();           // Xóa trắng form
+            } else {
+                hienThiCanhBao("Thất bại", "Đã xảy ra lỗi khi thêm khách hàng. Vui lòng kiểm tra kết nối!");
+            }
+        } else {
+            // TODO: Xử lý nhánh cập nhật (M05-T04)
+            khachHangDangChon.setHoTen(hoTen);
+            khachHangDangChon.setSoDienThoai(sdt);
+            khachHangDangChon.setDiaChi(diaChi);
+            khachHangDangChon.setGioiTinh(gioiTinh);
+            boolean ketQua = khachHangDAO.capNhat(khachHangDangChon);
+
+            if (ketQua) {
+                hienThiThongBao("Thành công", "Đã cập nhật hồ sơ khách hàng thành công!");
+                taiDanhSachKhachHang(); // Reload lại bảng để hiển thị dữ liệu mới
+                lamMoiForm();           // Xóa trắng form, thoát khỏi chế độ chỉnh sửa
+            } else {
+                hienThiCanhBao("Thất bại", "Đã xảy ra lỗi khi cập nhật. Vui lòng thử lại!");
+            }
+        }
+    }
+
+    private void hienThiThongBao(String tieuDe, String noiDung) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Lưu hồ sơ");
-        alert.setHeaderText("Lưu thông tin khách hàng");
-        alert.setContentText("Tính năng lưu/cập nhật hồ sơ khách hàng sẽ được hoàn thiện bởi thành viên nhóm!");
+        alert.setTitle(tieuDe);
+        alert.setHeaderText(null);
+        alert.setContentText(noiDung);
         alert.showAndWait();
+    }
+
+    private void hienThiCanhBao(String tieuDe, String noiDung) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(tieuDe);
+        alert.setHeaderText(null);
+        alert.setContentText(noiDung);
+        alert.showAndWait();
+    }
+
+    private String taoMaKhachHangTuDong() {
+        return "KH" + System.currentTimeMillis() % 100000;
     }
 
     @FXML

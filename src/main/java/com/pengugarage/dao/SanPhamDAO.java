@@ -103,32 +103,21 @@ public class SanPhamDAO {
     }
 
     public boolean them(SanPham sp) {
-        if (sp == null) {
+        if(sp == null){
             return false;
         }
         String sql = """
-        INSERT INTO san_pham
-            (danh_muc_id, ma_san_pham, ten_san_pham, don_vi_tinh,
-             so_luong_ton, so_luong_ton_toi_thieu, gia_nhap,
-             don_gia_ban, thue_vat, trang_thai, duong_dan_anh)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """;
-
+                INSERT INTO san_pham
+                            (danh_muc_id, ma_san_pham, ten_san_pham, don_vi_tinh,
+                             so_luong_ton, so_luong_ton_toi_thieu, gia_nhap,
+                             don_gia_ban, thue_vat, trang_thai, duong_dan_anh)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""";
         try (Connection conn = CoSoDuLieuUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ganThamSoThemSanPham(ps, sp);
-            int n = ps.executeUpdate();
-            if (n > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        sp.setId(rs.getInt(1));
-                    }
-                }
-                return true;
-            }
-            return false;
-        } catch (SQLException e) {
-            throw new RuntimeException("Lỗi thêm sản phẩm: " + sp.getMaSanPham() + " (" + e.getMessage() + ")", e);
+                PreparedStatement ps = conn.prepareStatement(sql) ){
+                    ganThamSoThemSanPham(ps, sp);
+                    return ps.executeUpdate() == 1;
+        } catch (SQLException e){
+            throw new RuntimeException("Lỗi thêm sản phẩm: " + sp.getMaSanPham(), e);
         }
     }
 
