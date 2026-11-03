@@ -111,7 +111,14 @@ public class BanHangController {
                 t.setDaemon(true);
                 return t;
             });
-
+    private boolean dangCapNhatKhuyenMai = false;
+    private int phienCapNhatKhuyenMai = 0;
+    private final ExecutorService kmExecutor =
+            Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "CapNhatKhuyenMai");
+                t.setDaemon(true);
+                return t;
+            });
     // =========================================================================
     // INITIALIZATION
     // =========================================================================
@@ -334,10 +341,12 @@ public class BanHangController {
             });
 
             cboKhuyenMai.setOnAction(e -> {
+                if (dangCapNhatKhuyenMai) return;
                 if (donHangHienTai != null) {
-                    donHangHienTai.maKhuyenMai = cboKhuyenMai.getValue();
+                    MaKhuyenMai chon = cboKhuyenMai.getValue();
+                    donHangHienTai.maKhuyenMai = (chon != null && chon.getId() > 0) ? chon : null;
                 }
-                capNhatThongKeTien();
+                hienThiTien();
             });
         }
 
@@ -959,39 +968,8 @@ public class BanHangController {
     }
 
     private void capNhatThongKeTien() {
-        if (donHangHienTai == null) return;
-
-        double tongTien = 0;
-        for (ChiTietBanHang item : donHangHienTai.danhSachItem) {
-            tongTien += item.getThanhTien();
-        }
-
-        // Tính tiền khuyến mãi theo mã khuyến mãi đã chọn
-        double tienKm = 0;
-        if (donHangHienTai.maKhuyenMai != null && donHangHienTai.maKhuyenMai.getId() > 0) {
-            MaKhuyenMai mkm = donHangHienTai.maKhuyenMai;
-            // Kiểm tra điều kiện đơn hàng đạt giá trị tối thiểu
-            if (tongTien >= mkm.getGiaTriToiThieuApDung()) {
-                if (mkm.getLoaiGiam() == LoaiGiamGia.PHAN_TRAM) {
-                    tienKm = tongTien * (mkm.getGiaTriGiam() / 100.0);
-                } else {
-                    tienKm = Math.min(tongTien, mkm.getGiaTriGiam());
-                }
-            } else {
-                tienKm = 0; // Chưa đạt giá trị tối thiểu
-            }
-        }
-
-        double khachCanTra = Math.max(0, tongTien - tienKm);
-        double tienThua = Math.max(0, donHangHienTai.tienKhachDua - khachCanTra);
-
-        if (lblTongTienHang != null) lblTongTienHang.setText(tienFormat.format(tongTien));
-        if (lblTienKhuyenMai != null) lblTienKhuyenMai.setText("- " + tienFormat.format(tienKm));
-        if (lblKhachCanTra != null) lblKhachCanTra.setText(tienFormat.format(khachCanTra));
-        if (lblTienThua != null) lblTienThua.setText(tienFormat.format(tienThua));
-
-        // Cập nhật/đánh giá mã khuyến mãi theo điều kiện giá trị tối thiểu áp dụng
-        capNhatDanhSachKhuyenMaiTheoDieuKien(tongTien);
+        double tong = hienThiTien();
+        capNhatDanhSachKhuyenMaiTheoDieuKien(tong);
     }
 
     // =========================================================================
@@ -1000,9 +978,63 @@ public class BanHangController {
     // Điều kiện: gia_tri_toi_thieu_ap_dung <= tongTienHang
     // =========================================================================
     public void capNhatDanhSachKhuyenMaiTheoDieuKien(double tongTienHang) {
-        // TODO: [M06-T02 - Tân] Khi người dùng thêm/bớt giỏ hàng thay đổi tổng tiền:
-        // Gọi maKhuyenMaiDAO.layDanhSachKhuyenMaiTheoGiaTriToiThieu(tongTienHang)
-        // để cập nhật lại danh sách trên ComboBox chỉ hiển thị các mã thỏa mãn gia_tri_toi_thieu_ap_dung.
+        if (cboKhuyenMai == null) return;
+
+        final int phien = ++phienCapNhatKhuyenMai;
+        final DonBanHangTab donHang = donHangHienTai;
+
+        kmExecutor.execute(() -> {
+            List<MaKhuyenMai> hopLe;
+            try {
+                hopLe = maKhuyenMaiDAO.layDanhSachKhuyenMaiTheoGiaTriToiThieu(tongTienHang);
+            } catch (Exception e) {
+                hopLe = new ArrayList<>();
+            }
+            final List<MaKhuyenMai> ketQua = hopLe;
+
+            Platform.runLater(() -> {
+                if (phien != phienCapNhatKhuyenMai) return; // có yêu cầu mới hơn
+
+                MaKhuyenMai macDinh = new MaKhuyenMai();
+                macDinh.setId(0);
+                macDinh.setMaKhuyenMai("-- Không áp dụng mã --");
+
+                List<MaKhuyenMai> moi = new ArrayList<>();
+                moi.add(macDinh);
+                moi.addAll(ketQua);
+
+                // Giữ mã đang chọn nếu vẫn hợp lệ
+                MaKhuyenMai dangChon = donHang != null ? donHang.maKhuyenMai : null;
+                MaKhuyenMai giuLai = macDinh;
+                if (dangChon != null && dangChon.getId() > 0) {
+                    for (MaKhuyenMai km : ketQua) {
+                        if (km.getId() == dangChon.getId()) {
+                            giuLai = km;
+                            break;
+                        }
+                    }
+                }
+
+                // Chỉ cập nhật ComboBox nếu tab này vẫn đang được chọn
+                if (donHang == donHangHienTai) {
+                    dangCapNhatKhuyenMai = true;
+                    try {
+                        danhSachKhuyenMai.setAll(moi);
+                        cboKhuyenMai.setValue(giuLai);
+                    } finally {
+                        dangCapNhatKhuyenMai = false;
+                    }
+                }
+
+                boolean biHuyMa = dangChon != null && dangChon.getId() > 0 && giuLai.getId() == 0;
+                if (donHang != null) {
+                    donHang.maKhuyenMai = giuLai.getId() > 0 ? giuLai : null;
+                }
+                if (biHuyMa && donHang == donHangHienTai) {
+                    hienThiTien(); // tính lại tiền, KHÔNG gọi capNhatThongKeTien
+                }
+            });
+        });
     }
 
     private void taiDanhSachMaKhuyenMai() {
@@ -1027,6 +1059,7 @@ public class BanHangController {
                 if (cboKhuyenMai != null && (cboKhuyenMai.getValue() == null || cboKhuyenMai.getValue().getId() == 0)) {
                     cboKhuyenMai.setValue(macDinh);
                 }
+                capNhatThongKeTien();
             });
         } catch (Exception ignored) {}
     }
@@ -1325,5 +1358,36 @@ public class BanHangController {
         public DonBanHangTab(String tenTab) {
             this.tenTab = tenTab;
         }
+    }
+ //hiện thị tiền
+    private double hienThiTien() {
+        if (donHangHienTai == null) return 0;
+
+        double tongTien = 0;
+        for (ChiTietBanHang item : donHangHienTai.danhSachItem) {
+            tongTien += item.getThanhTien();
+        }
+
+        double tienKm = 0;
+        if (donHangHienTai.maKhuyenMai != null && donHangHienTai.maKhuyenMai.getId() > 0) {
+            MaKhuyenMai mkm = donHangHienTai.maKhuyenMai;
+            if (tongTien >= mkm.getGiaTriToiThieuApDung()) {
+                if (mkm.getLoaiGiam() == LoaiGiamGia.PHAN_TRAM) {
+                    tienKm = tongTien * (mkm.getGiaTriGiam() / 100.0);
+                } else {
+                    tienKm = Math.min(tongTien, mkm.getGiaTriGiam());
+                }
+            }
+        }
+
+        double khachCanTra = Math.max(0, tongTien - tienKm);
+        double tienThua = Math.max(0, donHangHienTai.tienKhachDua - khachCanTra);
+
+        if (lblTongTienHang != null) lblTongTienHang.setText(tienFormat.format(tongTien));
+        if (lblTienKhuyenMai != null) lblTienKhuyenMai.setText("- " + tienFormat.format(tienKm));
+        if (lblKhachCanTra != null) lblKhachCanTra.setText(tienFormat.format(khachCanTra));
+        if (lblTienThua != null) lblTienThua.setText(tienFormat.format(tienThua));
+
+        return tongTien;
     }
 }
