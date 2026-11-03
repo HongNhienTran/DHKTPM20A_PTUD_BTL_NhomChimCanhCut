@@ -71,19 +71,19 @@
 }
 
 .sidebar-title {
-    -fx-font-size: 18px;
+    -fx-font-size: 19px;
     -fx-font-weight: bold;
     -fx-text-fill: -color-surface;
 }
 
 .app-title {
-    -fx-font-size: 26px;
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
     -fx-text-fill: -color-brand-900;
 }
 
 .app-subtitle {
-    -fx-font-size: 14px;
+    -fx-font-size: 14.5px;
     -fx-text-fill: -color-text-muted;
 }
 
@@ -101,13 +101,13 @@
 }
 
 .card-title {
-    -fx-font-size: 18px;
+    -fx-font-size: 19px;
     -fx-font-weight: bold;
     -fx-text-fill: -color-brand-900;
 }
 
 .card-description {
-    -fx-font-size: 13px;
+    -fx-font-size: 13.5px;
     -fx-text-fill: -color-text-muted;
 }
 
@@ -118,7 +118,7 @@
 .primary-button {
     -fx-background-color: -color-brand-800;
     -fx-text-fill: -color-surface;
-    -fx-font-size: 14px;
+    -fx-font-size: 14.5px;
     -fx-font-weight: bold;
     -fx-padding: 10px 22px;
     -fx-background-radius: 8px;
@@ -138,7 +138,7 @@
 .action-button, .cta-button {
     -fx-background-color: -color-action-500;
     -fx-text-fill: -color-surface;
-    -fx-font-size: 14px;
+    -fx-font-size: 14.5px;
     -fx-font-weight: bold;
     -fx-padding: 10px 22px;
     -fx-background-radius: 8px;
@@ -175,7 +175,7 @@
 .badge {
     -fx-padding: 4px 10px;
     -fx-background-radius: 6px;
-    -fx-font-size: 12px;
+    -fx-font-size: 12.5px;
     -fx-font-weight: bold;
 }
 
@@ -212,7 +212,7 @@
     -fx-border-radius: 6px;
     -fx-background-radius: 6px;
     -fx-padding: 8px 12px;
-    -fx-font-size: 13px;
+    -fx-font-size: 13.5px;
     -fx-text-fill: -color-text-main;
 }
 
@@ -223,7 +223,7 @@
 
 /* Status Text Label */
 .status-label {
-    -fx-font-size: 13px;
+    -fx-font-size: 13.5px;
     -fx-text-fill: -color-text-muted;
 }
 
@@ -532,30 +532,35 @@
 }
 
 /* TableView trên nền sáng */
-.light-table {
+.table-view, .light-table {
     -fx-background-color: #FFFFFF;
     -fx-border-color: #E2E8F0;
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
+    -fx-font-size: 13.5px;
 }
 
-.light-table .column-header-background {
+.table-view .column-header-background, .light-table .column-header-background {
     -fx-background-color: #F1F5F9;
     -fx-border-color: #E2E8F0;
     -fx-border-width: 0 0 1px 0;
 }
 
-.light-table .column-header .label {
+.table-view .column-header .label, .light-table .column-header .label {
     -fx-text-fill: #334155;
     -fx-font-weight: bold;
-    -fx-font-size: 12px;
+    -fx-font-size: 13px;
 }
 
-.light-table .table-row-cell:filled:selected {
+.table-view .table-cell, .light-table .table-cell {
+    -fx-font-size: 13.5px;
+}
+
+.table-view .table-row-cell:filled:selected, .light-table .table-row-cell:filled:selected {
     -fx-background-color: rgba(244, 123, 49, 0.12);
 }
 
-.light-table .table-row-cell:filled:selected .text {
+.table-view .table-row-cell:filled:selected .text, .light-table .table-row-cell:filled:selected .text {
     -fx-fill: #102A46;
     -fx-font-weight: bold;
 }
@@ -572,7 +577,7 @@
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
     -fx-border-width: 1.2px;
-    -fx-font-size: 13px;
+    -fx-font-size: 13.5px;
     -fx-cursor: hand;
 }
 
@@ -629,7 +634,7 @@
 .choice-box-popup .list-view .list-cell {
     -fx-background-color: transparent;
     -fx-text-fill: #1E293B;
-    -fx-font-size: 13px;
+    -fx-font-size: 13.5px;
     -fx-padding: 8px 12px;
     -fx-background-radius: 6px;
     -fx-border-radius: 6px;
@@ -695,7 +700,7 @@
 
 .menu-item .label {
     -fx-text-fill: #1E293B;
-    -fx-font-size: 13px;
+    -fx-font-size: 13.5px;
 }
 
 .menu-item:focused, .menu-item:hover {
@@ -713,14 +718,14 @@
    -------------------------------------------------------------------------- */
 .sidebar-brand-title {
     -fx-text-fill: #ffffff;
-    -fx-font-size: 16px;
+    -fx-font-size: 17px;
     -fx-font-weight: 900;
     -fx-letter-spacing: 1.5px;
 }
 
 .sidebar-section-title {
     -fx-text-fill: #94a3b8;
-    -fx-font-size: 13px;
+    -fx-font-size: 13.5px;
     -fx-font-weight: 800;
     -fx-letter-spacing: 0.5px;
     -fx-padding: 16px 10px 6px 10px;
@@ -730,7 +735,7 @@
     -fx-background-color: transparent;
     -fx-text-fill: #334155;
     -fx-font-weight: 600;
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
     -fx-background-radius: 8px;
     -fx-border-color: transparent;
     -fx-border-radius: 8px;
@@ -750,7 +755,7 @@
     -fx-background-color: #173B61;
     -fx-text-fill: #ffffff;
     -fx-font-weight: 800;
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
     -fx-background-radius: 8px;
     -fx-border-color: #102A46;
     -fx-border-radius: 8px;
@@ -775,7 +780,7 @@
     -fx-background-color: transparent;
     -fx-text-fill: #334155;
     -fx-font-weight: 700;
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
     -fx-background-radius: 8px;
     -fx-border-color: transparent;
     -fx-border-radius: 8px;

@@ -82,7 +82,7 @@ public class SidebarLeTanController extends BaseSidebarController {
 
     private void khoiTaoTooltip() {
         if (btnDashboard != null) btnDashboard.setTooltip(new Tooltip("Dashboard"));
-        if (btnTiepNhanXe != null) btnTiepNhanXe.setTooltip(new Tooltip("Tiếp nhận xe mới (Check-in)"));
+        if (btnTiepNhanXe != null) btnTiepNhanXe.setTooltip(new Tooltip("Tiếp nhận xe"));
         if (btnHangDoiXe != null) btnHangDoiXe.setTooltip(new Tooltip("Hàng đợi xe tại xưởng"));
         if (btnHoSoKhachHang != null) btnHoSoKhachHang.setTooltip(new Tooltip("Hồ sơ khách hàng"));
         if (btnTaoDonBanHang != null) btnTaoDonBanHang.setTooltip(new Tooltip("Tạo đơn bán hàng & Phụ tùng"));
@@ -165,7 +165,7 @@ public class SidebarLeTanController extends BaseSidebarController {
 
             // Khôi phục text đầy đủ
             if (btnDashboard != null) btnDashboard.setText("📊 Dashboard");
-            if (btnTiepNhanXe != null) btnTiepNhanXe.setText("🚗 Tiếp nhận xe (Check-in)");
+            if (btnTiepNhanXe != null) btnTiepNhanXe.setText("🚗 Tiếp nhận xe");
             if (btnHangDoiXe != null) btnHangDoiXe.setText("⏳ Hàng đợi xe tại xưởng");
             if (btnHoSoKhachHang != null) btnHoSoKhachHang.setText("👥 Hồ sơ khách hàng");
             if (btnTaoDonBanHang != null) btnTaoDonBanHang.setText("🛒 Tạo đơn bán hàng");
@@ -264,12 +264,16 @@ public class SidebarLeTanController extends BaseSidebarController {
 
     @FXML
     public void onTiepNhanXeClick() {
-        thongBaoPhatTrien("Tiếp nhận xe mới (Check-in)");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/letan/tiep-nhan-xe-view.fxml",
+                "Pengu Garage Service ERP - Tiếp Nhận Xe");
     }
 
     @FXML
     public void onHangDoiXeClick() {
-        thongBaoPhatTrien("Hàng đợi xe tại xưởng");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/letan/hang-doi-xe-view.fxml",
+                "Pengu Garage Service ERP - Hàng Đợi Xe Tại Xưởng");
     }
 
     @FXML
