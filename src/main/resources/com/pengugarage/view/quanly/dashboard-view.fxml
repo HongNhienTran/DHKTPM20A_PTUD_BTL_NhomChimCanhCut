@@ -34,13 +34,6 @@
             <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
                 <VBox spacing="20.0" style="-fx-padding: 24px 28px 36px 28px;">
 
-                    <!-- Title Section -->
-                    <VBox spacing="4.0">
-                        <Label text="Dashboard Tổng Quan Quản Lý"
-                               style="-fx-text-fill: #102A46; -fx-font-size: 24px; -fx-font-weight: 900;" />
-                        <Label text="Tổng quan tình hình hoạt động gara, chỉ số doanh thu và trạng thái sửa chữa phương tiện"
-                               style="-fx-text-fill: #64748b; -fx-font-size: 13px;" />
-                    </VBox>
 
                     <!-- ================= 6 KPI CARDS (NỀN CARD TRẮNG #FFFFFF) ================= -->
                     <HBox spacing="14.0">

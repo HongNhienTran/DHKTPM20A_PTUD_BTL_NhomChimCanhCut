@@ -38,7 +38,7 @@
                 </image>
             </ImageView>
         </StackPane>
-        <Label style="-fx-text-fill: #102A46; -fx-font-size: 16px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
+        <Label style="-fx-text-fill: #102A46; -fx-font-size: 17px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
                text="PENGU GARAGE" />
     </HBox>
 
@@ -86,25 +86,25 @@
     <HBox alignment="CENTER_RIGHT" spacing="14.0">
         <!-- User avatar & info -->
         <HBox alignment="CENTER_LEFT" spacing="10.0">
-            <StackPane maxHeight="34.0" maxWidth="34.0"
-                       style="-fx-background-color: #102A46; -fx-background-radius: 50%; -fx-pref-width: 34px; -fx-pref-height: 34px;">
+            <StackPane maxHeight="36.0" maxWidth="36.0"
+                       style="-fx-background-color: #102A46; -fx-background-radius: 50%; -fx-pref-width: 36px; -fx-pref-height: 36px;">
                 <Label fx:id="userAvatarLabel"
-                       style="-fx-text-fill: #F47B31; -fx-font-weight: 900; -fx-font-size: 13.5px;"
+                       style="-fx-text-fill: #F47B31; -fx-font-weight: 900; -fx-font-size: 14px;"
                        text="T" />
             </StackPane>
             <VBox alignment="CENTER_LEFT" spacing="1.0">
                 <Label fx:id="userNameLabel"
-                       style="-fx-text-fill: #102A46; -fx-font-weight: 800; -fx-font-size: 12.5px;"
+                       style="-fx-text-fill: #102A46; -fx-font-weight: 800; -fx-font-size: 13.5px;"
                        text="Nguyễn Minh Tuấn" />
                 <Label fx:id="userRoleLabel"
-                       style="-fx-text-fill: #ea580c; -fx-font-size: 11px; -fx-font-weight: 700;"
+                       style="-fx-text-fill: #ea580c; -fx-font-size: 12px; -fx-font-weight: 700;"
                        text="Quản lý" />
             </VBox>
         </HBox>
 
         <!-- Nút Đăng Xuất -->
         <Button onAction="#onLogoutClick"
-                style="-fx-background-color: #fff1f2; -fx-text-fill: #e11d48; -fx-font-size: 11.5px; -fx-font-weight: 700; -fx-border-color: #fecdd3; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 5px 12px; -fx-cursor: hand;"
+                style="-fx-background-color: #fff1f2; -fx-text-fill: #e11d48; -fx-font-size: 12.5px; -fx-font-weight: 700; -fx-border-color: #fecdd3; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 6px 12px; -fx-cursor: hand;"
                 text="Đăng xuất" />
     </HBox>
 

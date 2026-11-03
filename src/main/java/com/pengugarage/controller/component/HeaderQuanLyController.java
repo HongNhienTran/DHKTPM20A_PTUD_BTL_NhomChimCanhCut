@@ -106,7 +106,9 @@ public class HeaderQuanLyController extends BaseSidebarController {
 
     @FXML
     public void onQuanLyPhuongTienClick(ActionEvent event) {
-        thongBaoPhatTrien("Quản lý phương tiện");
+        DieuHuongUtil.chuyenManHinh(rootHeader,
+                "/com/pengugarage/view/quanly/phuong-tien-view.fxml",
+                "Pengu Garage Service ERP - Quản Lý Phương Tiện");
     }
 
     @FXML

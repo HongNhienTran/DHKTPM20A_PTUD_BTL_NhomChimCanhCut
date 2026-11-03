@@ -81,12 +81,16 @@ public class HeaderLeTanController extends BaseSidebarController {
 
     @FXML
     public void onTiepNhanXeClick(ActionEvent event) {
-        thongBaoPhatTrien("Tiếp nhận xe mới (Check-in)");
+        DieuHuongUtil.chuyenManHinh(rootHeader,
+                "/com/pengugarage/view/letan/tiep-nhan-xe-view.fxml",
+                "Pengu Garage Service ERP - Tiếp Nhận Xe");
     }
 
     @FXML
     public void onHangDoiXeClick(ActionEvent event) {
-        thongBaoPhatTrien("Hàng đợi xe tại xưởng");
+        DieuHuongUtil.chuyenManHinh(rootHeader,
+                "/com/pengugarage/view/letan/hang-doi-xe-view.fxml",
+                "Pengu Garage Service ERP - Hàng Đợi Xe Tại Xưởng");
     }
 
     @FXML

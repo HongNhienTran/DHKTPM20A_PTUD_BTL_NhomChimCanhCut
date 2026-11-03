@@ -304,7 +304,9 @@ public class SidebarQuanLyController extends BaseSidebarController {
 
     @FXML
     public void onQuanLyPhuongTienClick() {
-        thongBaoPhatTrien("Quản lý phương tiện");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/quanly/phuong-tien-view.fxml",
+                "Pengu Garage Service ERP - Quản Lý Phương Tiện");
     }
 
     @FXML

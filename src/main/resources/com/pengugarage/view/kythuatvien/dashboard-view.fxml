@@ -35,19 +35,6 @@
             <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
                 <VBox spacing="20.0" style="-fx-padding: 24px 28px 36px 28px;">
 
-                    <!-- Title Section -->
-                    <HBox alignment="CENTER_LEFT">
-                        <VBox spacing="4.0">
-                            <Label text="Bàn Làm Việc Kỹ Thuật Viên"
-                                   style="-fx-text-fill: #102A46; -fx-font-size: 24px; -fx-font-weight: 900;" />
-                            <Label text="Quản lý tiến độ phân công sửa chữa, trạng thái từng xe tại cầu nâng và xuất vật tư phụ tùng"
-                                   style="-fx-text-fill: #64748b; -fx-font-size: 13px;" />
-                        </VBox>
-                        <Region HBox.hgrow="ALWAYS" />
-                        <!-- Badge trạng thái cầu nâng -->
-                        <Label text="● Cầu nâng đang hoạt động: 4/5"
-                               style="-fx-background-color: #e7f7f0; -fx-text-fill: #0d6832; -fx-font-weight: 800; -fx-font-size: 12px; -fx-padding: 6px 14px; -fx-background-radius: 20px; -fx-border-color: #a3e3c5; -fx-border-radius: 20px;" />
-                    </HBox>
 
                     <!-- ================= 4 KPI CARDS (NỀN TRẮNG #FFFFFF) ================= -->
                     <HBox spacing="16.0">

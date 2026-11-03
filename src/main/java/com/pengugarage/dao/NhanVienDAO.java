@@ -34,6 +34,31 @@ public class NhanVienDAO {
     }
 
     /**
+     * Lấy danh sách nhân viên theo Chức vụ (VD: KY_THUAT_VIEN, LE_TAN) và đang hoạt động (trang_thai = true).
+     *
+     * @param chucVu Chức vụ cần lọc
+     * @return Danh sách NhanVien
+     */
+    public List<NhanVien> layDanhSachTheoChucVu(ChucVu chucVu) {
+        List<NhanVien> list = new ArrayList<>();
+        if (chucVu == null) return layTatCa();
+
+        String sql = "SELECT * FROM `nhan_vien` WHERE `chuc_vu` = ? AND `trang_thai` = 1 ORDER BY `ho_ten` ASC";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, chucVu.name());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToNhanVien(rs));
+                }
+            }
+        } catch (SQLException ignored) {
+        }
+        return list;
+    }
+
+    /**
      * Tìm nhân viên theo ID
      */
     public NhanVien timTheoId(int id) {

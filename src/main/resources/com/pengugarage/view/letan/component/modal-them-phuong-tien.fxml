@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- ===================================================================== -->
+<!-- MODAL THÊM MỚI PHƯƠNG TIỆN & CHỦ XE                                  -->
+<!-- Tone màu: Light Modern UI, Brand Navy #102A46, Xanh lá #059669        -->
+<!-- Phục vụ Tiếp nhận xe tại xưởng (GIAI ĐOẠN 1)                           -->
+<!-- ===================================================================== -->
+
+<VBox fx:id="rootPane" prefWidth="640.0" spacing="14.0"
+      style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-width: 1px; -fx-border-radius: 12px; -fx-background-radius: 12px;"
+      stylesheets="@../../../css/style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.component.ModalThemPhuongTienController">
+
+    <padding>
+        <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
+    </padding>
+
+    <!-- 1. Header Modal -->
+    <HBox alignment="CENTER_LEFT" spacing="12.0">
+        <VBox spacing="2.0">
+            <Label style="-fx-text-fill: #102A46; -fx-font-size: 21px; -fx-font-weight: 900;"
+                   text="➕ Tạo Mới Phương Tiện &amp; Khách Hàng" />
+            <Label style="-fx-text-fill: #64748b; -fx-font-size: 13px;"
+                   text="Tra cứu hồ sơ khách hàng, liên kết chủ xe và thêm mới thông tin phương tiện vào gara" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button onAction="#onDongClick"
+                style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-font-size: 18px; -fx-font-weight: bold; -fx-cursor: hand;"
+                text="✕" />
+    </HBox>
+
+    <Separator />
+
+    <!-- 2. Scrollable Body Content -->
+    <ScrollPane fitToWidth="true" maxHeight="500.0"
+                style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;">
+        <VBox spacing="16.0" style="-fx-padding: 4px 6px;">
+
+            <!-- ================= KHỐI 1: THÔNG TIN KHÁCH HÀNG ================= -->
+            <VBox spacing="10.0"
+                  style="-fx-background-color: #f8fafc; -fx-padding: 14px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px;">
+                <HBox alignment="CENTER_LEFT">
+                    <Label style="-fx-text-fill: #102A46; -fx-font-size: 14.5px; -fx-font-weight: 800;"
+                           text="👤 1. HỒ SƠ CHỦ XE (KHÁCH HÀNG)" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label fx:id="lblTrangThaiKhach"
+                           style="-fx-background-color: #eff6ff; -fx-text-fill: #1d4ed8; -fx-padding: 3px 10px; -fx-background-radius: 10px; -fx-font-size: 12px; -fx-font-weight: bold;"
+                           text="Tra cứu số điện thoại" />
+                </HBox>
+
+                <!-- Thanh tìm kiếm SĐT khách -->
+                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                    <TextField fx:id="txtTimSdtKhach" promptText="Nhập số điện thoại khách hàng (VD: 0912345678)..."
+                               style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-padding: 7px 12px; -fx-font-size: 13.5px;"
+                               HBox.hgrow="ALWAYS" />
+                    <Button fx:id="btnTimKhach" onAction="#onTimKhachClick"
+                            style="-fx-background-color: #102A46; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 7px 14px; -fx-background-radius: 6px; -fx-cursor: hand;"
+                            text="🔍 Kiểm tra SĐT" />
+                    <Button fx:id="btnDoiKhach" onAction="#onDoiKhachClick" managed="false" visible="false"
+                            style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 7px 12px; -fx-background-radius: 6px; -fx-cursor: hand;"
+                            text="🔄 Đổi khách khác" />
+                </HBox>
+
+                <!-- Card thông tin khách đã tìm thấy -->
+                <VBox fx:id="boxKhachDaTonTai" managed="false" spacing="4.0" visible="false"
+                      style="-fx-background-color: #ecfdf5; -fx-padding: 10px 14px; -fx-background-radius: 8px; -fx-border-color: #a7f3d0; -fx-border-radius: 8px;">
+                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                        <Label fx:id="lblTenKhachTimThay"
+                               style="-fx-text-fill: #065f46; -fx-font-size: 15px; -fx-font-weight: 900;"
+                               text="Anh Nguyễn Văn An" />
+                        <Label fx:id="lblMaKhachTimThay"
+                               style="-fx-background-color: #d1fae5; -fx-text-fill: #047857; -fx-padding: 2px 8px; -fx-background-radius: 6px; -fx-font-size: 12px; -fx-font-weight: bold;"
+                               text="KH001" />
+                    </HBox>
+                    <Label fx:id="lblChiTietKhachTimThay"
+                           style="-fx-text-fill: #047857; -fx-font-size: 12.5px;"
+                           text="📞 0912345678 • 🏠 123 Nguyễn Văn Cừ, Quận 5, TP.HCM" />
+                </VBox>
+
+                <!-- Form điền khách hàng mới (nếu khách chưa có hồ sơ) -->
+                <VBox fx:id="boxNhapKhachMoi" spacing="10.0">
+                    <GridPane hgap="12.0" vgap="10.0">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                        </columnConstraints>
+
+                        <!-- Họ và tên khách hàng -->
+                        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                                   text="Họ và tên khách hàng (*):" />
+                            <TextField fx:id="txtHoTenKhach" promptText="VD: Nguyễn Văn An"
+                                       style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-padding: 7px 10px; -fx-font-size: 13.5px;" />
+                        </VBox>
+
+                        <!-- Giới tính (Nam / Nữ) -->
+                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                                   text="Giới tính (* - Hiển thị Anh/Chị):" />
+                            <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-padding: 6px 4px;">
+                                <RadioButton fx:id="radNam" selected="true" text="👨 Nam (Anh)">
+                                    <toggleGroup>
+                                        <ToggleGroup fx:id="grpGioiTinh" />
+                                    </toggleGroup>
+                                </RadioButton>
+                                <RadioButton fx:id="radNu" text="👩 Nữ (Chị)" toggleGroup="$grpGioiTinh" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- Số điện thoại -->
+                        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                                   text="Số điện thoại (*):" />
+                            <TextField fx:id="txtSdtKhach" promptText="VD: 0912345678"
+                                       style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-padding: 7px 10px; -fx-font-size: 13.5px;" />
+                        </VBox>
+
+                        <!-- Địa chỉ -->
+                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                                   text="Địa chỉ / Tỉnh thành:" />
+                            <TextField fx:id="txtDiaChiKhach" promptText="VD: Quận 7, TP.HCM"
+                                       style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-padding: 7px 10px; -fx-font-size: 13.5px;" />
+                        </VBox>
+                    </GridPane>
+                </VBox>
+            </VBox>
+
+            <!-- ================= KHỐI 2: THÔNG TIN PHƯƠNG TIỆN ================= -->
+            <VBox spacing="10.0"
+                  style="-fx-background-color: #ffffff; -fx-padding: 14px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px;">
+                <Label style="-fx-text-fill: #102A46; -fx-font-size: 14.5px; -fx-font-weight: 800;"
+                       text="🚗 2. THÔNG TIN PHƯƠNG TIỆN (XE)" />
+
+                <GridPane hgap="12.0" vgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                    </columnConstraints>
+
+                    <!-- Biển số xe -->
+                    <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                               text="Biển số xe (*):" />
+                        <TextField fx:id="txtBienSo" promptText="VD: 51H-999.88"
+                                   style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-padding: 7px 10px; -fx-font-size: 13.5px; -fx-font-weight: bold;" />
+                    </VBox>
+
+                    <!-- Hãng xe -->
+                    <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                               text="Hãng xe (*):" />
+                        <ComboBox fx:id="cboHangXe" maxWidth="Infinity" promptText="-- Chọn hãng xe --"
+                                  style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-font-size: 13.5px;" />
+                    </VBox>
+
+                    <!-- Mẫu xe / Dòng xe -->
+                    <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                               text="Dòng / Mẫu xe (*):" />
+                        <TextField fx:id="txtMauXe" promptText="VD: Vios 1.5G, City RS, VF8..."
+                                   style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-padding: 7px 10px; -fx-font-size: 13.5px;" />
+                    </VBox>
+
+                    <!-- Màu sắc xe -->
+                    <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                               text="Màu sắc xe (*):" />
+                        <TextField fx:id="txtMauSacXe" promptText="VD: Trắng, Đen, Đỏ, Bạc..."
+                                   style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-padding: 7px 10px; -fx-font-size: 13.5px;" />
+                    </VBox>
+
+                    <!-- Năm sản xuất -->
+                    <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                        <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                               text="Năm sản xuất (*):" />
+                        <TextField fx:id="txtNamSanXuat" promptText="VD: 2022" text="2022"
+                                   style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-padding: 7px 10px; -fx-font-size: 13.5px;" />
+                    </VBox>
+
+                    <!-- Nhiên liệu -->
+                    <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <Label style="-fx-text-fill: #334155; -fx-font-size: 12.5px; -fx-font-weight: bold;"
+                               text="Nhiên liệu:" />
+                        <ComboBox fx:id="cboNhienLieu" maxWidth="Infinity" promptText="Xăng"
+                                  style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-font-size: 13.5px;" />
+                    </VBox>
+                </GridPane>
+            </VBox>
+
+            <!-- Nhãn thông báo kết quả / lỗi -->
+            <Label fx:id="lblThongBao" managed="false" visible="false"
+                   style="-fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 2px 4px;" text="" />
+
+        </VBox>
+    </ScrollPane>
+
+    <Separator />
+
+    <!-- 3. Footer Action Buttons -->
+    <HBox alignment="CENTER_RIGHT" spacing="12.0">
+        <Button onAction="#onDongClick"
+                style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 13.5px; -fx-padding: 8px 16px; -fx-background-radius: 6px; -fx-cursor: hand;"
+                text="Hủy bỏ" />
+
+        <Button fx:id="btnLuu" onAction="#onLuuClick"
+                style="-fx-background-color: #059669; -fx-text-fill: #ffffff; -fx-font-weight: 800; -fx-font-size: 14px; -fx-padding: 9px 20px; -fx-background-radius: 6px; -fx-cursor: hand;"
+                text="💾 Lưu &amp; Chọn Phương Tiện Này" />
+    </HBox>
+
+</VBox>
+

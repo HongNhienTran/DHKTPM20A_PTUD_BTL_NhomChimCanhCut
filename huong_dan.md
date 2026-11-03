@@ -19,6 +19,9 @@
 | **Quản lý Dịch vụ** | `M02-T03` | `capNhat()` | Hiển thị thông tin dịch vụ và cho phép chỉnh sửa | **Tân** | ⏳ Đã dựng khung (Chờ code) |
 | **Mã Khuyến Mãi** | `M03-T01` | `layTatCa()`, `layChiTietMaKhuyenMaiTheoID()` | Hiển thị danh sách, hiển thị chi tiết, lọc trên giao diện | **Nhiên** | **✅ ĐÃ HOÀN THÀNH** |
 | **Mã Khuyến Mãi** | `M03-T02` | `them()` | Nhập thông tin mã khuyến mãi và thêm mới qua Modal | **Tuấn** | ⏳ Đã dựng khung (Chờ code) |
+| **Tiếp nhận xe & Hàng đợi** | `M08-T01` | `layTatCa()`, `sinhMaTiepNhanTuDong()`, `themPhieuTiepNhan()`, `capNhatPhieuTiepNhan()` | Lập & quản lý phiếu tiếp nhận xe (tự sinh mã TN, chọn KTV kiểm tra, ghi nhận hiện trạng xe, metric cards) | **Nhiên** | **✅ ĐÃ HOÀN THÀNH** |
+| **Tiếp nhận xe & Hàng đợi** | `M08-T02` | `timTheoSoDienThoai()`, `them()` | Tra cứu & thêm nhanh khách hàng (danh xưng Anh/Chị), thêm mới phương tiện | **Nhiên** | **✅ ĐÃ HOÀN THÀNH** |
+| **Tiếp nhận xe & Hàng đợi** | `M08-T03` | `layDanhSachPhanCong()`, `layPhieuBaoGia()` | Hàng đợi xe tại xưởng (Kanban Live 4 cột, lễ tân duyệt báo giá & phân công KTV) | **Nhiên** | **✅ ĐÃ HOÀN THÀNH** |
 
 ---
 
@@ -114,6 +117,38 @@
   - Lấy thông tin từ form chi tiết: `tenDVField`, `donGiaField`, `thueVATField`, `moTaArea`, `trangThaiCombo` $\rightarrow$ gọi `dichVuService.capNhat(...)`.
 
 ---
+
+### 👩‍💻 4. DÀNH CHO NHIÊN (Module Tiếp Nhận Xe & Hàng Đợi Xưởng - M08)
+
+#### Nhiệm vụ đã hoàn thiện:
+
+##### 4.1. Lập & Quản Lý Phiếu Tiếp Nhận Xe (Task M08-T01)
+- **Giao diện**: [tiep-nhan-xe-view.fxml](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/resources/com/pengugarage/view/letan/tiep-nhan-xe-view.fxml)
+- **Controller**: [TiepNhanXeController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/TiepNhanXeController.java)
+- **DAO & Service**: [PhieuTiepNhanDAO.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/dao/PhieuTiepNhanDAO.java), [PhieuTiepNhanService.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/service/PhieuTiepNhanService.java)
+- **Nghiệp vụ thực hiện**:
+  - Tự động sinh mã tiếp nhận chuẩn quy tắc theo ngày: `TNyyyyMMdd-XXX` (VD: `TN20261103-001`).
+  - Lễ tân chọn Kỹ thuật viên phụ trách kiểm tra xe ban đầu ngay khi tạo phiếu.
+  - Ghi nhận đầy đủ hiện trạng xe: số KM (ODO), số lượng chìa khóa, yêu cầu dịch vụ của khách, tình trạng nội ngoại thất và ghi chú.
+  - Cập nhật số liệu các thẻ thống kê Metric Cards trực tiếp theo thời gian thực.
+  - Thiết kế nút hành động duy nhất tối giản màu cam thương hiệu: **"➕ Tạo Tiếp Nhận"**.
+
+##### 4.2. Modal Tra Cứu & Thêm Nhanh Phương Tiện / Khách Hàng (Task M08-T02)
+- **Giao diện**: [modal-them-phuong-tien.fxml](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/resources/com/pengugarage/view/letan/component/modal-them-phuong-tien.fxml)
+- **Controller**: [ModalThemPhuongTienController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/component/ModalThemPhuongTienController.java)
+- **DAO**: [KhachHangDAO.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/dao/KhachHangDAO.java), [PhuongTienDAO.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/dao/PhuongTienDAO.java)
+- **Nghiệp vụ thực hiện**:
+  - Tra cứu khách hàng trước theo SĐT: nếu đã tồn tại thì tự động hiển thị thông tin và gán xe cho khách hàng đó; nếu khách mới thì hiển thị form nhập đồng thời cả khách và xe.
+  - Tự động chèn danh xưng theo giới tính: **Anh** (Nam) hoặc **Chị** (Nữ) trước họ tên khách hàng.
+  - Tự động viết hoa biển số xe và kiểm tra tính hợp lệ.
+
+##### 4.3. Hàng Đợi Xe Tại Xưởng - Kanban Live 4 Giai Đoạn (Task M08-T03)
+- **Giao diện**: [hang-doi-xe-view.fxml](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/resources/com/pengugarage/view/letan/hang-doi-xe-view.fxml)
+- **Controller**: [HangDoiXeController.java](file:///d:/HK9/PTUD/PROJ/pengugarage/src/main/java/com/pengugarage/controller/HangDoiXeController.java)
+- **Nghiệp vụ thực hiện**:
+  - Quản lý quy trình 4 giai đoạn chuẩn xưởng: **1. Chờ kiểm tra** ➔ **2. Kiểm tra & Báo giá** ➔ **3. Đang sửa chữa** (màu cam đồng bộ) ➔ **4. Chờ bàn giao**.
+  - Hiển thị badge số lượng phương tiện trực tiếp trên từng trạng thái và liên kết click từ Dashboard nhảy sang hàng đợi xe.
+  - Lễ tân xem chi tiết phiếu báo giá để đọc cho khách duyệt, chọn KTV đang có mặt tại xưởng để phân công rồi xác nhận chuyển sang tab "Đang sửa chữa".
 
 ## 🛠️ CÁC TIỆN ÍCH DỰ ÁN HỖ TRỢ SẴN CẦN LƯU Ý
 

@@ -1,6 +1,12 @@
 package com.pengugarage.dao;
 
 import com.pengugarage.model.entity.*;
+import com.pengugarage.util.CoSoDuLieuUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import com.pengugarage.model.enums.NhienLieu;
 import com.pengugarage.model.enums.TrangThaiPhieuTiepNhan;
 import com.pengugarage.util.CoSoDuLieuUtil;
@@ -108,6 +114,80 @@ public class PhuongTienDAO {
             throw new RuntimeException("Lỗi truy vấn phương tiện: " + e.getMessage(), e);
         }
         return null;
+    }
+
+    /**
+     * Tìm phương tiện theo Biển số xe (kèm thông tin Hãng xe và Khách hàng).
+     * Phục vụ tra cứu phương tiện khi tiếp nhận xe.
+     *
+     * @param bienSo Biển số xe cần tìm
+     * @return Đối tượng PhuongTien hoặc null
+     */
+    public PhuongTien timTheoBienSo(String bienSo) {
+        if (bienSo == null || bienSo.trim().isEmpty()) return null;
+        String sql = """
+            SELECT pt.*,
+                   hx.id AS hx_id, hx.ten_hang,
+                   kh.id AS kh_id, kh.ma_khach_hang, kh.ho_ten, kh.so_dien_thoai, kh.gioi_tinh
+            FROM phuong_tien pt
+            LEFT JOIN hang_xe hx ON pt.hang_xe_id = hx.id
+            LEFT JOIN khach_hang kh ON pt.khach_hang_id = kh.id
+            WHERE REPLACE(REPLACE(pt.bien_so_xe, '-', ''), '.', '') = REPLACE(REPLACE(?, '-', ''), '.', '')
+               OR pt.bien_so_xe LIKE ?
+            LIMIT 1
+            """;
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, bienSo.trim());
+            ps.setString(2, "%" + bienSo.trim() + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    PhuongTien pt = new PhuongTien();
+                    pt.setId(rs.getInt("id"));
+                    pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
+                    pt.setBienSoXe(rs.getString("bien_so_xe"));
+                    pt.setMauXe(rs.getString("mau_xe"));
+                    pt.setMauSacXe(rs.getString("mau_sac_xe"));
+                    pt.setNamSanXuat(rs.getInt("nam_san_xuat"));
+
+                    HangXe hx = new HangXe();
+                    hx.setId(rs.getInt("hx_id"));
+                    hx.setTenHang(rs.getString("ten_hang"));
+                    pt.setHangXe(hx);
+
+                    KhachHang kh = new KhachHang();
+                    kh.setId(rs.getInt("kh_id"));
+                    kh.setMaKhachHang(rs.getString("ma_khach_hang"));
+                    kh.setHoTen(rs.getString("ho_ten"));
+                    kh.setSoDienThoai(rs.getString("so_dien_thoai"));
+                    try {
+                        kh.setGioiTinh(rs.getString("gioi_tinh"));
+                    } catch (SQLException ignored) {}
+                    pt.setKhachHang(kh);
+
+                    return pt;
+                }
+            }
+        } catch (SQLException ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * Tự động sinh mã phương tiện PT001, PT002...
+     */
+    public String sinhMaPhuongTienTuDong() {
+        String sql = "SELECT MAX(id) FROM phuong_tien";
+        int nextId = 1;
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                nextId = rs.getInt(1) + 1;
+            }
+        } catch (SQLException ignored) {
+        }
+        return String.format("PT%03d", nextId);
     }
 
     /**
@@ -265,6 +345,66 @@ public class PhuongTienDAO {
         // TODO: [M07-T04 - Tuấn] Viết SQL JOIN HoaDon và ChiTietHoaDon WHERE phieu_tiep_nhan_id = ?
 
         return dsChiTiet;
+    }
+
+    /*Tìm phương tiện theo biển số xe (biển số xe là duy nhất trong hệ thống).
+     *
+     * @param bienSoXe Biển số xe cần tìm
+     * @return Đối tượng PhuongTien hoặc null nếu không tìm thấy
+     */
+    //Nhiên (module tiếp nhận)
+    public PhuongTien timTheoBienSoXe(String bienSo) {
+        if (bienSo == null || bienSo.trim().isEmpty()) {
+            return null;
+        }
+        String sql ="SELECT pt.*, \n" +
+                "               hx.id AS hx_id, hx.ten_hang, \n" +
+                "               kh.id AS kh_id, kh.ma_khach_hang, kh.ho_ten, kh.so_dien_thoai, kh.gioi_tinh\n" +
+                "        FROM phuong_tien pt\n" +
+                "        LEFT JOIN hang_xe hx ON pt.hang_xe_id = hx.id\n" +
+                "        LEFT JOIN khach_hang kh ON pt.khach_hang_id = kh.id\n" +
+                "        WHERE REPLACE(REPLACE(pt.bien_so_xe, '-', ''), '.', '') = REPLACE(REPLACE(?, '-', ''), '.', '')\n" +
+                "           OR pt.bien_so_xe LIKE ?\n" +
+                "        LIMIT 1";
+        try(Connection conn = CoSoDuLieuUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, bienSo);
+            ps.setString(2, "%" + bienSo + "%");
+
+            try(ResultSet rs = ps.executeQuery()){
+                if (rs.next()) {
+                    PhuongTien pt = new PhuongTien();
+                    pt.setId(rs.getInt("id"));
+                    pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
+                    pt.setBienSoXe(rs.getString("bien_so_xe"));
+                    pt.setMauXe(rs.getString("mau_xe"));
+                    pt.setMauSacXe(rs.getString("mau_sac_xe"));
+                    pt.setNamSanXuat(rs.getInt("nam_san_xuat"));
+
+                    // Gán Hãng xe
+                    HangXe hx = new HangXe();
+                    hx.setId(rs.getInt("hx_id"));
+                    hx.setTenHang(rs.getString("ten_hang"));
+                    pt.setHangXe(hx);
+
+                    // Gán Khách hàng
+                    KhachHang kh = new KhachHang();
+                    kh.setId(rs.getInt("kh_id"));
+                    kh.setMaKhachHang(rs.getString("ma_khach_hang"));
+                    kh.setHoTen(rs.getString("ho_ten"));
+                    kh.setSoDienThoai(rs.getString("so_dien_thoai"));
+                    try {
+                        kh.setGioiTinh(rs.getString("gioi_tinh"));
+                    } catch (SQLException ignored) {}
+                    pt.setKhachHang(kh);
+
+                    return pt;
+                }
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
 
