@@ -7,6 +7,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import com.pengugarage.model.enums.NhienLieu;
+import com.pengugarage.model.enums.TrangThaiPhieuTiepNhan;
+import com.pengugarage.util.CoSoDuLieuUtil;
+
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +32,38 @@ public class PhuongTienDAO {
     public List<PhuongTien> layTatCa() {
         List<PhuongTien> dsXe = new ArrayList<>();
         // TODO: [M07-T01 - Tuấn] Viết SQL SELECT * FROM PhuongTien JOIN HangXe JOIN KhachHang
+        String sql = "SELECT * FROM `phuong_tien` ORDER BY `id` DESC";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                PhuongTien pt = new PhuongTien();
+                pt.setId(rs.getInt("id"));
+                pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
+                HangXe hx= new HangXe();
+                hx.setId(rs.getInt("hang_xe_id"));
+                pt.setHangXe(hx);
+                pt.setBienSoXe(rs.getString("bien_so_xe"));
+                pt.setMauXe(rs.getString("mau_xe"));
+                pt.setMauSacXe(rs.getString("mau_sac_xe"));
+                pt.setNamSanXuat(rs.getInt("nam_san_xuat"));
+                String nl = rs.getString("nhien_lieu");
+                if(nl.equals(NhienLieu.XANG.toString())) {
+                    pt.setNhienLieu(NhienLieu.XANG);
+                }
+                else if(nl.equals(NhienLieu.DAU.toString())) {
+                    pt.setNhienLieu(NhienLieu.DAU);
+                }
+                else if(nl.equals(NhienLieu.DIEN.toString())) {
+                    pt.setNhienLieu(NhienLieu.DIEN);
+                }
+                else {pt.setNhienLieu(NhienLieu.HYBRID);}
+                dsXe.add(pt);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi truy vấn danh sách phương tiện: " + e.getMessage(), e);
+        }
         return dsXe;
     }
 
@@ -37,6 +75,44 @@ public class PhuongTienDAO {
      */
     public PhuongTien timTheoId(int id) {
         // TODO: [M07-T01 - Tuấn] Viết SQL SELECT * FROM PhuongTien WHERE id = ?
+        String sql = "SELECT * FROM `phuong_tien` where 'id' = ?";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    PhuongTien pt = new PhuongTien();
+                    pt.setId(rs.getInt("id"));
+                    pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
+                    KhachHang kh= new KhachHang();
+                    kh.setId(rs.getInt("khach_hang_id"));
+                    pt.setKhachHang(kh);
+                    pt.setKhachHangId(rs.getInt("khach_hang_id"));
+                    HangXe hx= new HangXe();
+                    hx.setId(rs.getInt("hang_xe_id"));
+                    pt.setHangXe(hx);
+                    pt.setBienSoXe(rs.getString("bien_so_xe"));
+                    pt.setMauXe(rs.getString("mau_xe"));
+                    pt.setMauSacXe(rs.getString("mau_sac_xe"));
+                    pt.setNamSanXuat(rs.getInt("nam_san_xuat"));
+                    String nl = rs.getString("nhien_lieu");
+                    if(nl.equals(NhienLieu.XANG.toString())) {
+                        pt.setNhienLieu(NhienLieu.XANG);
+                    }
+                    else if(nl.equals(NhienLieu.DAU.toString())) {
+                        pt.setNhienLieu(NhienLieu.DAU);
+                    }
+                    else if(nl.equals(NhienLieu.DIEN.toString())) {
+                        pt.setNhienLieu(NhienLieu.DIEN);
+                    }
+                    else {pt.setNhienLieu(NhienLieu.HYBRID);}
+                    return pt;
+                }
+                rs.close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi truy vấn phương tiện: " + e.getMessage(), e);
+        }
         return null;
     }
 
@@ -122,37 +198,34 @@ public class PhuongTienDAO {
      */
     public List<PhuongTien> layTheoKhachHangId(int khachHangId) {
         List<PhuongTien> dsXe = new ArrayList<>();
-        String sql = """
-            SELECT pt.*, hx.id AS hx_id, hx.ten_hang
-            FROM phuong_tien pt
-            LEFT JOIN hang_xe hx ON pt.hang_xe_id = hx.id
-            WHERE pt.khach_hang_id = ?
-            ORDER BY pt.id DESC
-            """;
-        try (Connection conn = CoSoDuLieuUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, khachHangId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    PhuongTien pt = new PhuongTien();
-                    pt.setId(rs.getInt("id"));
-                    pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
-                    pt.setBienSoXe(rs.getString("bien_so_xe"));
-                    pt.setMauXe(rs.getString("mau_xe"));
-                    pt.setMauSacXe(rs.getString("mau_sac_xe"));
-                    pt.setNamSanXuat(rs.getInt("nam_san_xuat"));
-
-                    HangXe hx = new HangXe();
-                    hx.setId(rs.getInt("hx_id"));
-                    hx.setTenHang(rs.getString("ten_hang"));
-                    pt.setHangXe(hx);
-
-                    dsXe.add(pt);
-                }
-            }
-        } catch (SQLException ignored) {
-        }
-        return dsXe;
+        // TODO: [M07-T01 - Tuấn] Viết SQL SELECT * FROM PhuongTien WHERE khach_hang_id = ?
+          String sql = "SELECT * FROM `phuong_tien` where 'khach_hang_id' = ?";
+          try (Connection conn = CoSoDuLieuUtil.getConnection();
+          PreparedStatement ps = conn.prepareStatement(sql)) { ps.setInt(1, khachHangId);
+              try (ResultSet rs = ps.executeQuery()) {
+                  if (rs.next())
+                  {
+                      PhuongTien pt = new PhuongTien();
+                      pt.setId(rs.getInt("id"));
+                      pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
+                      KhachHang kh= new KhachHang();
+                      kh.setId(rs.getInt("khach_hang_id"));
+                      pt.setKhachHang(kh);
+                      pt.setKhachHangId(rs.getInt("khach_hang_id"));
+                      HangXe hx= new HangXe(); hx.setId(rs.getInt("hang_xe_id"));
+                      pt.setHangXe(hx);
+                      pt.setBienSoXe(rs.getString("bien_so_xe"));
+                      pt.setMauXe(rs.getString("mau_xe"));
+                      pt.setMauSacXe(rs.getString("mau_sac_xe"));
+                      pt.setNamSanXuat(rs.getInt("nam_san_xuat"));
+                      String nl = rs.getString("nhien_lieu");
+                      if(nl.equals(NhienLieu.XANG.toString())) { pt.setNhienLieu(NhienLieu.XANG); }
+                      else if(nl.equals(NhienLieu.DAU.toString())) { pt.setNhienLieu(NhienLieu.DAU); }
+                      else if(nl.equals(NhienLieu.DIEN.toString())) { pt.setNhienLieu(NhienLieu.DIEN); }
+                      else {pt.setNhienLieu(NhienLieu.HYBRID);} dsXe.add(pt); }
+                  rs.close(); } }
+          catch (SQLException e) { throw new RuntimeException("Lỗi truy vấn phương tiện: " + e.getMessage(), e); }
+          return dsXe;
     }
 
     /**
@@ -162,37 +235,27 @@ public class PhuongTienDAO {
      * @return true nếu thêm thành công
      */
     public boolean them(PhuongTien pt) {
-        if (pt == null) return false;
-        if (pt.getMaPhuongTien() == null || pt.getMaPhuongTien().trim().isEmpty()) {
-            pt.setMaPhuongTien(sinhMaPhuongTienTuDong());
-        }
-        String sql = """
-            INSERT INTO phuong_tien (ma_phuong_tien, hang_xe_id, khach_hang_id, bien_so_xe, mau_xe, mau_sac_xe, nam_san_xuat, nhien_lieu, so_khung, so_may)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """;
-        try (Connection conn = CoSoDuLieuUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, pt.getMaPhuongTien());
-            ps.setInt(2, pt.getHangXe() != null ? pt.getHangXe().getId() : (pt.getHangXeId() > 0 ? pt.getHangXeId() : 1));
-            ps.setInt(3, pt.getKhachHang() != null ? pt.getKhachHang().getId() : (pt.getKhachHangId() > 0 ? pt.getKhachHangId() : 1));
-            ps.setString(4, pt.getBienSoXe() != null ? pt.getBienSoXe().toUpperCase().trim() : "");
-            ps.setString(5, pt.getMauXe() != null ? pt.getMauXe().trim() : "");
-            ps.setString(6, pt.getMauSacXe() != null ? pt.getMauSacXe().trim() : "Trắng");
-            ps.setInt(7, pt.getNamSanXuat() > 0 ? pt.getNamSanXuat() : 2022);
-            ps.setString(8, pt.getNhienLieu() != null ? pt.getNhienLieu().name() : "XANG");
-            ps.setString(9, pt.getSoKhung() != null ? pt.getSoKhung().trim() : "");
-            ps.setString(10, pt.getSoMay() != null ? pt.getSoMay().trim() : "");
+        // TODO: [M07-T02 - Tuấn] Viết SQL INSERT INTO PhuongTien (ma_phuong_tien, hang_xe_id, khach_hang_id,
+        String sql = "INSERT INTO 'phuong_tien' (ma_phuong_tien, hang_xe_id, khach_hang_id,bien_so_xe,mau_xe,mau_sac_xe,nam_san_xuat,nhien_lieu,so_khung,so_may) values(?,?,?,?,?,?,?,?,?,?)";
 
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, pt.getMaPhuongTien());
+            ps.setInt(2, pt.getHangXeId());
+            ps.setInt(3, pt.getKhachHangId());
+            ps.setString(4, pt.getBienSoXe());
+            ps.setString(5, pt.getMauXe());
+            ps.setString(6, pt.getMauSacXe());
+            ps.setInt(7, pt.getNamSanXuat());
+            ps.setString(8,pt.getNhienLieu().toString());
+            ps.setString(9,pt.getSoKhung());
+            ps.setString(10,pt.getSoMay());
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        pt.setId(rs.getInt(1));
-                    }
-                }
                 return true;
             }
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            return false;
         }
         return false;
     }
@@ -205,7 +268,29 @@ public class PhuongTienDAO {
      */
     public boolean capNhat(PhuongTien pt) {
         // TODO: [M07-T03 - Tuấn] Viết SQL UPDATE PhuongTien SET hang_xe_id = ?, khach_hang_id = ?,
-        // bien_so_xe = ?, mau_xe = ?, mau_sac_xe = ?, nam_san_xuat = ?, nhien_lieu = ?, so_khung = ?, so_may = ? WHERE id = ?
+        String sql = "Update 'phuong_tien' set ma_phuong_tien= ?,hang_xe_id= ?,khach_hang_id=?,bien_so_xe=?,mau_xe=?,mau_sac_xe=?,nam_san_xuat=?,nhien_lieu=?,so_khung=?,so_may=? where id=?";
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, pt.getMaPhuongTien());
+            ps.setInt(2, pt.getHangXeId());
+            ps.setInt(3, pt.getKhachHangId());
+            ps.setString(4, pt.getBienSoXe());
+            ps.setString(5, pt.getMauXe());
+            ps.setString(6, pt.getMauSacXe());
+            ps.setInt(7, pt.getNamSanXuat());
+            ps.setString(8,pt.getNhienLieu().toString());
+            ps.setString(9,pt.getSoKhung());
+            ps.setString(10,pt.getSoMay());
+            ps.setInt(11,pt.getId());
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                return true;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
         return false;
     }
 
@@ -220,6 +305,32 @@ public class PhuongTienDAO {
     public List<PhieuTiepNhan> layLichSuSuaChua(int phuongTienId) {
         List<PhieuTiepNhan> dsLichSu = new ArrayList<>();
         // TODO: [M07-T04 - Tuấn] Viết SQL SELECT * FROM PhieuTiepNhan WHERE phuong_tien_id = ? ORDER BY thoi_gian_vao DESC
+        String sql = "SELECT * FROM `phieu_tiep_nhan` where phuong_tien_id = ? ORDER BY `thoi_gian_tiep_nhan` DESC";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) { ps.setInt(1, phuongTienId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                {
+                    PhieuTiepNhan ptn = new PhieuTiepNhan();
+                    ptn.setId(rs.getInt("id"));
+                    ptn.setMaTiepNhan(rs.getString("ma_tiep_nhan"));
+                    PhuongTien pt = new PhuongTien();
+                    pt.setId(rs.getInt("phuong_tien_id"));
+                    ptn.setPhuongTien(pt);
+                    ptn.setPhuongTienId(pt.getId());
+                    ptn.setThoiGianTiepNhan(rs.getDate("thoi_gian_tiep_nhan").toLocalDate().atTime(rs.getTime("thoi_gian_tiep_nhan").toLocalTime()));
+                    ptn.setTrangThai(TrangThaiPhieuTiepNhan.valueOf(rs.getString("thoi_gian_tiep_nhan")));
+                    ptn.setSoKMHienTai(rs.getDouble("so_km_hien_tai"));
+                    ptn.setYeuCauKhachHang(rs.getString("yeu_cau_khach_hang"));
+                    ptn.setTinhTrangNoiThat(rs.getString("tinh_trang_noi_that"));
+                    ptn.setTinhTrangNgoaiThat(rs.getString("tinh_trang_ngoai_that"));
+                    ptn.setSoChiaKhoa(rs.getInt("so_chia_khoa"));
+                    ptn.setGhiChu(rs.getString("ghi_chu"));
+                    dsLichSu.add(ptn);
+                }
+                rs.close(); }
+        }
+        catch (SQLException e) { throw new RuntimeException("Lỗi truy vấn phiếu tiếp nhận: " + e.getMessage(), e); }
         return dsLichSu;
     }
 
@@ -232,6 +343,7 @@ public class PhuongTienDAO {
     public List<ChiTietHoaDon> layChiTietHaoMucSuaChua(int phieuTiepNhanId) {
         List<ChiTietHoaDon> dsChiTiet = new ArrayList<>();
         // TODO: [M07-T04 - Tuấn] Viết SQL JOIN HoaDon và ChiTietHoaDon WHERE phieu_tiep_nhan_id = ?
+
         return dsChiTiet;
     }
 
