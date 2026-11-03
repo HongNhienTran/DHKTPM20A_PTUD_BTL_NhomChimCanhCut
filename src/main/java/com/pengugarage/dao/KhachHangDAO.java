@@ -104,8 +104,24 @@ public class KhachHangDAO {
      */
     public boolean them(KhachHang kh) {
         // TODO: [M05-T03 - Phong] Viết SQL INSERT INTO KhachHang (ma_khach_hang, ho_ten, so_dien_thoai, dia_chi, gioi_tinh) VALUES (...)
-        return false;
+        if(kh == null){
+            return false;
+        }
+        String sql = "INSERT INTO Khach_hang (ma_khach_hang, ho_ten, so_dien_thoai, dia_chi, gioi_tinh) VALUES (?,?,?,?,?)";
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);)  {
+            ps.setString(1, kh.getMaKhachHang());
+            ps.setString(2, kh.getHoTen());
+            ps.setString(3, kh.getSoDienThoai());
+            ps.setString(4, kh.getDiaChi());
+            ps.setString(5, kh.getGioiTinh());
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi khi thêm khách hàng: " + e.getMessage());
+        }
     }
+
 
     /**
      * Cập nhật thông tin hồ sơ khách hàng.
