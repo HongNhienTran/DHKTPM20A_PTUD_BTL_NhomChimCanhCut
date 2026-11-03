@@ -7,10 +7,7 @@ import com.pengugarage.model.entity.PhuongTien;
 import com.pengugarage.model.enums.NhienLieu;
 import com.pengugarage.util.CoSoDuLieuUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +79,7 @@ public class PhuongTienDAO {
                     PhuongTien pt = new PhuongTien();
                     pt.setId(rs.getInt("id"));
                     pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
+                    pt.setKhachHangId(rs.getInt("khach_hang_id"));
                     HangXe hx= new HangXe();
                     hx.setId(rs.getInt("hang_xe_id"));
                     pt.setHangXe(hx);
@@ -128,6 +126,7 @@ public class PhuongTienDAO {
                       PhuongTien pt = new PhuongTien();
                       pt.setId(rs.getInt("id"));
                       pt.setMaPhuongTien(rs.getString("ma_phuong_tien"));
+                      pt.setKhachHangId(rs.getInt("khach_hang_id"));
                       HangXe hx= new HangXe(); hx.setId(rs.getInt("hang_xe_id"));
                       pt.setHangXe(hx); pt.setBienSoXe(rs.getString("bien_so_xe"));
                       pt.setMauXe(rs.getString("mau_xe"));
@@ -151,7 +150,28 @@ public class PhuongTienDAO {
      */
     public boolean them(PhuongTien pt) {
         // TODO: [M07-T02 - Tuấn] Viết SQL INSERT INTO PhuongTien (ma_phuong_tien, hang_xe_id, khach_hang_id,
-        // bien_so_xe, mau_xe, mau_sac_xe, nam_san_xuat, nhien_lieu, so_khung, so_may) VALUES (...)
+        String sql = "INSERT INTO PhuongTien (ma_phuong_tien, hang_xe_id, khach_hang_id,bien_so_xe,mau_xe,mau_sac_xe,nam_san_xuat,nhien_lieu,so_khung,so_may) values(?,?,?,?,?,?,?,?,?,?)";
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, pt.getMaPhuongTien());
+            ps.setInt(2, pt.getHangXeId());
+            ps.setInt(3, pt.getKhachHangId());
+            ps.setString(4, pt.getBienSoXe());
+            ps.setString(5, pt.getMauXe());
+            ps.setString(6, pt.getMauSacXe());
+            ps.setInt(7, pt.getNamSanXuat());
+            ps.setString(8,pt.getNhienLieu().toString());
+            ps.setString(9,pt.getSoKhung());
+            ps.setString(10,pt.getSoMay());
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                return true;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
         return false;
     }
 
