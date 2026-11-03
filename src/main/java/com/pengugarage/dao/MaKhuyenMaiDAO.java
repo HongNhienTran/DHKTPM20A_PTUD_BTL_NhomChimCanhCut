@@ -52,12 +52,14 @@ public class MaKhuyenMaiDAO {
     public List<MaKhuyenMai> layDanhSachKhuyenMaiTheoGiaTriToiThieu(double tongTienHang) {
         List<MaKhuyenMai> list = new ArrayList<>();
         String sql = """
-            SELECT * FROM `ma_khuyen_mai`
-            WHERE `trang_thai` = 1
-              AND `gia_tri_toi_thieu_ap_dung` <= ?
-              AND (`ngay_het_han` IS NULL OR `ngay_het_han` >= NOW())
-            ORDER BY `gia_tri_giam` DESC
-            """;
+    SELECT * FROM `ma_khuyen_mai`
+    WHERE `trang_thai` = 1
+      AND `gia_tri_toi_thieu_ap_dung` <= ?
+      AND `ngay_bat_dau_ap_dung` <= NOW()
+      AND `ngay_het_han` >= NOW()
+      AND (`so_luong_ton` IS NULL OR `so_luong_ton` > 0)
+    ORDER BY `gia_tri_toi_thieu_ap_dung` DESC, `ma_khuyen_mai` ASC
+    """;
         try (Connection conn = CoSoDuLieuUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDouble(1, tongTienHang);
