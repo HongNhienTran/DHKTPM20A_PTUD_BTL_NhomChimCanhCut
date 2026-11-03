@@ -265,6 +265,16 @@ public class HoSoKhachHangController {
         }
 
         // TODO: [M05-T02 - Phong] Gọi khachHangDAO.layDanhSachXeCuaKhach(kh.getId()) và nạp vào dsXeKhachHang
+        // Xóa danh sách xe cũ trên bảng (của khách hàng trước đó)
+        dsXeKhachHang.clear();
+
+        // Gọi DAO lấy danh sách xe của khách hàng hiện tại
+        List<PhuongTien> danhSachXeMoi = khachHangDAO.layDanhSachXeCuaKhach(kh.getId());
+
+        // Đổ dữ liệu mới vào ObservableList (bảng tblXeKhachHang sẽ tự động cập nhật)
+        if (danhSachXeMoi != null && !danhSachXeMoi.isEmpty()) {
+            dsXeKhachHang.addAll(danhSachXeMoi);
+        }
     }
 
     private void lamMoiForm() {

@@ -93,6 +93,31 @@ public class KhachHangDAO {
     public List<PhuongTien> layDanhSachXeCuaKhach(int khachHangId) {
         List<PhuongTien> dsXe = new ArrayList<>();
         // TODO: [M05-T02 - Phong] Viết SQL SELECT * FROM PhuongTien WHERE khach_hang_id = ?
+        String sql = "SELECT * FROM phuong_tien WHERE khach_hang_id = ?";
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, khachHangId); // Truyền ID khách hàng vào câu SQL
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    PhuongTien pt = new PhuongTien();
+                    pt.setId(rs.getInt("id"));
+                    // Mapping các trường cơ bản
+                    pt.setBienSoXe(rs.getString("bien_so_xe"));
+                    pt.setMauSacXe(rs.getString("mau_sac_xe"));
+                    pt.setNamSanXuat(rs.getInt("nam_san_xuat"));
+
+                    /* Lưu ý: Nếu entity PhuongTien của bạn có liên kết đối tượng HangXe (pt.setHangXe(...))
+                       hoặc các trường khác, bạn cần map thêm tương ứng với cấu trúc bảng ở đây */
+
+                    dsXe.add(pt);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy danh sách xe của khách hàng: " + e.getMessage());
+        }
         return dsXe;
     }
 
