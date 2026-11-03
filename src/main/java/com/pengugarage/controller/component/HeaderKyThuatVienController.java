@@ -76,7 +76,7 @@ public class HeaderKyThuatVienController extends BaseSidebarController {
     public void onDashboardClick(ActionEvent event) {
         DieuHuongUtil.chuyenManHinh(rootHeader,
                 "/com/pengugarage/view/kythuatvien/dashboard-view.fxml",
-                "Pengu Garage Service ERP - Dashboard Kỹ Thuật Viên");
+                "Pengu Garage Service ERP - Dashboard");
     }
 
     @FXML

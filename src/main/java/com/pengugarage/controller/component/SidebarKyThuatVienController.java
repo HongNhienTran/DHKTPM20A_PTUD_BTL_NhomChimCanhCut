@@ -78,7 +78,7 @@ public class SidebarKyThuatVienController extends BaseSidebarController {
     }
 
     private void khoiTaoTooltip() {
-        if (btnDashboard != null) btnDashboard.setTooltip(new Tooltip("Dashboard Kỹ Thuật"));
+        if (btnDashboard != null) btnDashboard.setTooltip(new Tooltip("Dashboard"));
         if (btnPhieuPhanCong != null) btnPhieuPhanCong.setTooltip(new Tooltip("Phiếu phân công của tôi"));
         if (btnKiemTraChanDoan != null) btnKiemTraChanDoan.setTooltip(new Tooltip("Kiểm tra & Chẩn đoán xe"));
         if (btnCapNhatTienDo != null) btnCapNhatTienDo.setTooltip(new Tooltip("Cập nhật tiến độ ca sửa"));
@@ -159,7 +159,7 @@ public class SidebarKyThuatVienController extends BaseSidebarController {
             if (btnToggleSidebar != null) btnToggleSidebar.setText("<");
 
             // Khôi phục text đầy đủ
-            if (btnDashboard != null) btnDashboard.setText("📊 Dashboard Kỹ thuật");
+            if (btnDashboard != null) btnDashboard.setText("📊 Dashboard");
             if (btnPhieuPhanCong != null) btnPhieuPhanCong.setText("📋 Phiếu phân công của tôi");
             if (btnKiemTraChanDoan != null) btnKiemTraChanDoan.setText("🔍 Kiểm tra & Chẩn đoán xe");
             if (btnCapNhatTienDo != null) btnCapNhatTienDo.setText("⚙️ Cập nhật tiến độ ca sửa");
@@ -249,7 +249,7 @@ public class SidebarKyThuatVienController extends BaseSidebarController {
     public void onDashboardClick() {
         DieuHuongUtil.chuyenManHinh(rootSidebar,
                 "/com/pengugarage/view/kythuatvien/dashboard-view.fxml",
-                "Pengu Garage Service ERP - Dashboard Kỹ Thuật Viên");
+                "Pengu Garage Service ERP - Dashboard");
     }
 
     @FXML

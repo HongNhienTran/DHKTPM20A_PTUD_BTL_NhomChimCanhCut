@@ -45,6 +45,36 @@ public class MaKhuyenMaiDAO {
     }
 
     // =========================================================================
+    // TODO: [ĐÁNH DẤU HÀM CẦN BỔ SUNG CODE THEO YÊU CẦU]
+    // Lấy danh sách mã khuyến mãi khả dụng từ CSDL theo điều kiện cột `gia_tri_toi_thieu_ap_dung`
+    // Điều kiện: gia_tri_toi_thieu_ap_dung <= tongTienHang (đơn hàng đạt giá trị áp dụng tối thiểu)
+    // =========================================================================
+    public List<MaKhuyenMai> layDanhSachKhuyenMaiTheoGiaTriToiThieu(double tongTienHang) {
+        List<MaKhuyenMai> list = new ArrayList<>();
+        String sql = """
+    SELECT * FROM `ma_khuyen_mai`
+    WHERE `trang_thai` = 1
+      AND `gia_tri_toi_thieu_ap_dung` <= ?
+      AND `ngay_bat_dau_ap_dung` <= NOW()
+      AND `ngay_het_han` >= NOW()
+      AND (`so_luong_ton` IS NULL OR `so_luong_ton` > 0)
+    ORDER BY `gia_tri_toi_thieu_ap_dung` DESC, `ma_khuyen_mai` ASC
+    """;
+        try (Connection conn = CoSoDuLieuUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, tongTienHang);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToMaKhuyenMai(rs));
+                }
+            }
+        } catch (SQLException e) {
+            // Không ghi log theo quy chuẩn clean code
+        }
+        return list;
+    }
+
+    // =========================================================================
     // TASK M03-T02: Nhập thông tin mã khuyến mãi và thêm
     // =========================================================================
     public boolean them(MaKhuyenMai km) {

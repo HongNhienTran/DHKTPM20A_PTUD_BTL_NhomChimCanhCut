@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- ===================================================================== -->
+<!-- MÀN HÌNH TRA CỨU SẢN PHẨM & PHỤ TÙNG (tra-cuu-san-pham-view.fxml)      -->
+<!-- Dành cho role Tiếp nhận & Bán hàng (Chế độ xem cơ bản, ẩn giá nhập)    -->
+<!-- ===================================================================== -->
+
+<VBox prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #f8fafc;"
+      stylesheets="@../../css/style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.TraCuuSanPhamController">
+
+    <!-- 1. Thanh Header Lễ Tân bên trên -->
+    <fx:include source="component/header-letan.fxml" />
+
+    <!-- 2. Thân Trang: Sidebar đóng mở bên trái + Vùng nội dung chính -->
+    <HBox VBox.vgrow="ALWAYS" style="-fx-background-color: #f8fafc;">
+
+        <!-- Sidebar bên trái -->
+        <fx:include source="component/sidebar-letan.fxml" />
+
+        <!-- Vùng Nội Dung Làm Việc Chính -->
+        <VBox spacing="16.0" style="-fx-background-color: #f8fafc;" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
+            </padding>
+
+            <!-- Top Title Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="16.0">
+                <VBox spacing="2.0">
+                    <Label style="-fx-text-fill: #102A46; -fx-font-size: 24px; -fx-font-weight: 900;"
+                           text="Tra Cứu Sản Phẩm &amp; Phụ Tùng" />
+                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 13px;"
+                           text="Tra cứu danh mục vật tư, phụ tùng, đơn giá niêm yết và số lượng tồn kho phục vụ bán lẻ &amp; báo giá" />
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Badge tổng số sản phẩm -->
+                <Label fx:id="tongSoLabel" alignment="CENTER_RIGHT"
+                       style="-fx-background-color: #ebf3fa; -fx-text-fill: #173b61; -fx-padding: 6px 16px; -fx-background-radius: 12px; -fx-font-weight: bold; -fx-font-size: 13px;"
+                       text="Tổng số: 0 sản phẩm" />
+            </HBox>
+
+            <!-- Search & Filter Toolbar: Card Nền Trắng (#ffffff) -->
+            <HBox alignment="CENTER_LEFT" spacing="12.0"
+                  style="-fx-background-color: #ffffff; -fx-padding: 12px 18px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 8, 0, 0, 1);">
+                <TextField fx:id="timKiemField"
+                           promptText="🔍 Tìm kiếm theo Mã SP, Tên sản phẩm, ĐVT..."
+                           style="-fx-background-color: #f8fafc; -fx-border-color: #cbd5e1; -fx-text-fill: #0f172a; -fx-prompt-text-fill: #94a3b8; -fx-padding: 8px 16px; -fx-background-radius: 20px; -fx-border-radius: 20px; -fx-font-size: 13px;"
+                           HBox.hgrow="ALWAYS" />
+
+                <ComboBox fx:id="locDanhMucCombo" prefWidth="180.0" promptText="Danh mục"
+                          styleClass="light-combo-box" />
+
+                <ComboBox fx:id="locTonKhoCombo" prefWidth="150.0" promptText="Tồn kho"
+                          styleClass="light-combo-box" />
+
+                <ComboBox fx:id="locTrangThaiCombo" prefWidth="160.0" promptText="Trạng thái"
+                          styleClass="light-combo-box" />
+
+                <Button graphicTextGap="0.0" onAction="#onLamMoiClick"
+                        style="-fx-background-color: #f1f5f9; -fx-border-color: #cbd5e1; -fx-border-radius: 8px; -fx-text-fill: #334155; -fx-padding: 8px 14px; -fx-background-radius: 8px; -fx-cursor: hand;"
+                        text="🔄" />
+            </HBox>
+
+            <!-- Main Content: Bảng Danh Sách Sản Phẩm Nền Trắng + Chi Tiết Sổ Phía Dưới -->
+            <VBox spacing="12.0" VBox.vgrow="ALWAYS">
+
+                <!-- Card Bảng Danh Sách -->
+                <VBox spacing="10.0"
+                      style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 16px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 8, 0, 0, 1);"
+                      VBox.vgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label style="-fx-text-fill: #102A46; -fx-font-weight: 800; -fx-font-size: 15px;"
+                               text="Danh Sách Phụ Tùng &amp; Vật Tư" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label style="-fx-text-fill: #64748b; -fx-font-size: 12px;"
+                               text="💡 Click chọn dòng để xem thông tin chi tiết sản phẩm" />
+                    </HBox>
+
+                    <TableView fx:id="sanPhamTable" styleClass="light-table" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colMaSP" prefWidth="110.0" text="Mã SP" />
+                            <TableColumn fx:id="colTenSP" prefWidth="320.0" text="Tên Sản Phẩm" />
+                            <TableColumn fx:id="colDanhMuc" prefWidth="160.0" text="Danh Mục" />
+                            <TableColumn fx:id="colDVT" prefWidth="90.0" text="ĐVT" />
+                            <TableColumn fx:id="colGiaBan" prefWidth="150.0" text="Đơn Giá Bán" />
+                            <TableColumn fx:id="colTonKho" prefWidth="110.0" text="Tồn Kho" />
+                            <TableColumn fx:id="colTrangThai" prefWidth="130.0" text="Trạng Thái" />
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+
+                <!-- Khung Xem Nhanh Chi Tiết Sản Phẩm (CHẾ ĐỘ XEM - CHỈ ĐỌC, KHÔNG CÓ GIÁ NHẬP) -->
+                <VBox fx:id="paneChiTiet" managed="false" visible="false" spacing="12.0"
+                      style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-padding: 16px 22px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+
+                    <!-- Header Panel Chi tiết -->
+                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <Label style="-fx-text-fill: #102A46; -fx-font-weight: 800; -fx-font-size: 14px; -fx-letter-spacing: 0.5px;"
+                               text="THÔNG TIN CHI TIẾT SẢN PHẨM" />
+                        <Label fx:id="lblDetailMaSP"
+                               style="-fx-background-color: #ebf3fa; -fx-border-color: #bfd7ee; -fx-border-radius: 4px; -fx-text-fill: #173b61; -fx-padding: 3px 10px; -fx-background-radius: 4px; -fx-font-weight: bold; -fx-font-size: 11px;"
+                               text="---" />
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <Button onAction="#onDongChiTietClick"
+                                style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 6px; -fx-cursor: hand; -fx-padding: 6px 14px;"
+                                text="✕ Đóng" />
+                    </HBox>
+
+                    <Separator style="-fx-opacity: 0.6;" />
+
+                    <!-- Form thông tin chỉ đọc (Không có giá nhập, không có nút chỉnh sửa) -->
+                    <HBox spacing="20.0" alignment="TOP_LEFT">
+
+                        <!-- CỘT TRÁI: Ảnh đại diện sản phẩm (Chỉ xem) -->
+                        <VBox alignment="CENTER" prefWidth="180.0" minWidth="180.0" spacing="8.0">
+                            <StackPane maxHeight="140.0" maxWidth="180.0" prefHeight="140.0" prefWidth="180.0"
+                                       style="-fx-background-color: #f8fafc; -fx-border-color: #cbd5e1; -fx-border-radius: 8px; -fx-background-radius: 8px;">
+                                <ImageView fx:id="detailImageView" fitHeight="130.0" fitWidth="170.0"
+                                           preserveRatio="true" visible="false" />
+                                <Label fx:id="detailPlaceholderLabel"
+                                       style="-fx-text-fill: #64748b; -fx-font-size: 12px;"
+                                       text="📷 Chưa có hình ảnh" />
+                            </StackPane>
+                        </VBox>
+
+                        <!-- CỘT PHẢI: Thông tin dạng Card thông số -->
+                        <VBox spacing="12.0" HBox.hgrow="ALWAYS">
+
+                            <!-- Hàng 1: Tên sản phẩm + Danh mục + Đơn vị tính + Trạng thái -->
+                            <HBox spacing="16.0">
+                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" text="TÊN SẢN PHẨM / PHỤ TÙNG" />
+                                    <Label fx:id="lblDetailTenSP" text="---"
+                                           style="-fx-text-fill: #102A46; -fx-font-size: 14.5px; -fx-font-weight: 800;" wrapText="true" />
+                                </VBox>
+
+                                <VBox prefWidth="160.0" spacing="4.0">
+                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" text="DANH MỤC" />
+                                    <Label fx:id="lblDetailDanhMuc" text="---"
+                                           style="-fx-text-fill: #1e293b; -fx-font-size: 13px; -fx-font-weight: 600;" />
+                                </VBox>
+
+                                <VBox prefWidth="100.0" spacing="4.0">
+                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" text="ĐƠN VỊ TÍNH" />
+                                    <Label fx:id="lblDetailDVT" text="---"
+                                           style="-fx-text-fill: #1e293b; -fx-font-size: 13px; -fx-font-weight: 600;" />
+                                </VBox>
+
+                                <VBox prefWidth="140.0" spacing="4.0">
+                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" text="TRẠNG THÁI" />
+                                    <Label fx:id="lblDetailTrangThai" text="---"
+                                           style="-fx-font-size: 12.5px; -fx-font-weight: 700;" />
+                                </VBox>
+                            </HBox>
+
+                            <!-- Hàng 2: Đơn giá bán + Số lượng tồn + Tồn tối thiểu + Thuế VAT (TUYỆT ĐỐI KHÔNG CÓ GIÁ NHẬP) -->
+                            <HBox spacing="16.0">
+                                <!-- Đơn giá bán niêm yết (Nổi bật) -->
+                                <VBox spacing="4.0" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 8px 12px;">
+                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" text="ĐƠN GIÁ BÁN NIÊM YẾT" />
+                                    <Label fx:id="lblDetailGiaBan" text="0 đ"
+                                           style="-fx-text-fill: #f47b31; -fx-font-size: 16px; -fx-font-weight: 900;" />
+                                </VBox>
+
+                                <!-- Số lượng tồn kho -->
+                                <VBox prefWidth="150.0" spacing="4.0"
+                                      style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 8px 12px;">
+                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" text="SỐ LƯỢNG TỒN KHO" />
+                                    <Label fx:id="lblDetailTonKho" text="0"
+                                           style="-fx-text-fill: #16a34a; -fx-font-size: 16px; -fx-font-weight: 900;" />
+                                </VBox>
+
+                                <!-- Tồn tối thiểu -->
+                                <VBox prefWidth="130.0" spacing="4.0"
+                                      style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 8px 12px;">
+                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" text="TỒN TỐI THIỂU" />
+                                    <Label fx:id="lblDetailTonToiThieu" text="0"
+                                           style="-fx-text-fill: #334155; -fx-font-size: 14px; -fx-font-weight: 700;" />
+                                </VBox>
+
+                                <!-- Thuế VAT -->
+                                <VBox prefWidth="110.0" spacing="4.0"
+                                      style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 8px 12px;">
+                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" text="THUẾ VAT" />
+                                    <Label fx:id="lblDetailVAT" text="10.0 %"
+                                           style="-fx-text-fill: #334155; -fx-font-size: 14px; -fx-font-weight: 700;" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </VBox>
+    </HBox>
+</VBox>

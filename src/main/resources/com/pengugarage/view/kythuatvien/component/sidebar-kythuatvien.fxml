@@ -23,11 +23,11 @@
     <HBox alignment="CENTER_LEFT" prefHeight="48.0" spacing="6.0"
           style="-fx-padding: 10px 14px; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1px 0; -fx-background-color: #ffffff;">
         <Label fx:id="lblTenHangMuc"
-               style="-fx-text-fill: #102A46; -fx-font-size: 11.5px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
+               style="-fx-text-fill: #102A46; -fx-font-size: 12.5px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
                text="KHÔNG GIAN KỸ THUẬT" HBox.hgrow="ALWAYS" />
         <Region HBox.hgrow="ALWAYS" />
         <Button fx:id="btnToggleSidebar" onAction="#onToggleSidebarClick"
-                style="-fx-background-color: #f4f7fa; -fx-text-fill: #102A46; -fx-font-weight: 900; -fx-font-size: 12px; -fx-background-radius: 6px; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-cursor: hand; -fx-padding: 3px 8px;"
+                style="-fx-background-color: #f4f7fa; -fx-text-fill: #102A46; -fx-font-weight: 900; -fx-font-size: 12.5px; -fx-background-radius: 6px; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-cursor: hand; -fx-padding: 3px 8px;"
                 text="&lt;" />
     </HBox>
 
@@ -35,12 +35,12 @@
     <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
         <VBox fx:id="boxChucNang" spacing="4.0" style="-fx-padding: 10px 10px;">
             
-            <!-- Dashboard Kỹ Thuật Viên -->
+            <!-- Dashboard -->
             <Button fx:id="btnDashboard" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDashboardClick"
-                    styleClass="sidebar-nav-btn" text="📊 Dashboard Kỹ thuật" />
+                    styleClass="sidebar-nav-btn" text="📊 Dashboard" />
 
             <!-- Nhóm 1: Ca sửa chữa & Phân công -->
-            <Label fx:id="lblSectionCaSua" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="CA SỬA &amp; PHÂN CÔNG" />
+            <Label fx:id="lblSectionCaSua" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="CA SỬA &amp; PHÂN CÔNG" />
             <Button fx:id="btnPhieuPhanCong" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onPhieuPhanCongClick"
                     styleClass="sidebar-nav-btn" text="📋 Phiếu phân công của tôi" />
             <Button fx:id="btnKiemTraChanDoan" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onKiemTraChanDoanClick"
@@ -49,14 +49,14 @@
                     styleClass="sidebar-nav-btn" text="⚙️ Cập nhật tiến độ ca sửa" />
 
             <!-- Nhóm 2: Vật tư & Phụ tùng -->
-            <Label fx:id="lblSectionVatTu" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="VẬT TƯ &amp; PHỤ TÙNG" />
+            <Label fx:id="lblSectionVatTu" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="VẬT TƯ &amp; PHỤ TÙNG" />
             <Button fx:id="btnDeXuatVatTu" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onDeXuatVatTuClick"
                     styleClass="sidebar-nav-btn" text="📦 Đề xuất xuất kho phụ tùng" />
             <Button fx:id="btnTraCuuTonKho" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onTraCuuTonKhoClick"
                     styleClass="sidebar-nav-btn" text="🏷️ Tra cứu tồn kho phụ tùng" />
 
             <!-- Nhóm 3: Nhật ký -->
-            <Label fx:id="lblSectionNhatKy" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="NHẬT KÝ CÔNG VIỆC" />
+            <Label fx:id="lblSectionNhatKy" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="NHẬT KÝ CÔNG VIỆC" />
             <Button fx:id="btnLichSuCaSua" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onLichSuCaSuaClick"
                     styleClass="sidebar-nav-btn" text="📜 Lịch sử ca sửa hoàn tất" />
         </VBox>

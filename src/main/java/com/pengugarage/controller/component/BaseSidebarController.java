@@ -4,6 +4,7 @@ import com.pengugarage.model.entity.NhanVien;
 import com.pengugarage.model.enums.ChucVu;
 import com.pengugarage.util.DieuHuongUtil;
 import com.pengugarage.util.PhienDangNhapUtil;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
@@ -26,6 +27,7 @@ public abstract class BaseSidebarController {
     @FXML
     public void initialize() {
         taiThongTinNguoiDung();
+        Platform.runLater(this::taiThongTinNguoiDung);
     }
 
     /**
@@ -47,8 +49,16 @@ public abstract class BaseSidebarController {
                     userAvatarLabel.setText(lastWord.substring(0, 1).toUpperCase());
                 }
 
-                if (userRoleLabel != null && nv.getChucVu() != null) {
-                    userRoleLabel.setText(layMoTaChucVu(nv.getChucVu()));
+                ChucVu chucVu = nv.getChucVu() != null ? nv.getChucVu() : session.getChucVu();
+                if (userRoleLabel != null && chucVu != null) {
+                    userRoleLabel.setText(layMoTaChucVu(chucVu));
+                }
+            } else if (session.getTaiKhoan() != null) {
+                if (userNameLabel != null) {
+                    userNameLabel.setText(session.getTaiKhoan().getTenDangNhap());
+                }
+                if (userRoleLabel != null && session.getChucVu() != null) {
+                    userRoleLabel.setText(layMoTaChucVu(session.getChucVu()));
                 }
             }
         }

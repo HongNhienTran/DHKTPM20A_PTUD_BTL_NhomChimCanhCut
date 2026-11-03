@@ -79,6 +79,27 @@ public class KhachHang {
         this.gioiTinh = gioiTinh;
     }
 
+    public String getDanhXung() {
+        if (gioiTinh != null) {
+            String gt = gioiTinh.trim().toLowerCase();
+            if (gt.equals("nam")) {
+                return "Anh";
+            } else if (gt.equals("nữ") || gt.equals("nu")) {
+                return "Chị";
+            }
+        }
+        return "";
+    }
+
+    public String getDanhXungVaHoTen() {
+        if (hoTen == null || hoTen.isBlank()) return "";
+        String dx = getDanhXung();
+        if (!dx.isEmpty()) {
+            return dx + " " + hoTen;
+        }
+        return hoTen;
+    }
+
     public void xemDSPhuongTien() {
         // Nghiệp vụ xem danh sách xe của khách hàng
     }

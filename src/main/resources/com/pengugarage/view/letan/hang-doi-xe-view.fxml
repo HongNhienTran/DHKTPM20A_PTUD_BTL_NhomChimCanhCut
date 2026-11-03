@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- ===================================================================== -->
+<!-- MÀN HÌNH HÀNG ĐỢI XE TẠI XƯỞNG - KANBAN LIVE QUEUE                    -->
+<!-- (hang-doi-xe-view.fxml)                                               -->
+<!-- Điều phối và giám sát tiến độ xe dịch vụ theo thời gian thực          -->
+<!-- Tone màu: Light Modern UI, Active Brand Navy #173B61                  -->
+<!-- ===================================================================== -->
+
+<VBox prefHeight="760.0" prefWidth="1280.0" style="-fx-background-color: #f8fafc;"
+      stylesheets="@../../css/style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pengugarage.controller.HangDoiXeController">
+
+    <!-- 1. Header Lễ Tân bên trên -->
+    <fx:include source="component/header-letan.fxml" />
+
+    <!-- 2. Thân Trang: Sidebar đóng mở bên trái + Vùng nội dung chính -->
+    <HBox VBox.vgrow="ALWAYS" style="-fx-background-color: #f8fafc;">
+
+        <!-- Sidebar Lễ Tân bên trái -->
+        <fx:include source="component/sidebar-letan.fxml" />
+
+        <!-- Vùng Nội Dung Làm Việc Chính -->
+        <VBox spacing="14.0" style="-fx-background-color: #f8fafc;" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets bottom="14.0" left="18.0" right="18.0" top="14.0" />
+            </padding>
+
+            <!-- 2.1. Top Title Bar & Nút Thao Tác -->
+            <HBox alignment="CENTER_LEFT" spacing="14.0">
+                <VBox spacing="2.0">
+                    <Label style="-fx-text-fill: #102A46; -fx-font-size: 24px; -fx-font-weight: 900;"
+                           text="Hàng Đợi Xe Tại Xưởng" />
+                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 14px;"
+                           text="Trung tâm điều phối &amp; giám sát tiến độ dịch vụ xe theo thời gian thực qua các khoang xưởng" />
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Badge tổng số xe tại xưởng -->
+                <Label fx:id="lblTongXeBadge"
+                       style="-fx-background-color: #ebf3fa; -fx-text-fill: #173b61; -fx-padding: 6px 14px; -fx-background-radius: 12px; -fx-font-weight: bold; -fx-font-size: 13.5px;"
+                       text="🚗 Đang tại xưởng: 0 xe" />
+
+                <!-- Nút Tiếp nhận xe mới -->
+                <Button fx:id="btnTiepNhanMoi" onAction="#onTiepNhanMoiClick"
+                        style="-fx-background-color: #059669; -fx-text-fill: #ffffff; -fx-font-weight: 700; -fx-font-size: 13.5px; -fx-padding: 8px 16px; -fx-background-radius: 8px; -fx-cursor: hand;"
+                        text="➕ Tiếp Nhận Xe" />
+
+                <!-- Nút Làm Mới Hàng Đợi -->
+                <Button fx:id="btnLamMoi" onAction="#onLamMoiClick"
+                        style="-fx-background-color: #102A46; -fx-text-fill: #ffffff; -fx-font-weight: 700; -fx-font-size: 13.5px; -fx-padding: 8px 16px; -fx-background-radius: 8px; -fx-cursor: hand;"
+                        text="🔄 Cập Nhật" />
+            </HBox>
+
+            <!-- 2.2. Metric Cards Thống Kê Nhanh Tiến Độ Xe -->
+            <HBox spacing="12.0">
+                <!-- Card 1: Chờ kiểm tra -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #ffffff; -fx-padding: 12px 16px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 4, 0, 0, 1);">
+                    <Label style="-fx-font-size: 24px; -fx-background-color: #eff6ff; -fx-padding: 6px 10px; -fx-background-radius: 8px;" text="⏳" />
+                    <VBox spacing="2.0">
+                        <Label style="-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-font-weight: 600;" text="1. Chờ Kiểm Tra" />
+                        <Label fx:id="lblChoKiemTra" style="-fx-text-fill: #2563eb; -fx-font-size: 20px; -fx-font-weight: 800;" text="0 xe" />
+                    </VBox>
+                </HBox>
+
+                <!-- Card 2: Đang kiểm tra / Báo giá -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #ffffff; -fx-padding: 12px 16px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 4, 0, 0, 1);">
+                    <Label style="-fx-font-size: 24px; -fx-background-color: #fff7ed; -fx-padding: 6px 10px; -fx-background-radius: 8px;" text="🔍" />
+                    <VBox spacing="2.0">
+                        <Label style="-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-font-weight: 600;" text="2. Kiểm Tra &amp; Báo Giá" />
+                        <Label fx:id="lblDangKiemTra" style="-fx-text-fill: #ea580c; -fx-font-size: 20px; -fx-font-weight: 800;" text="0 xe" />
+                    </VBox>
+                </HBox>
+
+                <!-- Card 3: Đang sửa chữa (Orange tone) -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #ffffff; -fx-padding: 12px 16px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 4, 0, 0, 1);">
+                    <Label style="-fx-font-size: 24px; -fx-background-color: #fff7ed; -fx-padding: 6px 10px; -fx-background-radius: 8px;" text="🔧" />
+                    <VBox spacing="2.0">
+                        <Label style="-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-font-weight: 600;" text="3. Đang Sửa Chữa" />
+                        <Label fx:id="lblDangSuaChua" style="-fx-text-fill: #ea580c; -fx-font-size: 20px; -fx-font-weight: 800;" text="0 xe" />
+                    </VBox>
+                </HBox>
+
+                <!-- Card 4: Hoàn thành / Chờ giao xe -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #ffffff; -fx-padding: 12px 16px; -fx-background-radius: 10px; -fx-border-color: #e2e8f0; -fx-border-radius: 10px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 4, 0, 0, 1);">
+                    <Label style="-fx-font-size: 24px; -fx-background-color: #f0fdf4; -fx-padding: 6px 10px; -fx-background-radius: 8px;" text="🏁" />
+                    <VBox spacing="2.0">
+                        <Label style="-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-font-weight: 600;" text="4. Chờ Bàn Giao" />
+                        <Label fx:id="lblChoGiaoXe" style="-fx-text-fill: #059669; -fx-font-size: 20px; -fx-font-weight: 800;" text="0 xe" />
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <!-- 2.3. Toolbar Tìm Kiếm Nhanh Biển Số Xe -->
+            <HBox alignment="CENTER_LEFT" spacing="10.0"
+                  style="-fx-background-color: #ffffff; -fx-padding: 10px 14px; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-radius: 8px;">
+                <Label style="-fx-text-fill: #102A46; -fx-font-weight: bold; -fx-font-size: 13.5px;" text="🔍 Lọc nhanh xe tại xưởng:" />
+                <TextField fx:id="txtTimKiem" promptText="Gõ biển số xe, mã tiếp nhận, tên hoặc số điện thoại khách hàng..."
+                           style="-fx-background-color: #f8fafc; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-padding: 7px 12px; -fx-font-size: 13.5px;"
+                           HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnXoaLoc" onAction="#onXoaLocClick"
+                        style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 7px 14px; -fx-background-radius: 6px; -fx-cursor: hand;"
+                        text="🔄 Đặt lại" />
+            </HBox>
+
+            <!-- 2.4. BẢNG KANBAN BOARD 4 CỘT TRỰC QUAN -->
+            <HBox spacing="12.0" VBox.vgrow="ALWAYS">
+
+                <!-- CỘT 1: CHỜ KIỂM TRA (BLUE) -->
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #f8fafc; -fx-border-color: #bfdbfe; -fx-border-width: 1px; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 10px;">
+                    <!-- Column Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="6.0" style="-fx-padding: 2px 4px 6px 4px; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1px 0;">
+                        <Label style="-fx-font-size: 15px;" text="⏳" />
+                        <Label style="-fx-text-fill: #1d4ed8; -fx-font-weight: 800; -fx-font-size: 14px;" text="1. CHỜ KIỂM TRA" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblBadgeChoKiemTra"
+                               style="-fx-background-color: #dbeafe; -fx-text-fill: #1e40af; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 2px 8px; -fx-background-radius: 10px;"
+                               text="0" />
+                    </HBox>
+
+                    <!-- Scrollable Container Chứa Các Card Xe -->
+                    <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="boxChoKiemTra" spacing="10.0" style="-fx-padding: 4px 2px;" />
+                    </ScrollPane>
+                </VBox>
+
+                <!-- CỘT 2: KIỂM TRA & BÁO GIÁ (ORANGE) -->
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #f8fafc; -fx-border-color: #fed7aa; -fx-border-width: 1px; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 10px;">
+                    <!-- Column Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="6.0" style="-fx-padding: 2px 4px 6px 4px; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1px 0;">
+                        <Label style="-fx-font-size: 15px;" text="🔍" />
+                        <Label style="-fx-text-fill: #c2410c; -fx-font-weight: 800; -fx-font-size: 14px;" text="2. KIỂM TRA &amp; BÁO GIÁ" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblBadgeDangKiemTra"
+                               style="-fx-background-color: #ffedd5; -fx-text-fill: #9a3412; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 2px 8px; -fx-background-radius: 10px;"
+                               text="0" />
+                    </HBox>
+
+                    <!-- Scrollable Container Chứa Các Card Xe -->
+                    <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="boxDangKiemTra" spacing="10.0" style="-fx-padding: 4px 2px;" />
+                    </ScrollPane>
+                </VBox>
+
+                <!-- CỘT 3: ĐANG SỬA CHỮA (ORANGE) -->
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #f8fafc; -fx-border-color: #fed7aa; -fx-border-width: 1px; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 10px;">
+                    <!-- Column Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="6.0" style="-fx-padding: 2px 4px 6px 4px; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1px 0;">
+                        <Label style="-fx-font-size: 15px;" text="🔧" />
+                        <Label style="-fx-text-fill: #c2410c; -fx-font-weight: 800; -fx-font-size: 14px;" text="3. ĐANG SỬA CHỮA" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblBadgeDangSuaChua"
+                               style="-fx-background-color: #ffedd5; -fx-text-fill: #9a3412; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 2px 8px; -fx-background-radius: 10px;"
+                               text="0" />
+                    </HBox>
+
+                    <!-- Scrollable Container Chứa Các Card Xe -->
+                    <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="boxDangSuaChua" spacing="10.0" style="-fx-padding: 4px 2px;" />
+                    </ScrollPane>
+                </VBox>
+
+                <!-- CỘT 4: CHỜ BÀN GIAO (GREEN) -->
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #f8fafc; -fx-border-color: #bbf7d0; -fx-border-width: 1px; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 10px;">
+                    <!-- Column Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="6.0" style="-fx-padding: 2px 4px 6px 4px; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1px 0;">
+                        <Label style="-fx-font-size: 15px;" text="🏁" />
+                        <Label style="-fx-text-fill: #047857; -fx-font-weight: 800; -fx-font-size: 14px;" text="4. CHỜ BÀN GIAO" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblBadgeChoGiaoXe"
+                               style="-fx-background-color: #dcfce7; -fx-text-fill: #166534; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 2px 8px; -fx-background-radius: 10px;"
+                               text="0" />
+                    </HBox>
+
+                    <!-- Scrollable Container Chứa Các Card Xe -->
+                    <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="boxChoGiaoXe" spacing="10.0" style="-fx-padding: 4px 2px;" />
+                    </ScrollPane>
+                </VBox>
+
+            </HBox>
+
+        </VBox>
+
+    </HBox>
+
+</VBox>
+

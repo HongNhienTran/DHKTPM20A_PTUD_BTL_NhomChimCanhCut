@@ -139,7 +139,7 @@ public class SidebarQuanLyController extends BaseSidebarController {
             if (btnQuanLyDichVu != null) btnQuanLyDichVu.setText("🔧");
             if (btnQuanLyMaKhuyenMai != null) btnQuanLyMaKhuyenMai.setText("🏷️");
             if (btnQuanLyPhuongTien != null) btnQuanLyPhuongTien.setText("🚗");
-            if (btnQuanLyHoaDon != null) btnQuanLyHoaDon.setText("🧾");
+            if (btnQuanLyHoaDon != null) btnQuanLyHoaDon.setText("📄");
             if (btnQuanLyKhachHang != null) btnQuanLyKhachHang.setText("👥");
             if (btnQuanLyNhanVien != null) btnQuanLyNhanVien.setText("👨‍🔧");
             if (btnBaoCaoThongKe != null) btnBaoCaoThongKe.setText("📈");
@@ -178,7 +178,7 @@ public class SidebarQuanLyController extends BaseSidebarController {
             if (btnQuanLyDichVu != null) btnQuanLyDichVu.setText("🔧 Dịch vụ kỹ thuật");
             if (btnQuanLyMaKhuyenMai != null) btnQuanLyMaKhuyenMai.setText("🏷️ Mã khuyến mãi");
             if (btnQuanLyPhuongTien != null) btnQuanLyPhuongTien.setText("🚗 Quản lý phương tiện");
-            if (btnQuanLyHoaDon != null) btnQuanLyHoaDon.setText("🧾 Quản lý hóa đơn");
+            if (btnQuanLyHoaDon != null) btnQuanLyHoaDon.setText("📄 Quản lý hóa đơn");
             if (btnQuanLyKhachHang != null) btnQuanLyKhachHang.setText("👥 Quản lý khách hàng");
             if (btnQuanLyNhanVien != null) btnQuanLyNhanVien.setText("👨‍🔧 Quản lý nhân viên");
             if (btnBaoCaoThongKe != null) btnBaoCaoThongKe.setText("📊 Báo cáo & Thống kê");
@@ -278,7 +278,7 @@ public class SidebarQuanLyController extends BaseSidebarController {
     public void onDashboardClick() {
         DieuHuongUtil.chuyenManHinh(rootSidebar,
                 "/com/pengugarage/view/quanly/dashboard-view.fxml",
-                "Pengu Garage Service ERP - Dashboard Quản Lý");
+                "Pengu Garage Service ERP - Dashboard");
     }
 
     @FXML
@@ -304,7 +304,9 @@ public class SidebarQuanLyController extends BaseSidebarController {
 
     @FXML
     public void onQuanLyPhuongTienClick() {
-        thongBaoPhatTrien("Quản lý phương tiện");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/quanly/phuong-tien-view.fxml",
+                "Pengu Garage Service ERP - Quản Lý Phương Tiện");
     }
 
     @FXML

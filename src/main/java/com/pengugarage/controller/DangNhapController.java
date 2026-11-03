@@ -237,23 +237,19 @@ public class DangNhapController {
         ChucVu chucVu = session.getChucVu();
 
         String fxmlPath;
-        String tieuDe;
+        String tieuDe = "Pengu Garage Service ERP - Dashboard";
 
         if (chucVu == ChucVu.KY_THUAT_VIEN) {
             fxmlPath = "/com/pengugarage/view/kythuatvien/dashboard-view.fxml";
-            tieuDe = "Pengu Garage Service ERP - Dashboard Kỹ Thuật Viên";
         } else if (chucVu == ChucVu.LE_TAN) {
             fxmlPath = "/com/pengugarage/view/letan/dashboard-view.fxml";
-            tieuDe = "Pengu Garage Service ERP - Dashboard Tiếp Nhận & Bán Hàng";
         } else {
             // Mặc định hoặc Quản lý
             fxmlPath = "/com/pengugarage/view/quanly/dashboard-view.fxml";
-            tieuDe = "Pengu Garage Service ERP - Dashboard Quản Lý";
         }
 
         if (getClass().getResource(fxmlPath) == null) {
             fxmlPath = "/com/pengugarage/view/quanly/dashboard-view.fxml";
-            tieuDe = "Pengu Garage Service ERP - Dashboard Quản Lý";
         }
         DieuHuongUtil.chuyenManHinh(loginButton, fxmlPath, tieuDe);
     }

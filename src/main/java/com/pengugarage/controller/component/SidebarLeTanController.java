@@ -43,9 +43,6 @@ public class SidebarLeTanController extends BaseSidebarController {
     private Label lblSectionHoaDon;
 
     @FXML
-    private Label lblSectionLichHen;
-
-    @FXML
     private Button btnDashboard;
 
     @FXML
@@ -70,12 +67,6 @@ public class SidebarLeTanController extends BaseSidebarController {
     private Button btnDanhSachHoaDon;
 
     @FXML
-    private Button btnBanGiaoXe;
-
-    @FXML
-    private Button btnDatLichHen;
-
-    @FXML
     private Button btnHuongDanSuDung;
 
     private Button currentActiveButton;
@@ -90,16 +81,14 @@ public class SidebarLeTanController extends BaseSidebarController {
     }
 
     private void khoiTaoTooltip() {
-        if (btnDashboard != null) btnDashboard.setTooltip(new Tooltip("Dashboard Tiếp Nhận & Bán Hàng"));
-        if (btnTiepNhanXe != null) btnTiepNhanXe.setTooltip(new Tooltip("Tiếp nhận xe mới (Check-in)"));
+        if (btnDashboard != null) btnDashboard.setTooltip(new Tooltip("Dashboard"));
+        if (btnTiepNhanXe != null) btnTiepNhanXe.setTooltip(new Tooltip("Tiếp nhận xe"));
         if (btnHangDoiXe != null) btnHangDoiXe.setTooltip(new Tooltip("Hàng đợi xe tại xưởng"));
-        if (btnHoSoKhachHang != null) btnHoSoKhachHang.setTooltip(new Tooltip("Hồ sơ xe & Khách hàng"));
+        if (btnHoSoKhachHang != null) btnHoSoKhachHang.setTooltip(new Tooltip("Hồ sơ khách hàng"));
         if (btnTaoDonBanHang != null) btnTaoDonBanHang.setTooltip(new Tooltip("Tạo đơn bán hàng & Phụ tùng"));
-        if (btnTraCuuGia != null) btnTraCuuGia.setTooltip(new Tooltip("Tra cứu sản phẩm & Giá"));
+        if (btnTraCuuGia != null) btnTraCuuGia.setTooltip(new Tooltip("Tra cứu sản phẩm"));
         if (btnLapHoaDon != null) btnLapHoaDon.setTooltip(new Tooltip("Lập hóa đơn thanh toán"));
         if (btnDanhSachHoaDon != null) btnDanhSachHoaDon.setTooltip(new Tooltip("Danh sách & Nhật ký hóa đơn"));
-        if (btnBanGiaoXe != null) btnBanGiaoXe.setTooltip(new Tooltip("Bàn giao xe cho khách"));
-        if (btnDatLichHen != null) btnDatLichHen.setTooltip(new Tooltip("Đặt lịch hẹn khách hàng"));
         if (btnHuongDanSuDung != null) btnHuongDanSuDung.setTooltip(new Tooltip("Hướng dẫn sử dụng"));
     }
 
@@ -133,10 +122,6 @@ public class SidebarLeTanController extends BaseSidebarController {
                 lblSectionHoaDon.setVisible(false);
                 lblSectionHoaDon.setManaged(false);
             }
-            if (lblSectionLichHen != null) {
-                lblSectionLichHen.setVisible(false);
-                lblSectionLichHen.setManaged(false);
-            }
 
             if (btnToggleSidebar != null) btnToggleSidebar.setText(">");
 
@@ -147,10 +132,8 @@ public class SidebarLeTanController extends BaseSidebarController {
             if (btnHoSoKhachHang != null) btnHoSoKhachHang.setText("👥");
             if (btnTaoDonBanHang != null) btnTaoDonBanHang.setText("🛒");
             if (btnTraCuuGia != null) btnTraCuuGia.setText("🔍");
-            if (btnLapHoaDon != null) btnLapHoaDon.setText("🧾");
+            if (btnLapHoaDon != null) btnLapHoaDon.setText("📄");
             if (btnDanhSachHoaDon != null) btnDanhSachHoaDon.setText("📑");
-            if (btnBanGiaoXe != null) btnBanGiaoXe.setText("🔑");
-            if (btnDatLichHen != null) btnDatLichHen.setText("📅");
             if (btnHuongDanSuDung != null) {
                 btnHuongDanSuDung.setText("❗");
                 btnHuongDanSuDung.setStyle("-fx-alignment: CENTER;");
@@ -177,24 +160,18 @@ public class SidebarLeTanController extends BaseSidebarController {
                 lblSectionHoaDon.setVisible(true);
                 lblSectionHoaDon.setManaged(true);
             }
-            if (lblSectionLichHen != null) {
-                lblSectionLichHen.setVisible(true);
-                lblSectionLichHen.setManaged(true);
-            }
 
             if (btnToggleSidebar != null) btnToggleSidebar.setText("<");
 
             // Khôi phục text đầy đủ
-            if (btnDashboard != null) btnDashboard.setText("📊 Dashboard Tiếp nhận");
-            if (btnTiepNhanXe != null) btnTiepNhanXe.setText("🚗 Tiếp nhận xe (Check-in)");
+            if (btnDashboard != null) btnDashboard.setText("📊 Dashboard");
+            if (btnTiepNhanXe != null) btnTiepNhanXe.setText("🚗 Tiếp nhận xe");
             if (btnHangDoiXe != null) btnHangDoiXe.setText("⏳ Hàng đợi xe tại xưởng");
-            if (btnHoSoKhachHang != null) btnHoSoKhachHang.setText("👥 Hồ sơ xe & Khách hàng");
+            if (btnHoSoKhachHang != null) btnHoSoKhachHang.setText("👥 Hồ sơ khách hàng");
             if (btnTaoDonBanHang != null) btnTaoDonBanHang.setText("🛒 Tạo đơn bán hàng");
-            if (btnTraCuuGia != null) btnTraCuuGia.setText("🔍 Tra cứu sản phẩm & Giá");
-            if (btnLapHoaDon != null) btnLapHoaDon.setText("🧾 Lập hóa đơn thanh toán");
+            if (btnTraCuuGia != null) btnTraCuuGia.setText("🔍 Tra cứu sản phẩm");
+            if (btnLapHoaDon != null) btnLapHoaDon.setText("📄 Lập hóa đơn thanh toán");
             if (btnDanhSachHoaDon != null) btnDanhSachHoaDon.setText("📑 Danh sách hóa đơn");
-            if (btnBanGiaoXe != null) btnBanGiaoXe.setText("🔑 Bàn giao xe cho khách");
-            if (btnDatLichHen != null) btnDatLichHen.setText("📅 Đặt lịch hẹn khách hàng");
             if (btnHuongDanSuDung != null) {
                 btnHuongDanSuDung.setText("❗ Hướng dẫn sử dụng");
                 btnHuongDanSuDung.setStyle("-fx-alignment: CENTER_LEFT;");
@@ -211,9 +188,7 @@ public class SidebarLeTanController extends BaseSidebarController {
                 btnTaoDonBanHang,
                 btnTraCuuGia,
                 btnLapHoaDon,
-                btnDanhSachHoaDon,
-                btnBanGiaoXe,
-                btnDatLichHen
+                btnDanhSachHoaDon
         );
     }
 
@@ -232,32 +207,26 @@ public class SidebarLeTanController extends BaseSidebarController {
         }
 
         if (path.contains("tiep-nhan")) {
-            datTieuDeHangMuc("TIẾP NHẬN & ĐIỀU PHỐI");
+            datTieuDeHangMuc("TIẾP NHẬN");
             datTrangThaiActive(btnTiepNhanXe);
         } else if (path.contains("hang-doi")) {
-            datTieuDeHangMuc("TIẾP NHẬN & ĐIỀU PHỐI");
+            datTieuDeHangMuc("TIẾP NHẬN");
             datTrangThaiActive(btnHangDoiXe);
         } else if (path.contains("ho-so")) {
-            datTieuDeHangMuc("TIẾP NHẬN & ĐIỀU PHỐI");
+            datTieuDeHangMuc("TIẾP NHẬN");
             datTrangThaiActive(btnHoSoKhachHang);
         } else if (path.contains("ban-hang")) {
             datTieuDeHangMuc("BÁN HÀNG & PHỤ TÙNG");
             datTrangThaiActive(btnTaoDonBanHang);
-        } else if (path.contains("tra-cuu-gia")) {
+        } else if (path.contains("tra-cuu")) {
             datTieuDeHangMuc("BÁN HÀNG & PHỤ TÙNG");
             datTrangThaiActive(btnTraCuuGia);
-        } else if (path.contains("hoa-don")) {
-            datTieuDeHangMuc("QUẢN LÝ HÓA ĐƠN");
-            datTrangThaiActive(btnLapHoaDon);
         } else if (path.contains("danh-sach-hoa-don")) {
             datTieuDeHangMuc("QUẢN LÝ HÓA ĐƠN");
             datTrangThaiActive(btnDanhSachHoaDon);
-        } else if (path.contains("ban-giao")) {
+        } else if (path.contains("lap-hoa-don") || path.contains("hoa-don")) {
             datTieuDeHangMuc("QUẢN LÝ HÓA ĐƠN");
-            datTrangThaiActive(btnBanGiaoXe);
-        } else if (path.contains("lich-hen")) {
-            datTieuDeHangMuc("LỊCH HẸN BẢO DƯỠNG");
-            datTrangThaiActive(btnDatLichHen);
+            datTrangThaiActive(btnLapHoaDon);
         } else {
             datTieuDeHangMuc("TIẾP NHẬN & BÁN HÀNG");
             datTrangThaiActive(btnDashboard);
@@ -290,52 +259,56 @@ public class SidebarLeTanController extends BaseSidebarController {
     public void onDashboardClick() {
         DieuHuongUtil.chuyenManHinh(rootSidebar,
                 "/com/pengugarage/view/letan/dashboard-view.fxml",
-                "Pengu Garage Service ERP - Dashboard Tiếp Nhận & Bán Hàng");
+                "Pengu Garage Service ERP - Dashboard");
     }
 
     @FXML
     public void onTiepNhanXeClick() {
-        thongBaoPhatTrien("Tiếp nhận xe mới (Check-in)");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/letan/tiep-nhan-xe-view.fxml",
+                "Pengu Garage Service ERP - Tiếp Nhận Xe");
     }
 
     @FXML
     public void onHangDoiXeClick() {
-        thongBaoPhatTrien("Hàng đợi xe tại xưởng");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/letan/hang-doi-xe-view.fxml",
+                "Pengu Garage Service ERP - Hàng Đợi Xe Tại Xưởng");
     }
 
     @FXML
     public void onHoSoKhachHangClick() {
-        thongBaoPhatTrien("Hồ sơ xe & Khách hàng");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/letan/ho-so-khach-hang-view.fxml",
+                "Pengu Garage Service ERP - Hồ Sơ Khách Hàng");
     }
 
     @FXML
     public void onTaoDonBanHangClick() {
-        thongBaoPhatTrien("Tạo đơn bán hàng & Phụ tùng");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/letan/ban-hang-view.fxml",
+                "Pengu Garage Service ERP - Bán Hàng & Phụ Tùng");
     }
 
     @FXML
     public void onTraCuuGiaClick() {
-        thongBaoPhatTrien("Tra cứu sản phẩm & Giá");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/letan/tra-cuu-san-pham-view.fxml",
+                "Pengu Garage Service ERP - Tra Cứu Sản Phẩm");
     }
 
     @FXML
     public void onLapHoaDonClick() {
-        thongBaoPhatTrien("Lập hóa đơn thanh toán");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/letan/lap-hoa-don-view.fxml",
+                "Pengu Garage Service ERP - Lập Hóa Đơn & Thu Ngân");
     }
 
     @FXML
     public void onDanhSachHoaDonClick() {
-        thongBaoPhatTrien("Danh sách & Nhật ký hóa đơn");
-    }
-
-    @FXML
-    public void onBanGiaoXeClick() {
-        thongBaoPhatTrien("Bàn giao xe cho khách");
-    }
-
-    @FXML
-    public void onDatLichHenClick() {
-        thongBaoPhatTrien("Đặt lịch hẹn khách hàng");
+        DieuHuongUtil.chuyenManHinh(rootSidebar,
+                "/com/pengugarage/view/letan/danh-sach-hoa-don-view.fxml",
+                "Pengu Garage Service ERP - Danh Sách Hóa Đơn");
     }
 
     @FXML

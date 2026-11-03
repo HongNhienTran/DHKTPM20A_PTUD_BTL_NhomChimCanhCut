@@ -23,11 +23,11 @@
     <HBox alignment="CENTER_LEFT" prefHeight="48.0" spacing="6.0"
           style="-fx-padding: 10px 14px; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1px 0; -fx-background-color: #ffffff;">
         <Label fx:id="lblTenHangMuc"
-               style="-fx-text-fill: #102A46; -fx-font-size: 12px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
+               style="-fx-text-fill: #102A46; -fx-font-size: 12.5px; -fx-font-weight: 900; -fx-letter-spacing: 0.6px;"
                text="HẠNG MỤC CUNG CẤP" HBox.hgrow="ALWAYS" />
         <Region HBox.hgrow="ALWAYS" />
         <Button fx:id="btnToggleSidebar" onAction="#onToggleSidebarClick"
-                style="-fx-background-color: #f4f7fa; -fx-text-fill: #102A46; -fx-font-weight: 900; -fx-font-size: 12px; -fx-background-radius: 6px; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-cursor: hand; -fx-padding: 3px 8px;"
+                style="-fx-background-color: #f4f7fa; -fx-text-fill: #102A46; -fx-font-weight: 900; -fx-font-size: 12.5px; -fx-background-radius: 6px; -fx-border-color: #cbd5e1; -fx-border-radius: 6px; -fx-cursor: hand; -fx-padding: 3px 8px;"
                 text="&lt;" />
     </HBox>
 
@@ -40,7 +40,7 @@
                     styleClass="sidebar-nav-btn" text="📊 Dashboard" />
 
             <!-- Nhóm 1: Hạng mục cung cấp -->
-            <Label fx:id="lblSectionCungCap" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="HẠNG MỤC CUNG CẤP" />
+            <Label fx:id="lblSectionCungCap" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="HẠNG MỤC CUNG CẤP" />
             <Button fx:id="btnQuanLySanPham" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLySanPhamClick"
                     styleClass="sidebar-nav-btn" text="📦 Sản phẩm &amp; Phụ tùng" />
             <Button fx:id="btnQuanLyDichVu" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyDichVuClick"
@@ -49,16 +49,16 @@
                     styleClass="sidebar-nav-btn" text="🏷️ Mã khuyến mãi" />
 
             <!-- Nhóm 2: Vận hành -->
-            <Label fx:id="lblSectionVanHanh" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="VẬN HÀNH GARA" />
+            <Label fx:id="lblSectionVanHanh" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="VẬN HÀNH GARA" />
             <Button fx:id="btnQuanLyPhuongTien" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyPhuongTienClick"
                     styleClass="sidebar-nav-btn" text="🚗 Quản lý phương tiện" />
             <Button fx:id="btnQuanLyHoaDon" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyHoaDonClick"
-                    styleClass="sidebar-nav-btn" text="🧾 Quản lý hóa đơn" />
+                    styleClass="sidebar-nav-btn" text="📄 Quản lý hóa đơn" />
             <Button fx:id="btnQuanLyKhachHang" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyKhachHangClick"
                     styleClass="sidebar-nav-btn" text="👥 Quản lý khách hàng" />
 
             <!-- Nhóm 3: Quản trị cửa hàng -->
-            <Label fx:id="lblSectionQuanTri" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="QUẢN TRỊ CỬA HÀNG" />
+            <Label fx:id="lblSectionQuanTri" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-weight: 800; -fx-padding: 12px 6px 4px 6px;" text="QUẢN TRỊ CỬA HÀNG" />
             <Button fx:id="btnQuanLyNhanVien" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onQuanLyNhanVienClick"
                     styleClass="sidebar-nav-btn" text="👨‍🔧 Quản lý nhân viên" />
             <Button fx:id="btnBaoCaoThongKe" alignment="CENTER_LEFT" maxWidth="Infinity" onAction="#onBaoCaoThongKeClick"

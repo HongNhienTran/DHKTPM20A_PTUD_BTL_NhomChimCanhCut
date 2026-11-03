@@ -80,7 +80,7 @@ public class HeaderQuanLyController extends BaseSidebarController {
     public void onDashboardClick(ActionEvent event) {
         DieuHuongUtil.chuyenManHinh(rootHeader,
                 "/com/pengugarage/view/quanly/dashboard-view.fxml",
-                "Pengu Garage Service ERP - Dashboard Quản Lý");
+                "Pengu Garage Service ERP - Dashboard");
     }
 
     @FXML
@@ -106,7 +106,9 @@ public class HeaderQuanLyController extends BaseSidebarController {
 
     @FXML
     public void onQuanLyPhuongTienClick(ActionEvent event) {
-        thongBaoPhatTrien("Quản lý phương tiện");
+        DieuHuongUtil.chuyenManHinh(rootHeader,
+                "/com/pengugarage/view/quanly/phuong-tien-view.fxml",
+                "Pengu Garage Service ERP - Quản Lý Phương Tiện");
     }
 
     @FXML
