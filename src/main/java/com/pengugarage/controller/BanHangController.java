@@ -19,10 +19,15 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.*;
-
+import java.util.Map;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 /**
  * Controller cho Màn hình Bán Hàng & Phụ Tùng (POS Bán Lẻ)
  * Thiết kế giao diện Light Modern UI đồng bộ với hệ thống Pengu Garage:
@@ -99,6 +104,14 @@ public class BanHangController {
     private boolean isDrawerExpanded = true;
     private Integer danhMucDangChonId = null; // null = Tất cả
 
+    // Chạy thao tác cập nhật kho ở luồng nền, tránh đơ giao diện
+    private final ExecutorService khoExecutor =
+            Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "CapNhatTonKho");
+                t.setDaemon(true);
+                return t;
+            });
+
     // =========================================================================
     // INITIALIZATION
     // =========================================================================
@@ -146,26 +159,87 @@ public class BanHangController {
                 btnTang.getStyleClass().add("pos-qty-btn");
                 lblQty.setStyle("-fx-font-weight: 800; -fx-min-width: 24px; -fx-alignment: center;");
 
+                // Nút giảm số lượng
                 btnGiam.setOnAction(e -> {
-                    ChiTietBanHang item = getTableView().getItems().get(getIndex());
-                    if (item.getSoLuong() > 1) {
-                        item.setSoLuong(item.getSoLuong() - 1);
-                        tableGioHang.refresh();
-                        capNhatThongKeTien();
-                    } else {
-                        xoaKhoiGioHang(item);
+                    ChiTietBanHang item = getTableView().getItems()
+                            .get(getIndex());
+
+                    if (item == null) {
+                        return;
                     }
+
+                    DonBanHangTab donHang = donHangHienTai;
+                    SanPham sp = item.getSanPham();
+
+                    khoExecutor.execute(() -> {
+                        boolean thanhCong = sanPhamDAO.dieuChinhTonKho(
+                                sp.getId(), 1
+                        );
+
+                        Platform.runLater(() -> {
+                            if (!thanhCong) {
+                                thongBao("Lỗi", "Không thể cập nhật tồn kho!");
+                                return;
+                            }
+
+                            sp.setSoLuongTon(sp.getSoLuongTon() + 1);
+
+                            if (item.getSoLuong() > 1) {
+                                item.setSoLuong(item.getSoLuong() - 1);
+                            } else {
+                                donHang.danhSachItem.remove(item);
+                            }
+
+                            if (donHang == donHangHienTai) {
+                                tableGioHang.refresh();
+                                capNhatThongKeTien();
+                            }
+
+                            capNhatHienThiTonKho(sp);
+                        });
+                    });
                 });
 
+// Nút tăng số lượng
                 btnTang.setOnAction(e -> {
-                    ChiTietBanHang item = getTableView().getItems().get(getIndex());
-                    if (item.getSoLuong() < item.getSanPham().getSoLuongTon()) {
-                        item.setSoLuong(item.getSoLuong() + 1);
-                        tableGioHang.refresh();
-                        capNhatThongKeTien();
-                    } else {
-                        thongBao("Cảnh báo kho", "Sản phẩm \"" + item.getTenSanPham() + "\" chỉ còn tồn kho " + item.getSanPham().getSoLuongTon() + " " + item.getDonViTinh());
+                    ChiTietBanHang item = getTableView().getItems()
+                            .get(getIndex());
+
+                    if (item == null) {
+                        return;
                     }
+
+                    DonBanHangTab donHang = donHangHienTai;
+                    SanPham sp = item.getSanPham();
+
+                    if (sp.getSoLuongTon() <= 0) {
+                        thongBao("Hết hàng", "Sản phẩm đã hết hàng!");
+                        return;
+                    }
+
+                    khoExecutor.execute(() -> {
+                        boolean thanhCong = sanPhamDAO.dieuChinhTonKho(
+                                sp.getId(), -1
+                        );
+
+                        Platform.runLater(() -> {
+                            if (!thanhCong) {
+                                thongBao("Hết hàng",
+                                        "Không đủ số lượng sản phẩm trong kho!");
+                                return;
+                            }
+
+                            sp.setSoLuongTon(sp.getSoLuongTon() - 1);
+                            item.setSoLuong(item.getSoLuong() + 1);
+
+                            if (donHang == donHangHienTai) {
+                                tableGioHang.refresh();
+                                capNhatThongKeTien();
+                            }
+
+                            capNhatHienThiTonKho(sp);
+                        });
+                    });
                 });
             }
 
@@ -337,21 +411,100 @@ public class BanHangController {
         veLaiTabsHoaDon();
     }
 
-    private void dongHoaDon(DonBanHangTab donHang) {
+    private void dongHoaDon(DonBanHangTab donHang, boolean daThanhToan) {
+        if (donHang == null) {
+            return;
+        }
+
+        // Đã thanh toán thì không hoàn kho
+        if (daThanhToan) {
+            hoanTatDongHoaDon(donHang);
+            return;
+        }
+
+        // Nếu đơn hàng trống thì đóng luôn
+        if (donHang.danhSachItem.isEmpty()) {
+            hoanTatDongHoaDon(donHang);
+            return;
+        }
+
+        // Sao chép danh sách sản phẩm
+        List<ChiTietBanHang> danhSachHoan =
+                new ArrayList<>(donHang.danhSachItem);
+
+        // Gộp số lượng theo ID sản phẩm
+        Map<Integer, Integer> danhSachCong = new HashMap<>();
+
+        for (ChiTietBanHang item : danhSachHoan) {
+            int id = item.getSanPham().getId();
+            int soLuong = item.getSoLuong();
+
+            danhSachCong.merge(id, soLuong, Integer::sum);
+        }
+
+        // Hoàn kho trong luồng nền
+        khoExecutor.execute(() -> {
+            boolean thanhCong;
+
+            try {
+                thanhCong = sanPhamDAO.hoanTraSoLuongTon(danhSachCong);
+            } catch (Exception e) {
+                e.printStackTrace();
+                thanhCong = false;
+            }
+
+            final boolean ketQua = thanhCong;
+
+            Platform.runLater(() -> {
+                if (!ketQua) {
+                    thongBao(
+                            "Lỗi hoàn kho",
+                            "Không thể hoàn kho. Hóa đơn chưa được đóng."
+                    );
+
+                    napLaiTonKhoToanBo();
+                    return;
+                }
+
+                // Cập nhật tồn kho trong bộ nhớ
+                for (ChiTietBanHang item : danhSachHoan) {
+                    SanPham sp = item.getSanPham();
+
+                    sp.setSoLuongTon(
+                            sp.getSoLuongTon() + item.getSoLuong()
+                    );
+                }
+
+                // Hoàn tất đóng hóa đơn
+                hoanTatDongHoaDon(donHang);
+
+                // Cập nhật tồn kho trên giao diện
+                for (ChiTietBanHang item : danhSachHoan) {
+                    capNhatHienThiTonKho(item.getSanPham());
+                }
+            });
+        });
+    }
+    private void hoanTatDongHoaDon(DonBanHangTab donHang) {
+        donHang.danhSachItem.clear();
+        donHang.maKhuyenMai = null;
+        donHang.tienKhachDua = 0;
+        donHang.ghiChu = "";
+
         if (danhSachDonHang.size() <= 1) {
-            // Nếu chỉ còn 1 hóa đơn thì chỉ xóa sạch giỏ hàng chứ không đóng tab
-            donHang.danhSachItem.clear();
-            donHang.maKhuyenMai = null;
-            donHang.tienKhachDua = 0;
-            donHang.ghiChu = "";
             chonHoaDon(donHang);
             return;
         }
 
         danhSachDonHang.remove(donHang);
-        chonHoaDon(danhSachDonHang.get(danhSachDonHang.size() - 1));
+
+        chonHoaDon(
+                danhSachDonHang.get(danhSachDonHang.size() - 1)
+        );
+
         veLaiTabsHoaDon();
     }
+
 
     private void veLaiTabsHoaDon() {
         if (boxTabsHoaDon == null) return;
@@ -372,7 +525,7 @@ public class BanHangController {
             btnClose.setStyle("-fx-background-color: transparent; -fx-padding: 0 2px; -fx-cursor: hand; -fx-font-size: 10px; -fx-text-fill: #94a3b8;");
             btnClose.setOnAction(e -> {
                 e.consume();
-                dongHoaDon(dh);
+                dongHoaDon(dh, false);
             });
 
             tabBox.getChildren().addAll(lblName, btnClose);
@@ -494,75 +647,283 @@ public class BanHangController {
         card.setMaxWidth(160);
         card.setAlignment(Pos.CENTER);
 
-        // Icon ảnh đại diện
         StackPane imgBox = new StackPane();
         imgBox.setPrefSize(135, 75);
         imgBox.getStyleClass().add("pos-card-img-placeholder");
-        Label icon = new Label("📦");
-        icon.setStyle("-fx-font-size: 28px;");
-        imgBox.getChildren().add(icon);
 
-        // Tên sản phẩm
+        Image anh = layAnhSanPham(sp);
+        if (anh != null) {
+            ImageView iv = new ImageView(anh);
+            iv.setFitWidth(135);
+            iv.setFitHeight(75);
+            iv.setPreserveRatio(true);
+            iv.setSmooth(true);
+            imgBox.getChildren().add(iv);
+        } else {
+            Label icon = new Label("\uD83D\uDCE6");
+            icon.setStyle("-fx-font-size: 28px;");
+            imgBox.getChildren().add(icon);
+        }
+
         Label lblTen = new Label(sp.getTenSanPham());
         lblTen.getStyleClass().add("pos-card-title");
         lblTen.setWrapText(true);
         lblTen.setMaxHeight(38);
         lblTen.setAlignment(Pos.CENTER);
 
-        // Giá bán
         Label lblGia = new Label(tienFormat.format(sp.getDonGiaBan()));
         lblGia.getStyleClass().add("pos-card-price");
 
-        // Số lượng tồn
         String dvt = formatDonViTinh(sp.getDonViTinh());
         Label lblTon = new Label("SL: " + sp.getSoLuongTon() + " " + dvt);
         lblTon.getStyleClass().add("pos-card-stock");
 
         card.getChildren().addAll(imgBox, lblTen, lblGia, lblTon);
 
-        // Click vào thẻ sản phẩm -> Thêm vào giỏ hàng
-        card.setOnMouseClicked(e -> themVaoGioHang(sp, 1));
+        // Lưu ID sản phẩm để tìm thẻ khi cập nhật tồn kho
+        card.setUserData(sp.getId());
 
+        card.setOnMouseClicked(e -> themVaoGioHang(sp, 1));
         return card;
+    }
+
+    private void capNhatHienThiTonKho(SanPham sp) {
+        if (flowSanPham == null || sp == null) {
+            return;
+        }
+
+        for (javafx.scene.Node node : flowSanPham.getChildren()) {
+            if (!(node instanceof VBox card)) {
+                continue;
+            }
+
+            // Tìm thẻ tương ứng với sản phẩm
+            if (card.getUserData() != null
+                    && card.getUserData().equals(sp.getId())) {
+
+                // Label tồn kho nằm ở vị trí thứ 3
+                if (card.getChildren().size() > 3
+                        && card.getChildren().get(3) instanceof Label lblTon) {
+
+                    lblTon.setText(
+                            "SL: " + sp.getSoLuongTon()
+                                    + " " + formatDonViTinh(sp.getDonViTinh())
+                    );
+                }
+
+                break;
+            }
+        }
     }
 
     // =========================================================================
     // TODO: [M06-T01 - Tân] NGHIỆP VỤ CHỌN SẢN PHẨM & QUẢN LÝ GIỎ HÀNG
     // =========================================================================
     private void themVaoGioHang(SanPham sp, int soLuong) {
-        if (donHangHienTai == null || sp == null) return;
-
-        if (sp.getSoLuongTon() <= 0) {
-            thongBao("Hết hàng", "Sản phẩm \"" + sp.getTenSanPham() + "\" hiện đã hết hàng trong kho!");
+        if (donHangHienTai == null || sp == null || soLuong <= 0) {
             return;
         }
 
-        // Kiểm tra xem sản phẩm đã có trong giỏ chưa
-        for (ChiTietBanHang item : donHangHienTai.danhSachItem) {
-            if (item.getSanPham().getId() == sp.getId()) {
-                if (item.getSoLuong() + soLuong <= sp.getSoLuongTon()) {
-                    item.setSoLuong(item.getSoLuong() + soLuong);
+        // Kiểm tra nhanh tồn kho trên giao diện
+        if (sp.getSoLuongTon() < soLuong) {
+            thongBao(
+                    "Hết hàng",
+                    "Sản phẩm \"" + sp.getTenSanPham()
+                            + "\" không đủ số lượng trong kho!"
+            );
+            return;
+        }
+
+        // Lưu hóa đơn hiện tại để tránh cập nhật nhầm tab
+        DonBanHangTab donHang = donHangHienTai;
+        int idSanPham = sp.getId();
+
+        // Truy vấn và cập nhật kho ở luồng nền
+        khoExecutor.execute(() -> {
+            boolean thanhCong;
+
+            try {
+                thanhCong = sanPhamDAO.dieuChinhTonKho(
+                        idSanPham, -soLuong
+                );
+            } catch (Exception e) {
+                thanhCong = false;
+            }
+
+            final boolean ketQua = thanhCong;
+
+            Platform.runLater(() -> {
+                if (!ketQua) {
+                    khoExecutor.execute(() -> {
+                        SanPham moi = sanPhamDAO.layChiTietSanPhamTheoID(sp.getId());
+
+                        Platform.runLater(() -> {
+                            if (moi != null) {
+                                sp.setSoLuongTon(moi.getSoLuongTon());
+                                capNhatHienThiTonKho(sp);
+                            }
+
+                            thongBao(
+                                    "Cập nhật kho thất bại",
+                                    "Sản phẩm không còn đủ số lượng trong kho!"
+                            );
+                        });
+                    });
+
+                    return;
+                }
+
+                // Cập nhật tồn kho trên giao diện
+                sp.setSoLuongTon(sp.getSoLuongTon() - soLuong);
+
+                // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
+                boolean daTonTai = false;
+
+                for (ChiTietBanHang item : donHang.danhSachItem) {
+                    if (item.getSanPham().getId() == idSanPham) {
+                        item.setSoLuong(item.getSoLuong() + soLuong);
+                        daTonTai = true;
+                        break;
+                    }
+                }
+
+                // Nếu chưa có thì thêm mới
+                if (!daTonTai) {
+                    donHang.danhSachItem.add(
+                            new ChiTietBanHang(sp, soLuong)
+                    );
+                }
+
+                // Chỉ cập nhật giao diện của tab đang mở
+                if (donHang == donHangHienTai) {
                     tableGioHang.refresh();
                     capNhatThongKeTien();
-                } else {
-                    thongBao("Cảnh báo số lượng", "Số lượng yêu cầu vượt quá tồn kho hiện tại (" + sp.getSoLuongTon() + ")!");
                 }
-                return;
-            }
-        }
 
-        // Nếu chưa có thì tạo mới chi tiết
-        ChiTietBanHang moi = new ChiTietBanHang(sp, soLuong);
-        donHangHienTai.danhSachItem.add(moi);
-        capNhatThongKeTien();
+                capNhatHienThiTonKho(sp);
+            });
+        });
     }
+
 
     private void xoaKhoiGioHang(ChiTietBanHang item) {
-        if (donHangHienTai != null && item != null) {
-            donHangHienTai.danhSachItem.remove(item);
-            capNhatThongKeTien();
+        if (donHangHienTai == null || item == null) {
+            return;
         }
+        DonBanHangTab donHang = donHangHienTai;
+        SanPham sp = item.getSanPham();
+        int soLuong = item.getSoLuong();
+        khoExecutor.execute(() -> {
+            boolean thanhCong;
+            try {
+                thanhCong = sanPhamDAO.dieuChinhTonKho(
+                        sp.getId(), soLuong
+                );
+            } catch (Exception e) {
+                thanhCong = false;
+            }
+            final boolean ketQua = thanhCong;
+            Platform.runLater(() -> {
+                if (!ketQua) {
+                    thongBao(
+                            "Lỗi cập nhật kho",
+                            "Không thể hoàn lại số lượng sản phẩm vào kho!"
+                    );
+                    return;
+                }
+
+                sp.setSoLuongTon(sp.getSoLuongTon() + soLuong);
+
+                donHang.danhSachItem.remove(item);
+                if (donHang == donHangHienTai) {
+                    tableGioHang.refresh();
+                    capNhatThongKeTien();
+                }
+                capNhatHienThiTonKho(sp);
+            });
+        });
     }
+
+    private boolean capNhatTonKhoTuCSDL(SanPham sp) {
+        try {
+            SanPham moi = sanPhamDAO.layChiTietSanPhamTheoID(sp.getId());
+            if (moi != null && moi.getSoLuongTon() != sp.getSoLuongTon()) {
+                sp.setSoLuongTon(moi.getSoLuongTon());
+                return true;
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    private Image layAnhSanPham(SanPham sp) {
+        String duongDan = sp.getDuongDanAnh();
+        if (duongDan == null || duongDan.trim().isEmpty()) return null;
+        duongDan = duongDan.trim();
+
+        File fileAnh = new File(duongDan);
+        if (!fileAnh.exists()) {
+            fileAnh = new File(System.getProperty("user.dir"), duongDan);
+        }
+        if (fileAnh.exists()) {
+            Image img = new Image(fileAnh.toURI().toString());
+            return img.isError() ? null : img;
+        }
+
+        try (java.io.InputStream in = getClass()
+                .getResourceAsStream("/com/pengugarage/products/" + new File(duongDan).getName())) {
+            if (in != null) {
+                Image img = new Image(in);
+                return img.isError() ? null : img;
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    private void napLaiTonKhoToanBo() {
+        new Thread(() -> {
+            try {
+                List<SanPham> ds = sanPhamDAO.layTatCa();
+                Platform.runLater(() -> {
+                    tatCaSanPham.clear();
+                    tatCaSanPham.addAll(ds);
+                    locVaHienThiSanPham();
+
+                    for (DonBanHangTab dh : danhSachDonHang) {
+                        for (ChiTietBanHang item : dh.danhSachItem) {
+                            for (SanPham moi : tatCaSanPham) {
+                                if (moi.getId() == item.getSanPham().getId()) {
+                                    item.getSanPham().setSoLuongTon(moi.getSoLuongTon());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (donHangHienTai != null) {
+                        boolean doi = false;
+                        for (int i = donHangHienTai.danhSachItem.size() - 1; i >= 0; i--) {
+                            ChiTietBanHang item = donHangHienTai.danhSachItem.get(i);
+                            int ton = item.getSanPham().getSoLuongTon();
+                            if (item.getSoLuong() > ton) {
+                                if (ton <= 0) {
+                                    donHangHienTai.danhSachItem.remove(i);
+                                } else {
+                                    item.setSoLuong(ton);
+                                }
+                                doi = true;
+                            }
+                        }
+                        if (doi) {
+                            tableGioHang.refresh();
+                            capNhatThongKeTien();
+                        }
+                    }
+                });
+            } catch (Exception ignored) {}
+        }).start();
+    }
+
+
 
     private void xuLyTimKiemVaThemNhanh(String keyword) {
         String kw = keyword.toLowerCase();
@@ -789,7 +1150,7 @@ public class BanHangController {
         alert.showAndWait();
 
         // Đóng tab hoặc làm sạch đơn vừa thanh toán
-        dongHoaDon(donHangHienTai);
+        dongHoaDon(donHangHienTai, true);
     }
 
     // =========================================================================
@@ -808,16 +1169,96 @@ public class BanHangController {
 
     @FXML
     public void onHuyDonClick() {
-        if (donHangHienTai != null) {
-            donHangHienTai.danhSachItem.clear();
-            donHangHienTai.maKhuyenMai = null;
-            donHangHienTai.tienKhachDua = 0;
-            donHangHienTai.ghiChu = "";
-            if (cboKhuyenMai != null && !danhSachKhuyenMai.isEmpty()) {
-                cboKhuyenMai.setValue(danhSachKhuyenMai.get(0));
-            }
-            capNhatThongKeTien();
+        if (donHangHienTai == null) {
+            return;
         }
+
+        if (donHangHienTai.danhSachItem.isEmpty()) {
+            thongBao("Thông báo", "Đơn hàng hiện đang trống!");
+            return;
+        }
+
+        DonBanHangTab donHang = donHangHienTai;
+
+        // Sao chép danh sách sản phẩm
+        List<ChiTietBanHang> danhSachHuy =
+                new ArrayList<>(donHang.danhSachItem);
+
+        // Gộp số lượng sản phẩm theo ID
+        Map<Integer, Integer> danhSachCong = new HashMap<>();
+
+        for (ChiTietBanHang item : danhSachHuy) {
+            int id = item.getSanPham().getId();
+            int soLuong = item.getSoLuong();
+
+            danhSachCong.merge(id, soLuong, Integer::sum);
+        }
+
+        // Hoàn kho trong luồng nền bằng Transaction
+        khoExecutor.execute(() -> {
+            boolean thanhCong;
+
+            try {
+                thanhCong = sanPhamDAO.hoanTraSoLuongTon(danhSachCong);
+            } catch (Exception e) {
+                e.printStackTrace();
+                thanhCong = false;
+            }
+
+            final boolean ketQua = thanhCong;
+
+            Platform.runLater(() -> {
+                if (!ketQua) {
+                    thongBao(
+                            "Lỗi hoàn kho",
+                            "Không thể hoàn kho. Đơn hàng chưa được xóa."
+                    );
+
+                    napLaiTonKhoToanBo();
+                    return;
+                }
+
+                // Cập nhật tồn kho trên bộ nhớ
+                for (ChiTietBanHang item : danhSachHuy) {
+                    SanPham sp = item.getSanPham();
+
+                    sp.setSoLuongTon(
+                            sp.getSoLuongTon() + item.getSoLuong()
+                    );
+                }
+
+                // Xóa thông tin đơn hàng
+                donHang.danhSachItem.clear();
+                donHang.maKhuyenMai = null;
+                donHang.tienKhachDua = 0;
+                donHang.ghiChu = "";
+
+                // Cập nhật giao diện nếu vẫn đang chọn hóa đơn này
+                if (donHang == donHangHienTai) {
+                    if (cboKhuyenMai != null
+                            && !danhSachKhuyenMai.isEmpty()) {
+                        cboKhuyenMai.setValue(danhSachKhuyenMai.get(0));
+                    }
+
+                    if (txtTienKhachDua != null) {
+                        txtTienKhachDua.clear();
+                    }
+
+                    tableGioHang.refresh();
+                    capNhatThongKeTien();
+                }
+
+                // Cập nhật tồn kho trên giao diện
+                for (ChiTietBanHang item : danhSachHuy) {
+                    capNhatHienThiTonKho(item.getSanPham());
+                }
+
+                thongBao(
+                        "Hủy đơn thành công",
+                        "Đã hoàn lại số lượng sản phẩm vào kho."
+                );
+            });
+        });
     }
 
     private void thongBao(String tieuDe, String noiDung) {

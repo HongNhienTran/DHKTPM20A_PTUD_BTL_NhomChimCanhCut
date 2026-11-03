@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SanPhamDAO {
 
@@ -251,4 +252,125 @@ public class SanPhamDAO {
 
         return sanPham;
     }
+    //Trừ sl sản phẩm
+    public boolean truSoLuongTon(Map<Integer, Integer> danhSachTru) {
+        if (danhSachTru == null || danhSachTru.isEmpty()) {
+            return false;
+        }
+        String sql = """
+        UPDATE san_pham
+        SET so_luong_ton = so_luong_ton - ?
+        WHERE id = ?
+          AND so_luong_ton >= ?
+        """;
+        try (Connection conn = CoSoDuLieuUtil.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                for (Map.Entry<Integer, Integer> entry : danhSachTru.entrySet()) {
+                    int id = entry.getKey();
+                    int soLuong = entry.getValue();
+
+                    if (id <= 0 || soLuong <= 0) {
+                        conn.rollback();
+                        return false;
+                    }
+                    ps.setInt(1, soLuong);
+                    ps.setInt(2, id);
+                    ps.setInt(3, soLuong);
+                    int ketQua = ps.executeUpdate();
+                    // Không đủ tồn kho hoặc không tìm thấy sản phẩm
+                    if (ketQua != 1) {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi cập nhật số lượng tồn kho", e);
+        }
+    }
+//
+// Điều chỉnh tồn kho
+// soLuongThayDoi âm: trừ kho
+// soLuongThayDoi dương: cộng kho
+public boolean dieuChinhTonKho(int idSanPham, int soLuongThayDoi) {
+    String sql = """
+        UPDATE san_pham
+        SET so_luong_ton = so_luong_ton + ?
+        WHERE id = ?
+          AND so_luong_ton + ? >= 0
+        """;
+    try (Connection conn = CoSoDuLieuUtil.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, soLuongThayDoi);
+        ps.setInt(2, idSanPham);
+        ps.setInt(3, soLuongThayDoi);
+
+        return ps.executeUpdate() == 1;
+    } catch (SQLException e) {
+        throw new RuntimeException("Lỗi cập nhật tồn kho", e);
+    }
+}
+    // Hoàn kho nhiều sản phẩm bằng Transaction
+    public boolean hoanTraSoLuongTon(Map<Integer, Integer> danhSachCong) {
+
+        if (danhSachCong == null || danhSachCong.isEmpty()) {
+            return false;
+        }
+
+        String sql = """
+        UPDATE san_pham
+        SET so_luong_ton = so_luong_ton + ?
+        WHERE id = ?
+        """;
+
+        try (Connection conn = CoSoDuLieuUtil.getConnection()) {
+
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                for (Map.Entry<Integer, Integer> entry : danhSachCong.entrySet()) {
+
+                    int id = entry.getKey();
+                    int soLuong = entry.getValue();
+
+                    // Kiểm tra dữ liệu hợp lệ
+                    if (id <= 0 || soLuong <= 0) {
+                        conn.rollback();
+                        return false;
+                    }
+
+                    ps.setInt(1, soLuong);
+                    ps.setInt(2, id);
+
+                    int ketQua = ps.executeUpdate();
+
+                    // Không tìm thấy sản phẩm
+                    if (ketQua != 1) {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+
+                // Tất cả sản phẩm hoàn kho thành công
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi hoàn trả tồn kho", e);
+        }
+    }
+
+
 }
