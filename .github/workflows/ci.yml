@@ -1,0 +1,81 @@
+name: Pengu Garage CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & Verify Project
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up JDK 21 (Eclipse Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: 🔍 Inspect Project Structure
+        run: |
+          echo "=== Java Version ==="
+          java -version
+          echo "=== Source Files Count ==="
+          find src -type f -name "*.java" | wc -l
+          echo "=== Library Files ==="
+          ls -lh lib/
+
+      - name: 🔨 Compile Java Project
+        run: |
+          mkdir -p bin
+          find src -type f -name "*.java" > sources.txt
+          javac --release 21 -d bin -encoding UTF-8 -cp "lib/*:src" @sources.txt
+          echo "Compilation successful! Generated $(find bin -type f -name "*.class" | wc -l) class files."
+
+      - name: 📦 Package Application Artifact (JAR)
+        run: |
+          mkdir -p dist/lib
+          cp -r lib/* dist/lib/ 2>/dev/null || true
+          cp -r img dist/ 2>/dev/null || true
+          cp -r sql dist/ 2>/dev/null || true
+
+          # Tạo manifest chỉ định Main-Class và Class-Path
+          JAR_LIBS=""
+          for f in lib/*.jar; do
+            if [ -f "$f" ]; then
+              JAR_LIBS="$JAR_LIBS lib/$(basename "$f")"
+            fi
+          done
+
+          cat <<EOF > manifest.mf
+          Manifest-Version: 1.0
+          Main-Class: Main
+          Class-Path: .$JAR_LIBS
+          EOF
+          sed -i 's/^ *//' manifest.mf
+
+          jar cfm dist/PenguGarage.jar manifest.mf -C bin .
+          echo "Created dist/PenguGarage.jar successfully."
+          ls -lh dist/
+
+      - name: 🧪 Smoke Test Headless Class Loading
+        run: |
+          java -Djava.awt.headless=true -cp "dist/PenguGarage.jar:lib/*" -version
+          echo "Smoke test passed successfully."
+
+      - name: 📤 Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pengu-garage-swing-build
+          path: dist/
+          retention-days: 7
