@@ -1,36 +1,31 @@
-# Maven build outputs
-target/
-*.class
-
-# IDE and Editor files
+### IntelliJ IDEA ###
 .idea/
 *.iml
-.vscode/
-.settings/
-.project
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
+.apt_generated
 .classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
 
-# Environment and sensitive configuration files
-.env
-*.local.properties
-config.properties
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 
-# Log files
-*.log
-logs/
+### VS Code ###
+.vscode/
 
-# OS generated files
+### Mac OS ###
 .DS_Store
-Thumbs.db
-
-# User uploads (chỉ giữ lại thư mục bằng .gitkeep)
-uploads/products/*
-!uploads/products/.gitkeep
-
-# Database scripts and sensitive credentials
-database/
-
-#file hướng dẫn
-*.md
-
