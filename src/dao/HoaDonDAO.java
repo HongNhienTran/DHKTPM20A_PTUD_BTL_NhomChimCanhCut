@@ -147,10 +147,22 @@ public class HoaDonDAO {
                 ps.executeUpdate();
 
                 for (ChiTietHoaDon ct : hd.getDanhSachChiTiet()) {
-                    chiTietHoaDonDAO.them(con, ct);
-                    if (capNhatTonKhoSanPham && ct.getLoaiHangMuc() == LoaiHangMuc.SAN_PHAM && ct.getSanPham() != null) {
-                        sanPhamDAO.capNhatSoLuongTon(con, ct.getSanPham().getMaSanPham(), ct.getSanPham().getSoLuongTon());
+                    if (capNhatTonKhoSanPham
+                            && ct.getLoaiHangMuc() == LoaiHangMuc.SAN_PHAM
+                            && ct.getSanPham() != null) {
+                        boolean truThanhCong = sanPhamDAO.truSoLuongTon(
+                                con,
+                                ct.getSanPham().getMaSanPham(),
+                                ct.getSoLuong()
+                        );
+                        if (!truThanhCong) {
+                            throw new SQLException(
+                                    "Sản phẩm " + ct.getSanPham().getTenSanPham()
+                                            + " không đủ số lượng tồn kho!"
+                            );
+                        }
                     }
+                    chiTietHoaDonDAO.them(con, ct);
                 }
 
                 if (hd.getMaKhuyenMai() != null && hd.getMaKhuyenMai().getSoLuongTon() != null) {

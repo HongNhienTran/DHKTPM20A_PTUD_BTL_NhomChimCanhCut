@@ -21,7 +21,6 @@ public class SanPhamBUS {
         }
         return String.format("SP-%s-%03d", maDanhMuc, soThuTu);
     }
-
     public String phatSinhMaSanPham(String maDanhMuc) {
         if (maDanhMuc == null || !maDanhMuc.matches("^" + DanhMucSanPham.REGEX_MA_DANH_MUC + "$")) {
             throw new IllegalArgumentException("Mã danh mục không hợp lệ để sinh mã sản phẩm");

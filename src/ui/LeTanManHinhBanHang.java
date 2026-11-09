@@ -1225,6 +1225,9 @@ public class LeTanManHinhBanHang extends JPanel {
 
         pnl.add(lblNhan, BorderLayout.NORTH);
         pnl.add(hangRadio, BorderLayout.CENTER);
+        radTienMat.addActionListener(e -> capNhatTrangThaiNhapTien());
+        radChuyenKhoan.addActionListener(e -> capNhatTrangThaiNhapTien());
+        capNhatTrangThaiNhapTien();
         return pnl;
     }
 
@@ -1428,14 +1431,31 @@ public class LeTanManHinhBanHang extends JPanel {
         if (sp == null) return;
         DonBanHangTam don = layDonHienTai();
         if (don == null) return;
-
-        if (sp.getSoLuongTon() <= 0) {
+        int tonKho = sp.getSoLuongTon();
+        // Kiểm tra tồn kho
+        if (tonKho <= 0) {
             JOptionPane.showMessageDialog(this,
-                    "Sản phẩm [" + sp.getTenSanPham() + "] đã hết hàng trong kho!",
-                    "Hết hàng tồn kho", JOptionPane.WARNING_MESSAGE);
+                    "Sản phẩm [" + sp.getTenSanPham() + "] đã hết hàng!",
+                    "Cảnh báo tồn kho",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
-
+        // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
+        for (DongGioHang dong : don.getDanhSachHang()) {
+            if (dong.getSanPham().getMaSanPham().equals(sp.getMaSanPham())) {
+                int soLuongSauKhiThem = dong.getSoLuong() + 1;
+                if (soLuongSauKhiThem > tonKho) {
+                    JOptionPane.showMessageDialog(this,
+                            "Sản phẩm [" + sp.getTenSanPham() + "] không đủ số lượng!\n"
+                                    + "Số lượng đang có trong đơn: " + dong.getSoLuong() + "\n"
+                                    + "Số lượng tồn kho: " + tonKho,
+                            "Không đủ hàng tồn kho",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                break;
+            }
+        }
         don.themSanPham(sp, 1);
         napDuLieuDonLenGiaoDien();
     }
@@ -1746,6 +1766,20 @@ public class LeTanManHinhBanHang extends JPanel {
 
         capNhatTienThua();
     }
+    // khóa ô nhập tiền khách đưa
+    private void capNhatTrangThaiNhapTien() {
+        boolean laTienMat = radTienMat.isSelected();
+
+        txtTienKhachDua.setEnabled(laTienMat);
+
+        if (!laTienMat) {
+            txtTienKhachDua.setText("0");
+        } else {
+            txtTienKhachDua.setText("");
+            txtTienKhachDua.requestFocus();
+        }
+    }
+
 
     private void xuLyThanhToanVaInHoaDon() {
         DonBanHangTam don = layDonHienTai();
@@ -1762,17 +1796,20 @@ public class LeTanManHinhBanHang extends JPanel {
                 : PhuongThucThanhToan.TIEN_MAT;
 
         // Nếu là tiền mặt thì kiểm tra tiền khách đưa
-        if (phuongThuc == PhuongThucThanhToan.TIEN_MAT && don.getTienKhachDua() < canTra) {
-            int hoi = JOptionPane.showConfirmDialog(this,
-                    "Số tiền khách đưa (" + dinhDangTien.format(Math.round(don.getTienKhachDua()))
-                            + " đ) chưa đủ thanh toán (" + dinhDangTien.format(Math.round(canTra)) + " đ).\n"
-                            + "Bạn có muốn tiếp tục thanh toán không?",
-                    "Cảnh báo tiền khách đưa", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-            if (hoi != JOptionPane.YES_OPTION) {
-                txtTienKhachDua.requestFocus();
-                return;
-            }
+        if (phuongThuc == PhuongThucThanhToan.TIEN_MAT
+                && don.getTienKhachDua() < canTra) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Tiền khách đưa chưa đủ thanh toán!",
+                    "Không thể thanh toán",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            txtTienKhachDua.requestFocus();
+            return;
         }
+
 
         // Lấy nhân viên lễ tân hiện tại
         NhanVien nvLeTan = layNhanVienLeTanHienTai();
@@ -1821,6 +1858,7 @@ public class LeTanManHinhBanHang extends JPanel {
 
         try {
             if (hoaDonBUS.lapHoaDonBanHang(hd)) {
+                napDanhSachPhuTungVaoNganKeo();
                 JOptionPane.showMessageDialog(this,
                         "Thanh toán và lập hóa đơn bán hàng thành công!\nMã hóa đơn: " + hd.getMaHoaDon(),
                         "Thành công", JOptionPane.INFORMATION_MESSAGE);
