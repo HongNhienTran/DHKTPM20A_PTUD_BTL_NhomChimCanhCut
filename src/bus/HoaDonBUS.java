@@ -120,11 +120,20 @@ public class HoaDonBUS {
                 throw new IllegalArgumentException("Sản phẩm không tồn tại hoặc ngừng kinh doanh: "
                         + ct.getSanPham().getMaSanPham());
             }
-            if (spKho.getSoLuongTon() < ct.getSoLuong()) {
-                throw new IllegalStateException("Sản phẩm '" + spKho.getTenSanPham()
-                        + "' không đủ tồn kho (còn " + spKho.getSoLuongTon() + ", cần " + ct.getSoLuong() + ")");
+
+            if (ct.getSoLuong() <= 0) {
+                throw new IllegalArgumentException(
+                        "Số lượng bán phải lớn hơn 0: " + spKho.getTenSanPham()
+                );
             }
-            spKho.setSoLuongTon(spKho.getSoLuongTon() - ct.getSoLuong());
+
+            if (spKho.getSoLuongTon() < ct.getSoLuong()) {
+                throw new IllegalStateException(
+                        "Sản phẩm '" + spKho.getTenSanPham()
+                                + "' không đủ tồn kho (còn " + spKho.getSoLuongTon()
+                                + ", cần " + ct.getSoLuong() + ")"
+                );
+            }
             ct.setSanPham(spKho);
             ct.setHoaDon(hd);
         }

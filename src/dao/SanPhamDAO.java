@@ -197,6 +197,24 @@ public class SanPhamDAO {
             return ps.executeUpdate() > 0;
         }
     }
+    public boolean truSoLuongTon(Connection con, String maSanPham, int soLuongBan)
+            throws SQLException {
+        if (soLuongBan <= 0) {
+            throw new IllegalArgumentException("Số lượng bán phải lớn hơn 0");
+        }
+        String sql = """
+        UPDATE san_pham
+        SET so_luong_ton = so_luong_ton - ?
+        WHERE ma_san_pham = ?
+          AND so_luong_ton >= ?
+        """;
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, soLuongBan);
+            ps.setString(2, maSanPham);
+            ps.setInt(3, soLuongBan);
+            return ps.executeUpdate() > 0;
+        }
+    }
 
     public boolean capNhatSoLuongTon(String maSanPham, int soLuongTonMoi) {
         try (Connection con = ConnectDB.ketNoi()) {
