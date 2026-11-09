@@ -1809,6 +1809,16 @@ public class LeTanManHinhBanHang extends JPanel {
             txtTienKhachDua.requestFocus();
             return;
         }
+        // Nếu chọn chuyển khoản thì mở cửa sổ QR
+        if (phuongThuc == PhuongThucThanhToan.CHUYEN_KHOAN) {
+
+            boolean daXacNhan = moHopThoaiQR(canTra);
+
+            // Nhân viên chưa xác nhận thì không lập hóa đơn
+            if (!daXacNhan) {
+                return;
+            }
+        }
 
 
         // Lấy nhân viên lễ tân hiện tại
@@ -2529,5 +2539,142 @@ public class LeTanManHinhBanHang extends JPanel {
             khungChinh.chuyenManHinh(LeTanManHinhChinh.MAN_TAO_DON_BAN_HANG);
             khungChinh.setVisible(true);
         });
+    }
+    // làm đỡ thanh toán bằng chuyển khoản đơn giản
+    private boolean moHopThoaiQR(double soTien) {
+
+        Window cuaSoCha = SwingUtilities.getWindowAncestor(this);
+
+        JDialog dialog = new JDialog(
+                cuaSoCha,
+                "Thanh toán chuyển khoản",
+                JDialog.ModalityType.APPLICATION_MODAL
+        );
+
+        dialog.setSize(520, 540);
+        dialog.setLocationRelativeTo(cuaSoCha);
+        dialog.setLayout(new BorderLayout(10, 10));
+
+        JPanel pnlChinh = new JPanel();
+        pnlChinh.setLayout(new BoxLayout(pnlChinh, BoxLayout.Y_AXIS));
+        pnlChinh.setBackground(Color.WHITE);
+        pnlChinh.setBorder(new EmptyBorder(20, 25, 15, 25));
+
+        JLabel lblTieuDe = new JLabel("QUÉT MÃ QR ĐỂ THANH TOÁN");
+        lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 17));
+        lblTieuDe.setForeground(MAU_XANH_DAM);
+        lblTieuDe.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel lblSoTien = new JLabel(
+                dinhDangTien.format(Math.round(soTien)) + " đ"
+        );
+        lblSoTien.setFont(new Font("Segoe UI", Font.BOLD, 25));
+        lblSoTien.setForeground(MAU_CAM_CHU_DAO);
+        lblSoTien.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel lblHuongDan = new JLabel("Vui lòng mở ứng dụng ngân hàng và quét mã");
+        lblHuongDan.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblHuongDan.setForeground(MAU_CHU_PHU);
+        lblHuongDan.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Đọc ảnh QR ngân hàng của bạn
+        JLabel lblQR = new JLabel();
+        lblQR.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        File fileQR = new File(
+                "img/QR.jpg"
+        );
+
+        if (!fileQR.exists()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Không tìm thấy ảnh QR!\n"
+                            + "Vui lòng đặt ảnh tại:\n"
+                            + fileQR.getPath(),
+                    "Thiếu ảnh QR",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return false;
+        }
+
+        ImageIcon iconQR = new ImageIcon(fileQR.getAbsolutePath());
+
+        Image anhQR = iconQR.getImage().getScaledInstance(
+                250, 250, Image.SCALE_SMOOTH
+        );
+
+        lblQR.setIcon(new ImageIcon(anhQR));
+
+        JLabel lblTrangThai = new JLabel("ĐANG CHỜ KHÁCH CHUYỂN KHOẢN");
+        lblTrangThai.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblTrangThai.setForeground(new Color(217, 145, 20));
+        lblTrangThai.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        pnlChinh.add(lblTieuDe);
+        pnlChinh.add(Box.createVerticalStrut(12));
+        pnlChinh.add(lblSoTien);
+        pnlChinh.add(Box.createVerticalStrut(8));
+        pnlChinh.add(lblHuongDan);
+        pnlChinh.add(Box.createVerticalStrut(12));
+        pnlChinh.add(lblQR);
+        pnlChinh.add(Box.createVerticalStrut(12));
+        pnlChinh.add(lblTrangThai);
+
+        // Hai nút xác nhận và hủy
+        JPanel pnlNut = new JPanel(new GridLayout(1, 2, 10, 0));
+        pnlNut.setBackground(Color.WHITE);
+        pnlNut.setBorder(new EmptyBorder(10, 20, 15, 20));
+
+        boolean[] daXacNhan = {false};
+
+        JButton btnXacNhan = new JButton("XÁC NHẬN ĐÃ NHẬN TIỀN");
+        btnXacNhan.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btnXacNhan.setPreferredSize(new Dimension(250, 40));
+        btnXacNhan.setMinimumSize(new Dimension(250, 40));
+        btnXacNhan.setFocusPainted(false);
+        btnXacNhan.setBorderPainted(false);
+        btnXacNhan.setForeground(Color.WHITE);
+        btnXacNhan.setBackground(MAU_XANH_LA);
+        btnXacNhan.setFocusPainted(false);
+        btnXacNhan.setBorderPainted(false);
+
+        JButton btnHuy = new JButton("Hủy");
+        btnHuy.setPreferredSize(new Dimension(150, 40));
+        btnHuy.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnHuy.setForeground(MAU_DO);
+        btnHuy.setBackground(new Color(254, 242, 242));
+        btnHuy.setFocusPainted(false);
+
+        btnXacNhan.addActionListener(e -> {
+
+            int luaChon = JOptionPane.showConfirmDialog(
+                    dialog,
+                    "Bạn đã kiểm tra tài khoản ngân hàng và xác nhận "
+                            + "đã nhận đủ "
+                            + dinhDangTien.format(Math.round(soTien))
+                            + " đ từ khách hàng?",
+                    "Xác nhận thanh toán",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (luaChon == JOptionPane.YES_OPTION) {
+                daXacNhan[0] = true;
+                dialog.dispose();
+            }
+        });
+
+        btnHuy.addActionListener(e -> dialog.dispose());
+
+        pnlNut.add(btnHuy);
+        pnlNut.add(btnXacNhan);
+
+        dialog.add(pnlChinh, BorderLayout.CENTER);
+        dialog.add(pnlNut, BorderLayout.SOUTH);
+
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+
+        return daXacNhan[0];
     }
 }
