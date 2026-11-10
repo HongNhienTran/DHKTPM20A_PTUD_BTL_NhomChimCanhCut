@@ -49,17 +49,33 @@ INSERT INTO `khach_hang` (`ma_khach_hang`, `ho_ten`, `so_dien_thoai`, `dia_chi`,
 ('KH000000004', 'Phạm Minh Tuấn', '0938111222', '12 Đại lộ Bình Dương, Thủ Dầu Một', 'Nam'),
 ('KH000000005', 'Đỗ Quỳnh Trang', '0977888999', '34 Đồng Khởi, Biên Hòa, Đồng Nai', 'Nữ');
 
--- 3. Danh mục Nhân Viên (3 người chuẩn theo yêu cầu: Quản lý, Lễ tân, Kỹ thuật viên)
+-- 3. Danh mục Nhân Viên
 INSERT INTO `nhan_vien` (`ma_nhan_vien`, `ho_ten`, `so_dien_thoai`, `dia_chi`, `chuc_vu`, `trang_thai`, `chuyen_mon`) VALUES
 ('NV000', 'Nguyễn Thành Nam', '0901000000', 'Quận 1, TP. Hồ Chí Minh', 'QUAN_LY', 1, NULL),
 ('NV001', 'Trần Thị Thu Hà', '0901000001', 'Quận Gò Vấp, TP. Hồ Chí Minh', 'LE_TAN', 1, NULL),
-('NV002', 'Lê Hoàng Phúc', '0901000002', 'TP. Thủ Đức, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_BAO_DUONG');
+('NV002', 'Lê Hoàng Phúc', '0901000002', 'TP. Thủ Đức, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_BAO_DUONG'),
+('NV003', 'Trần Quốc Bảo', '0901000003', 'Quận Bình Thạnh, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_SUA_HE_THONG_DIEN'),
+('NV004', 'Lê Hoàng Nam', '0901000004', 'Quận 7, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_THAY_THE_LINH_KIEN'),
+('NV005', 'Nguyễn Văn Toàn', '0901000005', 'Quận Tân Bình, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_CHAM_SOC_VE_SINH_RUA_XE'),
+('NV006', 'Hoàng Văn Khang', '0901000006', 'Quận 12, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_BAO_DUONG'),
+('NV007', 'Vũ Đình Trọng', '0901000007', 'Quận Tân Phú, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_SUA_HE_THONG_DIEN'),
+('NV008', 'Đặng Quốc Hùng', '0901000008', 'Quận 8, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_THAY_THE_LINH_KIEN'),
+('NV009', 'Bùi Minh Trí', '0901000009', 'Quận Phú Nhuận, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_CHAM_SOC_VE_SINH_RUA_XE'),
+('NV010', 'Phạm Thu Trang', '0901000010', 'Quận 3, TP. Hồ Chí Minh', 'LE_TAN', 1, NULL);
 
 -- 4. Danh mục Tài Khoản Nhân Viên (Tên đăng nhập là mã nhân viên, mật khẩu '123456' băm SHA-256)
 INSERT INTO `tai_khoan` (`ten_dang_nhap`, `mat_khau_ma_hoa`, `trang_thai`, `ma_nhan_vien`) VALUES
 ('NV000', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV000'),
 ('NV001', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV001'),
-('NV002', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV002');
+('NV002', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV002'),
+('NV003', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV003'),
+('NV004', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV004'),
+('NV005', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV005'),
+('NV006', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV006'),
+('NV007', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV007'),
+('NV008', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV008'),
+('NV009', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV009'),
+('NV010', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV010');
 
 -- 5. Danh mục Phương Tiện (Mã PT-KHxxxxxxxxx-yyy, khóa ngoại ma_hang_xe, ma_khach_hang)
 INSERT INTO `phuong_tien` (`ma_phuong_tien`, `bien_so_xe`, `mau_xe`, `mau_sac_xe`, `nam_san_xuat`, `nhien_lieu`, `ma_hang_xe`, `ma_khach_hang`) VALUES
@@ -136,26 +152,27 @@ INSERT INTO `san_pham` (`ma_san_pham`, `ten_san_pham`, `don_vi_tinh`, `so_luong_
 ('SP-DM006-008', 'Gạt mưa 18 inch', 'Cái', 10, 3, 85000.00, 125000.00, 10.00, 1, 'img/products/AnhSanPham_DM06_SP008.jpg', 'DM006'),
 ('SP-DM006-009', 'Bộ gạt mưa trước', 'Bộ', 8, 2, 180000.00, 250000.00, 10.00, 1, 'img/products/AnhSanPham_DM06_SP009.jpg', 'DM006');
 
--- 8. Danh mục Dịch Vụ Kỹ Thuật (18 dịch vụ chuẩn DV(?!000)\d{3})
-INSERT INTO `dich_vu` (`ma_dich_vu`, `ten_dich_vu`, `mo_ta`, `don_gia`, `thue_vat`, `trang_thai`) VALUES
-('DV001', 'Thay dầu động cơ', 'Nhóm: Bảo dưỡng. Vật tư: Dầu nhớt & dung dịch. Áp dụng: Dầu động cơ', 80000.00, 10.00, 1),
-('DV002', 'Thay lọc dầu động cơ', 'Nhóm: Bảo dưỡng. Vật tư: Phụ tùng động cơ. Áp dụng: Lọc dầu', 50000.00, 10.00, 1),
-('DV003', 'Thay lọc gió động cơ', 'Nhóm: Bảo dưỡng. Vật tư: Phụ tùng động cơ. Áp dụng: Lọc gió động cơ', 40000.00, 10.00, 1),
-('DV004', 'Thay bugi', 'Nhóm: Bảo dưỡng. Vật tư: Phụ tùng động cơ. Áp dụng: Bugi', 60000.00, 10.00, 1),
-('DV005', 'Bảo dưỡng định kỳ tổng quát', 'Nhóm: Bảo dưỡng. Vật tư: Phụ tùng động cơ; Dầu nhớt & dung dịch. Áp dụng: Lọc dầu; Lọc gió động cơ; Bugi; Dầu động cơ', 350000.00, 10.00, 1),
-('DV006', 'Thay má phanh', 'Nhóm: Hệ thống phanh. Vật tư: Phụ tùng phanh & gầm. Áp dụng: Má phanh', 150000.00, 10.00, 1),
-('DV007', 'Thay dầu phanh', 'Nhóm: Hệ thống phanh. Vật tư: Dầu nhớt & dung dịch. Áp dụng: Dầu phanh', 100000.00, 10.00, 1),
-('DV008', 'Thay giảm xóc', 'Nhóm: Hệ thống gầm. Vật tư: Phụ tùng phanh & gầm. Áp dụng: Giảm xóc', 250000.00, 10.00, 1),
-('DV009', 'Thay rotuyn lái', 'Nhóm: Hệ thống lái. Vật tư: Phụ tùng phanh & gầm. Áp dụng: Rotuyn lái', 180000.00, 10.00, 1),
-('DV010', 'Bổ sung/thay nước làm mát', 'Nhóm: Hệ thống làm mát. Vật tư: Dầu nhớt & dung dịch. Áp dụng: Nước làm mát', 70000.00, 10.00, 1),
-('DV011', 'Thay ắc quy', 'Nhóm: Hệ thống điện. Vật tư: Điện & ắc quy. Áp dụng: Ắc quy', 50000.00, 10.00, 1),
-('DV012', 'Thay bóng đèn', 'Nhóm: Hệ thống điện. Vật tư: Điện & ắc quy. Áp dụng: Bóng đèn', 40000.00, 10.00, 1),
-('DV013', 'Kiểm tra/thay cầu chì, relay', 'Nhóm: Hệ thống điện. Vật tư: Điện & ắc quy. Áp dụng: Cầu chì & relay', 50000.00, 10.00, 1),
-('DV014', 'Thay lốp ô tô', 'Nhóm: Lốp xe. Vật tư: Lốp & phụ tùng bánh xe. Áp dụng: Lốp ô tô', 80000.00, 10.00, 1),
-('DV015', 'Vá lốp không săm', 'Nhóm: Lốp xe. Vật tư: Lốp & phụ tùng bánh xe. Áp dụng: Vật tư vá lốp', 40000.00, 10.00, 1),
-('DV016', 'Thay van lốp', 'Nhóm: Lốp xe. Vật tư: Lốp & phụ tùng bánh xe. Áp dụng: Van lốp', 30000.00, 10.00, 1),
-('DV017', 'Vệ sinh nội thất, kính, mâm xe', 'Nhóm: Chăm sóc xe. Vật tư: Chăm sóc & vật tư gara. Áp dụng: Dung dịch vệ sinh', 200000.00, 10.00, 1),
-('DV018', 'Thay gạt mưa', 'Nhóm: Hệ thống gạt mưa. Vật tư: Chăm sóc & vật tư gara. Áp dụng: Gạt mưa', 30000.00, 10.00, 1);
+-- 8. Danh mục Dịch Vụ Kỹ Thuật (19 dịch vụ chuẩn DV\d{3}, có phân định co_phu_tung và chuyen_mon)
+INSERT INTO `dich_vu` (`ma_dich_vu`, `ten_dich_vu`, `mo_ta`, `don_gia`, `thue_vat`, `co_phu_tung`, `chuyen_mon`, `trang_thai`) VALUES
+('DV000', 'Kiểm tra & chẩn đoán tổng quát', 'Khảo sát tình trạng xe, quét lỗi động cơ/hộp số, chẩn đoán hư hỏng gầm máy', 0.00, 10.00, 1, 'CHUYEN_BAO_DUONG', 1),
+('DV001', 'Thay dầu động cơ', 'Nhóm: Bảo dưỡng. Vật tư: Dầu nhớt & dung dịch. Áp dụng: Dầu động cơ', 80000.00, 10.00, 1, 'CHUYEN_BAO_DUONG', 1),
+('DV002', 'Thay lọc dầu động cơ', 'Nhóm: Bảo dưỡng. Vật tư: Phụ tùng động cơ. Áp dụng: Lọc dầu', 50000.00, 10.00, 1, 'CHUYEN_BAO_DUONG', 1),
+('DV003', 'Thay lọc gió động cơ', 'Nhóm: Bảo dưỡng. Vật tư: Phụ tùng động cơ. Áp dụng: Lọc gió động cơ', 40000.00, 10.00, 1, 'CHUYEN_BAO_DUONG', 1),
+('DV004', 'Thay bugi', 'Nhóm: Bảo dưỡng. Vật tư: Phụ tùng động cơ. Áp dụng: Bugi', 60000.00, 10.00, 1, 'CHUYEN_BAO_DUONG', 1),
+('DV005', 'Bảo dưỡng định kỳ tổng quát', 'Nhóm: Bảo dưỡng. Vật tư: Phụ tùng động cơ; Dầu nhớt & dung dịch. Áp dụng: Lọc dầu; Lọc gió động cơ; Bugi; Dầu động cơ', 350000.00, 10.00, 1, 'CHUYEN_BAO_DUONG', 1),
+('DV006', 'Thay má phanh', 'Nhóm: Hệ thống phanh. Vật tư: Phụ tùng phanh & gầm. Áp dụng: Má phanh', 150000.00, 10.00, 1, 'CHUYEN_THAY_THE_LINH_KIEN', 1),
+('DV007', 'Thay dầu phanh', 'Nhóm: Hệ thống phanh. Vật tư: Dầu nhớt & dung dịch. Áp dụng: Dầu phanh', 100000.00, 10.00, 1, 'CHUYEN_THAY_THE_LINH_KIEN', 1),
+('DV008', 'Thay giảm xóc', 'Nhóm: Hệ thống gầm. Vật tư: Phụ tùng phanh & gầm. Áp dụng: Giảm xóc', 250000.00, 10.00, 1, 'CHUYEN_THAY_THE_LINH_KIEN', 1),
+('DV009', 'Thay rotuyn lái', 'Nhóm: Hệ thống lái. Vật tư: Phụ tùng phanh & gầm. Áp dụng: Rotuyn lái', 180000.00, 10.00, 1, 'CHUYEN_THAY_THE_LINH_KIEN', 1),
+('DV010', 'Bổ sung/thay nước làm mát', 'Nhóm: Hệ thống làm mát. Vật tư: Dầu nhớt & dung dịch. Áp dụng: Nước làm mát', 70000.00, 10.00, 1, 'CHUYEN_BAO_DUONG', 1),
+('DV011', 'Thay ắc quy', 'Nhóm: Hệ thống điện. Vật tư: Điện & ắc quy. Áp dụng: Ắc quy', 50000.00, 10.00, 1, 'CHUYEN_SUA_HE_THONG_DIEN', 1),
+('DV012', 'Thay bóng đèn', 'Nhóm: Hệ thống điện. Vật tư: Điện & ắc quy. Áp dụng: Bóng đèn', 40000.00, 10.00, 1, 'CHUYEN_SUA_HE_THONG_DIEN', 1),
+('DV013', 'Kiểm tra/thay cầu chì, relay', 'Nhóm: Hệ thống điện. Vật tư: Điện & ắc quy. Áp dụng: Cầu chì & relay', 50000.00, 10.00, 1, 'CHUYEN_SUA_HE_THONG_DIEN', 1),
+('DV014', 'Thay lốp ô tô', 'Nhóm: Lốp xe. Vật tư: Lốp & phụ tùng bánh xe. Áp dụng: Lốp ô tô', 80000.00, 10.00, 1, 'CHUYEN_THAY_THE_LINH_KIEN', 1),
+('DV015', 'Vá lốp không săm', 'Nhóm: Lốp xe. Thuần công vá lốp, không dùng phụ tùng thay mới', 40000.00, 10.00, 0, 'CHUYEN_THAY_THE_LINH_KIEN', 1),
+('DV016', 'Thay van lốp', 'Nhóm: Lốp xe. Vật tư: Lốp & phụ tùng bánh xe. Áp dụng: Van lốp', 30000.00, 10.00, 1, 'CHUYEN_THAY_THE_LINH_KIEN', 1),
+('DV017', 'Vệ sinh nội thất, kính, mâm xe', 'Nhóm: Chăm sóc xe. Thuần công chăm sóc vệ sinh xưởng, không dùng phụ tùng', 200000.00, 10.00, 0, 'CHUYEN_CHAM_SOC_VE_SINH_RUA_XE', 1),
+('DV018', 'Thay gạt mưa', 'Nhóm: Hệ thống gạt mưa. Vật tư: Chăm sóc & vật tư gara. Áp dụng: Gạt mưa', 30000.00, 10.00, 1, 'CHUYEN_THAY_THE_LINH_KIEN', 1);
 
 -- 9. Danh mục Mã Khuyến Mãi
 INSERT INTO `ma_khuyen_mai` (`ma_khuyen_mai`, `loai_giam`, `gia_tri_giam`, `gia_tri_toi_thieu_ap_dung`, `ngay_bat_dau_ap_dung`, `ngay_het_han`, `so_luong_ton`, `trang_thai`) VALUES
@@ -166,28 +183,33 @@ INSERT INTO `ma_khuyen_mai` (`ma_khuyen_mai`, `loai_giam`, `gia_tri_giam`, `gia_
 
 -- 10. Phiếu Tiếp Nhận Mẫu (Chuẩn mã: TN-{mã phương tiện}-{ddMMyy}-{xx}, nhân viên tiếp nhận: NV001 - Lễ tân)
 INSERT INTO `phieu_tiep_nhan` (`ma_tiep_nhan`, `thoi_gian_tiep_nhan`, `trang_thai`, `so_km_hien_tai`, `yeu_cau_khach_hang`, `tinh_trang_noi_that`, `tinh_trang_ngoai_that`, `so_chia_khoa`, `ghi_chu`, `ma_phuong_tien`, `ma_nhan_vien`) VALUES
-('TN-PT-KH000000001-001-151026-01', '2026-10-15 08:30:00', 'HOAN_THANH', 25300.00, 'Bảo dưỡng 25.000 km, thay dầu máy và lọc dầu', 'Nội thất sạch sẽ, ghế da nguyên bản', 'Xước nhẹ cản trước bên phụ', 1, 'Khách hẹn lấy xe lúc 11h30', 'PT-KH000000001-001', 'NV001'),
+('TN-PT-KH000000001-001-151026-01', '2026-10-15 08:30:00', 'THANH_TOAN', 25300.00, 'Bảo dưỡng 25.000 km, thay dầu máy và lọc dầu', 'Nội thất sạch sẽ, ghế da nguyên bản', 'Xước nhẹ cản trước bên phụ', 1, 'Khách hẹn lấy xe lúc 11h30', 'PT-KH000000001-001', 'NV001'),
 ('TN-PT-KH000000002-001-161026-01', '2026-10-16 09:15:00', 'DANG_SUA_CHUA', 18450.00, 'Phanh có tiếng kêu kẹt kẹt khi dừng, kiểm tra lọc gió', 'Bình thường', 'Không trầy xước', 1, 'Khách ngồi chờ tại phòng chờ gara', 'PT-KH000000002-001', 'NV001'),
 ('TN-PT-KH000000003-001-171026-01', '2026-10-17 14:00:00', 'CHO_XAC_NHAN_BAO_GIA', 42100.00, 'Thay ắc quy và kiểm tra hệ thống làm mát', 'Bình thường', 'Vết móp nhỏ cửa sau bên tài', 2, 'Cần gọi báo giá trước khi làm', 'PT-KH000000003-001', 'NV001');
 
 -- 11. Phiếu Báo Giá Mẫu (Chuẩn mã: BG-{mã tiếp nhận}-{xxx}, nhân viên lập: NV001)
 INSERT INTO `phieu_bao_gia` (`ma_bao_gia`, `thoi_gian_lap`, `trang_thai`, `ly_do_tu_choi`, `ghi_chu`, `ma_tiep_nhan`, `ma_nhan_vien`) VALUES
 ('BG-TN-PT-KH000000001-001-151026-01-001', '2026-10-15 08:45:00', 'DA_CHAP_THUAN', NULL, 'Khách đồng ý toàn bộ hạng mục', 'TN-PT-KH000000001-001-151026-01', 'NV001'),
-('BG-TN-PT-KH000000002-001-161026-01-001', '2026-10-16 09:30:00', 'DA_CHAP_THUAN', NULL, 'Đã xác nhận trực tiếp với khách', 'TN-PT-KH000000002-001-161026-01', 'NV001');
+('BG-TN-PT-KH000000002-001-161026-01-001', '2026-10-16 09:30:00', 'DA_CHAP_THUAN', NULL, 'Đã xác nhận trực tiếp với khách', 'TN-PT-KH000000002-001-161026-01', 'NV001'),
+('BG-TN-PT-KH000000003-001-171026-01-001', '2026-10-17 14:15:00', 'CHO_XAC_NHAN', NULL, 'Báo giá thay ắc quy GS 60Ah và bổ sung nước làm mát', 'TN-PT-KH000000003-001-171026-01', 'NV001');
 
 -- 12. Chi Tiết Báo Giá Mẫu (Các dịch vụ được báo giá)
 INSERT INTO `chi_tiet_bao_gia` (`ma_bao_gia`, `ma_dich_vu`, `don_gia_dich_vu`, `duoc_chap_nhan`, `ghi_chu`) VALUES
 ('BG-TN-PT-KH000000001-001-151026-01-001', 'DV001', 80000.00, 1, 'Công thay dầu động cơ'),
 ('BG-TN-PT-KH000000001-001-151026-01-001', 'DV002', 50000.00, 1, 'Công thay lọc dầu động cơ'),
 ('BG-TN-PT-KH000000002-001-161026-01-001', 'DV006', 150000.00, 1, 'Công thay má phanh trước'),
-('BG-TN-PT-KH000000002-001-161026-01-001', 'DV003', 40000.00, 1, 'Công thay lọc gió động cơ');
+('BG-TN-PT-KH000000002-001-161026-01-001', 'DV003', 40000.00, 1, 'Công thay lọc gió động cơ'),
+('BG-TN-PT-KH000000003-001-171026-01-001', 'DV011', 50000.00, 1, 'Công thay ắc quy'),
+('BG-TN-PT-KH000000003-001-171026-01-001', 'DV010', 70000.00, 1, 'Công bổ sung nước làm mát');
 
 -- 13. Chi Tiết Dùng Phụ Tùng Thực Tế (Phụ tùng gắn với từng dịch vụ trong báo giá)
 INSERT INTO `chi_tiet_dung_phu_tung` (`ma_bao_gia`, `ma_dich_vu`, `ma_san_pham`, `so_luong`, `don_gia`, `da_tru_kho`, `ghi_chu`) VALUES
 ('BG-TN-PT-KH000000001-001-151026-01-001', 'DV001', 'SP-DM003-001', 4, 210000.00, 1, '4 chai dầu Castrol Magnatec 5W-30 1L'),
 ('BG-TN-PT-KH000000001-001-151026-01-001', 'DV002', 'SP-DM001-001', 1, 110000.00, 1, '1 lọc dầu Toyota Vios'),
 ('BG-TN-PT-KH000000002-001-161026-01-001', 'DV006', 'SP-DM002-002', 1, 680000.00, 1, '1 bộ má phanh trước Honda City'),
-('BG-TN-PT-KH000000002-001-161026-01-001', 'DV003', 'SP-DM001-005', 1, 150000.00, 1, '1 lọc gió Honda City');
+('BG-TN-PT-KH000000002-001-161026-01-001', 'DV003', 'SP-DM001-005', 1, 150000.00, 1, '1 lọc gió Honda City'),
+('BG-TN-PT-KH000000003-001-171026-01-001', 'DV011', 'SP-DM004-002', 1, 1550000.00, 1, '1 bình Ắc quy GS 12V 60Ah'),
+('BG-TN-PT-KH000000003-001-171026-01-001', 'DV010', 'SP-DM003-004', 2, 100000.00, 1, '2 chai Nước làm mát xanh 1L');
 
 -- 14. Phiếu Phân Công Kỹ Thuật Viên (Chuẩn mã: PC-{mã tiếp nhận}-{mã NV}-{xx}, Kỹ thuật viên: NV002 - Lê Hoàng Phúc)
 INSERT INTO `phieu_phan_cong` (`ma_phan_cong`, `thoi_gian_phan_cong`, `thoi_gian_bat_dau`, `thoi_gian_hoan_thanh`, `trang_thai_sua`, `ghi_chu`, `ma_nhan_vien`, `ma_bao_gia`, `ma_dich_vu`) VALUES

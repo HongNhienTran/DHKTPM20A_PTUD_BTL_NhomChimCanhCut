@@ -26,12 +26,10 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -44,7 +42,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Window;
@@ -267,7 +264,7 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
         pnlKhungAnh.add(lblAnhMinhHoa, BorderLayout.CENTER);
 
         if (!chiXem) {
-            btnChonAnh = new JButton("📷 Chọn ảnh mới...");
+            btnChonAnh = new JButton("Chọn ảnh mới...", IconUtil.layIcon("part.png", 14, 14, new Color(30, 58, 138)));
             btnChonAnh.setFont(new Font("Segoe UI", Font.BOLD, 12));
             btnChonAnh.setForeground(new Color(30, 58, 138));
             btnChonAnh.setBackground(new Color(239, 246, 255));
@@ -528,7 +525,7 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
         btnKhoiPhuc.addActionListener(e -> napDuLieuVaoForm());
 
         // Nút Lưu cập nhật (Chủ đạo màu cam Pengu)
-        JButton btnLuu = new JButton("💾 Lưu Thay Đổi") {
+        JButton btnLuu = new JButton("Lưu Thay Đổi", IconUtil.layIcon("save.png", 14, 14, Color.WHITE)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();

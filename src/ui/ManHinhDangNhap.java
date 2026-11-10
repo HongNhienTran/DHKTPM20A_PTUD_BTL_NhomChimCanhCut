@@ -41,8 +41,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.font.TextAttribute;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
@@ -207,11 +205,17 @@ public class ManHinhDangNhap extends JFrame {
             return;
         }
 
-        dispose();
-        switch (quyen) {
-            case QUAN_LY -> new QuanLyManHinhChinh(taiKhoan).setVisible(true);
-            case LE_TAN -> new LeTanManHinhChinh(taiKhoan).setVisible(true);
-            case KY_THUAT_VIEN -> new KyThuatVienManHinhChinh(taiKhoan).setVisible(true);
+        try {
+            JFrame manHinhMoi = switch (quyen) {
+                case QUAN_LY -> new QuanLyManHinhChinh(taiKhoan);
+                case LE_TAN -> new LeTanManHinhChinh(taiKhoan);
+                case KY_THUAT_VIEN -> new KyThuatVienManHinhChinh(taiKhoan);
+            };
+            dispose();
+            manHinhMoi.setVisible(true);
+        } catch (Exception ex) {
+            hienLoiTaiForm("Không thể mở giao diện: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 

@@ -1,6 +1,7 @@
 package enums;
 
 public enum TrangThaiSua {
+    KIEM_TRA("Kiểm tra"),
     CHO_THUC_HIEN("Chờ thực hiện"),
     DANG_SUA("Đang sửa"),
     HOAN_THANH("Hoàn thành");

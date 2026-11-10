@@ -14,11 +14,43 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PhieuPhanCongDAO {
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
     private final PhieuBaoGiaDAO phieuBaoGiaDAO = new PhieuBaoGiaDAO();
+
+    public Map<String, Integer> laySoLuongViecDangXuLyCuaTatCaKTV() {
+        Map<String, Integer> map = new HashMap<>();
+        String sql = "SELECT ma_nhan_vien, COUNT(*) AS so_luong FROM phieu_phan_cong " +
+                "WHERE trang_thai_sua IN ('CHO_THUC_HIEN', 'DANG_SUA') GROUP BY ma_nhan_vien";
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString("ma_nhan_vien"), rs.getInt("so_luong"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy thống kê số việc đang xử lý của kỹ thuật viên", e);
+        }
+        return map;
+    }
+
+    public int demSoPhieuDangXuLyCuaNhanVien(String maNhanVien) {
+        String sql = "SELECT COUNT(*) FROM phieu_phan_cong WHERE ma_nhan_vien = ? " +
+                "AND trang_thai_sua IN ('CHO_THUC_HIEN', 'DANG_SUA')";
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, maNhanVien);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm số phiếu đang xử lý của nhân viên: " + maNhanVien, e);
+        }
+    }
 
     public String layMaLonNhatTheoTienTo(String tienTo) {
         String sql = "SELECT MAX(ma_phan_cong) FROM phieu_phan_cong WHERE ma_phan_cong LIKE ?";

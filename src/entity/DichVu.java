@@ -1,15 +1,19 @@
 package entity;
 
+import enums.ChuyenMon;
+
 import java.util.Objects;
 
 public class DichVu {
-    public static final String REGEX_MA_DICH_VU = "DV(?!000)\\d{3}";
+    public static final String REGEX_MA_DICH_VU = "DV\\d{3}";
 
     private String maDichVu;
     private String tenDichVu;
     private String moTa;
     private double donGia;
     private double thueVAT;
+    private boolean coPhuTung;
+    private ChuyenMon chuyenMon;
     private boolean trangThai;
 
     public DichVu() {
@@ -20,11 +24,18 @@ public class DichVu {
     }
 
     public DichVu(String maDichVu, String tenDichVu, String moTa, double donGia, double thueVAT, boolean trangThai) {
+        this(maDichVu, tenDichVu, moTa, donGia, thueVAT, false, null, trangThai);
+    }
+
+    public DichVu(String maDichVu, String tenDichVu, String moTa, double donGia, double thueVAT,
+                  boolean coPhuTung, ChuyenMon chuyenMon, boolean trangThai) {
         setMaDichVu(maDichVu);
         setTenDichVu(tenDichVu);
         setMoTa(moTa);
         setDonGia(donGia);
         setThueVAT(thueVAT);
+        setCoPhuTung(coPhuTung);
+        setChuyenMon(chuyenMon);
         setTrangThai(trangThai);
     }
 
@@ -35,7 +46,7 @@ public class DichVu {
     public void setMaDichVu(String maDichVu) {
         if (maDichVu == null || !maDichVu.matches("^" + REGEX_MA_DICH_VU + "$")) {
             throw new IllegalArgumentException(
-                    "Mã dịch vụ không hợp lệ (định dạng: DVxxx, chạy từ DV001 đến DV999)");
+                    "Mã dịch vụ không hợp lệ (định dạng: DVxxx, chạy từ DV000 đến DV999)");
         }
         this.maDichVu = maDichVu;
     }
@@ -81,6 +92,22 @@ public class DichVu {
         this.thueVAT = thueVAT;
     }
 
+    public boolean isCoPhuTung() {
+        return coPhuTung;
+    }
+
+    public void setCoPhuTung(boolean coPhuTung) {
+        this.coPhuTung = coPhuTung;
+    }
+
+    public ChuyenMon getChuyenMon() {
+        return chuyenMon;
+    }
+
+    public void setChuyenMon(ChuyenMon chuyenMon) {
+        this.chuyenMon = chuyenMon;
+    }
+
     public boolean isTrangThai() {
         return trangThai;
     }
@@ -109,6 +136,8 @@ public class DichVu {
                 ", moTa='" + moTa + '\'' +
                 ", donGia=" + donGia +
                 ", thueVAT=" + thueVAT +
+                ", coPhuTung=" + coPhuTung +
+                ", chuyenMon=" + chuyenMon +
                 ", trangThai=" + trangThai +
                 '}';
     }

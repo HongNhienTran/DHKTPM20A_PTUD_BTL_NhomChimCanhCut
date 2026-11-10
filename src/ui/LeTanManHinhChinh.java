@@ -23,6 +23,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -48,9 +49,7 @@ import java.awt.LayoutManager;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
@@ -116,6 +115,9 @@ public class LeTanManHinhChinh extends JFrame {
     private final Map<String, NutDieuHuongHeader> mapManHinhThuocNhom = new LinkedHashMap<>();
     private final List<MucMenuThaXuong> danhSachMucMenu = new ArrayList<>();
     private String maManHinhHienTai = MAN_DASHBOARD;
+    private LeTanManHinhTiepNhan manHinhTiepNhanXe;
+    private LeTanManHinhHangDoiXeTiepNhan manHinhHangDoiXe;
+    private LeTanManHinhHoSoKhachHang manHinhHoSoKhachHang;
     private LeTanManHinhLapHoaDonThanhToan manHinhLapHoaDon;
 
     // Các thành phần hiển thị dữ liệu thực trên Dashboard (không dùng dữ liệu giả)
@@ -191,8 +193,7 @@ public class LeTanManHinhChinh extends JFrame {
         JPopupMenu popupTiepNhan = taoPopupDanhMuc(
                 "TIẾP NHẬN",
                 new ThongTinMucCon(MAN_TIEP_NHAN_XE, "Tiếp nhận xe", LoaiBieuTuong.XE_HOI),
-                new ThongTinMucCon(MAN_HANG_DOI_XUONG, "Hàng đợi xe tại xưởng", LoaiBieuTuong.DONG_HO_CAT),
-                new ThongTinMucCon(MAN_HO_SO_KHACH_HANG, "Hồ sơ khách hàng", LoaiBieuTuong.KHACH_HANG)
+                new ThongTinMucCon(MAN_HANG_DOI_XUONG, "Hàng đợi xe tại xưởng", LoaiBieuTuong.DONG_HO_CAT)
         );
         ganSuKienMoMenu(btnTiepNhan, popupTiepNhan);
         cumTraiVaMenu.add(btnTiepNhan);
@@ -214,7 +215,8 @@ public class LeTanManHinhChinh extends JFrame {
         JPopupMenu popupHoaDon = taoPopupDanhMuc(
                 "QUẢN LÝ HÓA ĐƠN",
                 new ThongTinMucCon(MAN_LAP_HOA_DON, "Lập hóa đơn thanh toán", LoaiBieuTuong.TAI_LIEU),
-                new ThongTinMucCon(MAN_DANH_SACH_HOA_DON, "Danh sách hóa đơn", LoaiBieuTuong.SO_HOA_DON)
+                new ThongTinMucCon(MAN_DANH_SACH_HOA_DON, "Danh sách hóa đơn", LoaiBieuTuong.SO_HOA_DON),
+                new ThongTinMucCon(MAN_HO_SO_KHACH_HANG, "Hồ sơ khách hàng", LoaiBieuTuong.KHACH_HANG)
         );
         ganSuKienMoMenu(btnQuanLyHoaDon, popupHoaDon);
         cumTraiVaMenu.add(btnQuanLyHoaDon);
@@ -229,7 +231,7 @@ public class LeTanManHinhChinh extends JFrame {
         mapManHinhThuocNhom.put(MAN_DASHBOARD, btnDashboard);
         mapManHinhThuocNhom.put(MAN_TIEP_NHAN_XE, btnTiepNhan);
         mapManHinhThuocNhom.put(MAN_HANG_DOI_XUONG, btnTiepNhan);
-        mapManHinhThuocNhom.put(MAN_HO_SO_KHACH_HANG, btnTiepNhan);
+        mapManHinhThuocNhom.put(MAN_HO_SO_KHACH_HANG, btnQuanLyHoaDon);
         mapManHinhThuocNhom.put(MAN_TAO_DON_BAN_HANG, btnBanHangPhuTung);
         mapManHinhThuocNhom.put(MAN_TRA_CUU_SAN_PHAM, btnBanHangPhuTung);
         mapManHinhThuocNhom.put(MAN_LAP_HOA_DON, btnQuanLyHoaDon);
@@ -360,9 +362,12 @@ public class LeTanManHinhChinh extends JFrame {
     private void khoiTaoCacManHinhCon() {
         vungNoiDungChinh.setBackground(MAU_NEN_TRANG);
         vungNoiDungChinh.add(taoManHinhDashboard(), MAN_DASHBOARD);
-        vungNoiDungChinh.add(taoKhungChucNang("Tiếp nhận", "Tiếp nhận xe"), MAN_TIEP_NHAN_XE);
-        vungNoiDungChinh.add(taoKhungChucNang("Tiếp nhận", "Hàng đợi xe tại xưởng"), MAN_HANG_DOI_XUONG);
-        vungNoiDungChinh.add(new QuanLyManHinhQuanLyKhachHang(), MAN_HO_SO_KHACH_HANG);
+        manHinhTiepNhanXe = new LeTanManHinhTiepNhan(taiKhoanDangNhap);
+        vungNoiDungChinh.add(manHinhTiepNhanXe, MAN_TIEP_NHAN_XE);
+        manHinhHangDoiXe = new LeTanManHinhHangDoiXeTiepNhan(taiKhoanDangNhap);
+        vungNoiDungChinh.add(manHinhHangDoiXe, MAN_HANG_DOI_XUONG);
+        manHinhHoSoKhachHang = new LeTanManHinhHoSoKhachHang();
+        vungNoiDungChinh.add(manHinhHoSoKhachHang, MAN_HO_SO_KHACH_HANG);
         vungNoiDungChinh.add(new LeTanManHinhBanHang(taiKhoanDangNhap), MAN_TAO_DON_BAN_HANG);
         vungNoiDungChinh.add(new LeTanManHinhTraCuuSanPham(), MAN_TRA_CUU_SAN_PHAM);
         manHinhLapHoaDon = new LeTanManHinhLapHoaDonThanhToan(taiKhoanDangNhap);
@@ -630,13 +635,11 @@ public class LeTanManHinhChinh extends JFrame {
                     && ptn.getThoiGianTiepNhan().toLocalDate().equals(homNay)) {
                 luotHomNay++;
             }
+            if (tt == TrangThaiPhieuTiepNhan.THANH_TOAN) {
+                continue;
+            }
 
             switch (tt) {
-                case CHO_KIEM_TRA -> {
-                    choPhanCong++;
-                    demChoKiemTra++;
-                    dsPhuongTienDangThaoTac.add(ptn);
-                }
                 case DANG_KIEM_TRA -> {
                     demChoKiemTra++;
                     dsPhuongTienDangThaoTac.add(ptn);
@@ -738,6 +741,12 @@ public class LeTanManHinhChinh extends JFrame {
         this.maManHinhHienTai = maManHinh;
         if (MAN_DASHBOARD.equals(maManHinh)) {
             lamMoiDuLieuDashboard();
+        } else if (MAN_TIEP_NHAN_XE.equals(maManHinh) && manHinhTiepNhanXe != null) {
+            manHinhTiepNhanXe.taiLaiDuLieu();
+        } else if (MAN_HANG_DOI_XUONG.equals(maManHinh) && manHinhHangDoiXe != null) {
+            manHinhHangDoiXe.taiLaiDuLieu();
+        } else if (MAN_HO_SO_KHACH_HANG.equals(maManHinh) && manHinhHoSoKhachHang != null) {
+            manHinhHoSoKhachHang.lamMoiDuLieu();
         } else if (MAN_LAP_HOA_DON.equals(maManHinh) && manHinhLapHoaDon != null) {
             manHinhLapHoaDon.taiDanhSachHoaDonCho();
         }
@@ -754,6 +763,55 @@ public class LeTanManHinhChinh extends JFrame {
         }
     }
 
+    /**
+     * Chuyển ngay sang tab Lập Hóa Đơn và chọn đích danh hóa đơn thanh toán cho phương tiện hoàn tất sửa chữa.
+     */
+    public void chuyenSangLapHoaDonChoPhieuTiepNhan(PhieuTiepNhan ptn) {
+        if (ptn == null) {
+            chuyenManHinh(MAN_LAP_HOA_DON);
+            return;
+        }
+
+        String bienSo = (ptn.getPhuongTien() != null && ptn.getPhuongTien().getBienSoXe() != null)
+                ? ptn.getPhuongTien().getBienSoXe() : "";
+        HoaDon hd = null;
+        try {
+            hd = hoaDonBUS.timTheoPhieuTiepNhan(ptn.getMaTiepNhan());
+            if (hd != null && hd.getTrangThaiThanhToan() == TrangThaiThanhToan.DA_THANH_TOAN) {
+                int luaChon = JOptionPane.showConfirmDialog(this,
+                        "Phương tiện [" + bienSo + "] đã hoàn tất thanh toán hóa đơn [" + hd.getMaHoaDon() + "].\n" +
+                        "Bạn có muốn xem lại chi tiết hóa đơn đã thanh toán này không?",
+                        "Đã thanh toán", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                if (luaChon == JOptionPane.YES_OPTION) {
+                    new QuanLyManHinhQuanLyHoaDonXemChiTiet(this, hd, false).setVisible(true);
+                }
+                return;
+            }
+
+            if (hd == null) {
+                NhanVien nvLeTan = (taiKhoanDangNhap != null) ? taiKhoanDangNhap.getNhanVien() : ptn.getNhanVien();
+                hd = hoaDonBUS.taoHoaDonDichVuTuPhieuTiepNhan(
+                        ptn.getMaTiepNhan(),
+                        nvLeTan,
+                        null,
+                        "Thanh toán dịch vụ sửa chữa & bảo dưỡng xe " + bienSo
+                );
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Không thể mở/tạo hóa đơn cho xe [" + bienSo + "]: " + ex.getMessage(),
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
+            chuyenManHinh(MAN_LAP_HOA_DON);
+            return;
+        }
+
+        chuyenManHinh(MAN_LAP_HOA_DON);
+
+        if (hd != null && manHinhLapHoaDon != null) {
+            manHinhLapHoaDon.chonHoaDonTheoMa(hd.getMaHoaDon());
+        }
+    }
+
     private void xuLyDangXuat() {
         dispose();
         new ManHinhDangNhap().setVisible(true);
@@ -761,7 +819,8 @@ public class LeTanManHinhChinh extends JFrame {
 
     private void moHopThoaiHuongDanSuDung() {
         JDialog dialog = new JDialog(this, "Hướng dẫn sử dụng (HDSD) - Phân hệ Lễ tân", true);
-        dialog.setSize(620, 460);
+        dialog.setSize(740, 560);
+        dialog.setMinimumSize(new Dimension(640, 480));
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new BorderLayout());
 
@@ -784,7 +843,6 @@ public class LeTanManHinhChinh extends JFrame {
                     <ul style='margin-top:2px;'>
                         <li><b>Tiếp nhận xe:</b> Lập phiếu tiếp nhận phương tiện vào xưởng, ghi nhận số KM, chìa khóa và yêu cầu của khách.</li>
                         <li><b>Hàng đợi xe tại xưởng:</b> Theo dõi tiến độ kiểm tra, báo giá, sửa chữa và bàn giao xe.</li>
-                        <li><b>Hồ sơ khách hàng:</b> Tra cứu, thêm mới khách hàng và danh sách phương tiện thuộc sở hữu khách hàng.</li>
                     </ul>
                     <h4 style='color:#0F2942; margin-bottom:4px;'>3. Bán hàng &amp; Phụ tùng</h4>
                     <ul style='margin-top:2px;'>
@@ -795,6 +853,7 @@ public class LeTanManHinhChinh extends JFrame {
                     <ul style='margin-top:2px;'>
                         <li><b>Lập hóa đơn thanh toán:</b> Tính tiền dịch vụ &amp; phụ tùng, áp dụng mã khuyến mãi và xác nhận thanh toán.</li>
                         <li><b>Danh sách hóa đơn:</b> Tra cứu lịch sử hóa đơn dịch vụ và hóa đơn bán hàng.</li>
+                        <li><b>Hồ sơ khách hàng:</b> Tra cứu, thêm mới khách hàng và danh sách phương tiện thuộc sở hữu khách hàng.</li>
                     </ul>
                 </body>
                 </html>
@@ -1061,13 +1120,14 @@ public class LeTanManHinhChinh extends JFrame {
 
         private static String layNhanTrangThaiHangDoi(TrangThaiPhieuTiepNhan tt) {
             if (tt == null) {
-                return "CHỜ KIỂM TRA";
+                return "ĐANG KIỂM TRA";
             }
             return switch (tt) {
-                case CHO_KIEM_TRA, DANG_KIEM_TRA -> "CHỜ KIỂM TRA";
+                case DANG_KIEM_TRA -> "ĐANG KIỂM TRA";
                 case CHO_XAC_NHAN_BAO_GIA -> "BÁO GIÁ";
                 case DANG_SUA_CHUA -> "ĐANG SỬA CHỮA";
                 case HOAN_THANH -> "CHỜ BÀN GIAO";
+                case THANH_TOAN -> "ĐÃ THANH TOÁN";
                 case DA_HUY -> "ĐÃ HỦY";
             };
         }

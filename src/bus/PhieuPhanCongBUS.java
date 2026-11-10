@@ -14,6 +14,7 @@ import enums.TrangThaiSua;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public class PhieuPhanCongBUS {
     private final PhieuPhanCongDAO phieuPhanCongDAO = new PhieuPhanCongDAO();
@@ -49,6 +50,17 @@ public class PhieuPhanCongBUS {
         return taoMaPhanCong(maTiepNhan, maNhanVien, next);
     }
 
+    public Map<String, Integer> laySoLuongViecDangXuLyCuaTatCaKTV() {
+        return phieuPhanCongDAO.laySoLuongViecDangXuLyCuaTatCaKTV();
+    }
+
+    public int demSoViecDangXuLy(String maNhanVien) {
+        if (maNhanVien == null || maNhanVien.trim().isEmpty()) {
+            return 0;
+        }
+        return phieuPhanCongDAO.demSoPhieuDangXuLyCuaNhanVien(maNhanVien.trim());
+    }
+
     public List<PhieuPhanCong> layTatCa() {
         return phieuPhanCongDAO.layTatCa();
     }
@@ -82,8 +94,10 @@ public class PhieuPhanCongBUS {
         if (ctbg.getPhieuBaoGia() == null || ctbg.getDichVu() == null) {
             throw new IllegalArgumentException("Hạng mục báo giá không hợp lệ");
         }
-        if (ctbg.getPhieuBaoGia().getTrangThai() != TrangThaiBaoGia.DA_CHAP_THUAN || !ctbg.isDuocChapNhan()) {
-            throw new IllegalStateException("Chỉ được phân công hạng mục thuộc báo giá đã chấp thuận và duocChapNhan = true");
+        if (ppc.getTrangThaiSua() != TrangThaiSua.KIEM_TRA) {
+            if (ctbg.getPhieuBaoGia().getTrangThai() != TrangThaiBaoGia.DA_CHAP_THUAN || !ctbg.isDuocChapNhan()) {
+                throw new IllegalStateException("Chỉ được phân công hạng mục thuộc báo giá đã chấp thuận và duocChapNhan = true");
+            }
         }
 
         PhieuTiepNhan ptn = ppc.layPhieuTiepNhan();
@@ -94,6 +108,14 @@ public class PhieuPhanCongBUS {
         NhanVien ktv = nhanVienDAO.timTheoMa(ppc.getNhanVien().getMaNhanVien());
         if (ktv == null || !ktv.isTrangThai() || ktv.getChucVu() != ChucVu.KY_THUAT_VIEN) {
             throw new IllegalArgumentException("Nhân viên được phân công phải là Kỹ thuật viên đang làm việc");
+        }
+
+        // Ràng buộc chuyên môn: KTV được phân công phải khớp chuyên môn của dịch vụ (nếu dịch vụ có định nghĩa)
+        if (ctbg.getDichVu().getChuyenMon() != null && ktv.getChuyenMon() != null
+                && ktv.getChuyenMon() != ctbg.getDichVu().getChuyenMon()) {
+            throw new IllegalArgumentException("Kỹ thuật viên " + ktv.getHoTen() + " có chuyên môn ["
+                    + ktv.getChuyenMon().getTenHienThi() + "] không phù hợp với dịch vụ yêu cầu ["
+                    + ctbg.getDichVu().getChuyenMon().getTenHienThi() + "]");
         }
 
         PhieuPhanCong daPhanCong = phieuPhanCongDAO.timTheoChiTietBaoGia(
@@ -155,20 +177,61 @@ public class PhieuPhanCongBUS {
         boolean daCapNhat = phieuPhanCongDAO.capNhat(ppc);
 
         PhieuTiepNhan ptn = ppc.layPhieuTiepNhan();
-        if (daCapNhat && ptn != null) {
-            List<PhieuPhanCong> dsPhanCong = phieuPhanCongDAO.timTheoPhieuTiepNhan(ptn.getMaTiepNhan());
-            boolean tatCaHoanThanh = !dsPhanCong.isEmpty();
-            for (PhieuPhanCong item : dsPhanCong) {
-                if (item.getTrangThaiSua() != TrangThaiSua.HOAN_THANH) {
-                    tatCaHoanThanh = false;
-                    break;
+        String maTiepNhan = (ptn != null) ? ptn.getMaTiepNhan() : null;
+        if (maTiepNhan == null && ppc.getChiTietBaoGia() != null && ppc.getChiTietBaoGia().getPhieuBaoGia() != null
+                && ppc.getChiTietBaoGia().getPhieuBaoGia().getPhieuTiepNhan() != null) {
+            maTiepNhan = ppc.getChiTietBaoGia().getPhieuBaoGia().getPhieuTiepNhan().getMaTiepNhan();
+        }
+
+        if (daCapNhat && maTiepNhan != null) {
+            PhieuTiepNhan ptnHienTai = phieuTiepNhanDAO.timTheoMa(maTiepNhan);
+            // Chỉ tự động chuyển sang HOAN_THANH nếu xe đang ở giai đoạn sửa chữa (DANG_SUA_CHUA)!
+            // Tuyệt đối không tự ý chuyển sang HOAN_THANH khi xe đang kiểm tra hoặc chờ báo giá.
+            if (ptnHienTai != null && ptnHienTai.getTrangThai() == TrangThaiPhieuTiepNhan.DANG_SUA_CHUA) {
+                List<PhieuPhanCong> dsPhanCong = phieuPhanCongDAO.timTheoPhieuTiepNhan(maTiepNhan);
+                boolean tatCaHoanThanh = !dsPhanCong.isEmpty();
+                for (PhieuPhanCong item : dsPhanCong) {
+                    if (item.getTrangThaiSua() != TrangThaiSua.HOAN_THANH) {
+                        tatCaHoanThanh = false;
+                        break;
+                    }
                 }
-            }
-            if (tatCaHoanThanh) {
-                phieuTiepNhanDAO.capNhatTrangThai(ptn.getMaTiepNhan(), TrangThaiPhieuTiepNhan.HOAN_THANH);
+                if (tatCaHoanThanh) {
+                    phieuTiepNhanDAO.capNhatTrangThai(maTiepNhan, TrangThaiPhieuTiepNhan.HOAN_THANH);
+                }
             }
         }
         return daCapNhat;
+    }
+
+    /**
+     * Kỹ thuật viên hoàn thành nhiệm vụ phân công kiểm tra & chẩn đoán xe.
+     * Cập nhật trạng thái phân công sang HOAN_THANH, không làm thay đổi trạng thái tiến độ chung của xe sang HOAN_THANH.
+     */
+    public boolean hoanThanhKiemTraXe(String maTiepNhan, String ketLuanKiemTra) {
+        if (maTiepNhan == null || maTiepNhan.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã tiếp nhận không được để trống");
+        }
+        List<PhieuPhanCong> ds = phieuPhanCongDAO.timTheoPhieuTiepNhan(maTiepNhan.trim());
+        boolean coCapNhat = false;
+        LocalDateTime now = LocalDateTime.now();
+        if (ds != null) {
+            for (PhieuPhanCong pc : ds) {
+                if (pc.getTrangThaiSua() == TrangThaiSua.KIEM_TRA) {
+                    if (pc.getThoiGianBatDau() == null) {
+                        pc.setThoiGianBatDau(now);
+                    }
+                    pc.setThoiGianHoanThanh(now);
+                    pc.setTrangThaiSua(TrangThaiSua.HOAN_THANH);
+                    if (ketLuanKiemTra != null && !ketLuanKiemTra.trim().isEmpty()) {
+                        pc.setGhiChu(ketLuanKiemTra.trim());
+                    }
+                    phieuPhanCongDAO.capNhat(pc);
+                    coCapNhat = true;
+                }
+            }
+        }
+        return coCapNhat;
     }
 
     public boolean xoaPhieuPhanCong(String maPhanCong) {
