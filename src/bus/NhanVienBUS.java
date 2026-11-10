@@ -4,6 +4,7 @@ import dao.NhanVienDAO;
 import entity.NhanVien;
 import entity.TaiKhoan;
 import enums.ChucVu;
+import enums.ChuyenMon;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +70,13 @@ public class NhanVienBUS {
             }
         }
         return ketQua;
+    }
+
+    public List<NhanVien> layKyThuatVienTheoChuyenMon(ChuyenMon chuyenMon) {
+        if (chuyenMon == null) {
+            return layKyThuatVienDangLamViec();
+        }
+        return nhanVienDAO.timKyThuatVienTheoChuyenMon(chuyenMon);
     }
 
     public NhanVien timTheoMa(String maNhanVien) {

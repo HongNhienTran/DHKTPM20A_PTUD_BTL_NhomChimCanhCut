@@ -5,10 +5,8 @@ import bus.KhachHangBUS;
 import bus.PhieuTiepNhanBUS;
 import bus.PhuongTienBUS;
 import entity.HangXe;
-import entity.KhachHang;
 import entity.PhieuTiepNhan;
 import entity.PhuongTien;
-import enums.NhienLieu;
 import enums.TrangThaiPhieuTiepNhan;
 import util.IconUtil;
 
@@ -20,8 +18,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -62,13 +58,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
-import java.time.Year;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -531,6 +521,7 @@ public class QuanLyManHinhQuanLyPhuongTien extends JPanel {
                 TrangThaiPhieuTiepNhan tt = ptn.getTrangThai();
                 if (tt != null
                         && tt != TrangThaiPhieuTiepNhan.HOAN_THANH
+                        && tt != TrangThaiPhieuTiepNhan.THANH_TOAN
                         && tt != TrangThaiPhieuTiepNhan.DA_HUY
                         && ptn.getPhuongTien() != null
                         && ptn.getPhuongTien().getMaPhuongTien() != null) {

@@ -9,7 +9,7 @@ import entity.KhachHang;
 import entity.PhieuTiepNhan;
 import entity.PhuongTien;
 import enums.NhienLieu;
-import enums.TrangThaiPhieuTiepNhan;
+import util.IconUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -27,9 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -384,7 +382,7 @@ public class QuanLyManHinhQuanLyPhuongTienXemChiTiet extends JDialog {
         JPanel pnlNutSDT = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
         pnlNutSDT.setOpaque(false);
 
-        btnTimKH = new JButton("🔍 Tìm");
+        btnTimKH = new JButton("Tìm", IconUtil.layIcon("search.png", 14, 14, Color.WHITE));
         btnTimKH.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnTimKH.setBackground(MAU_XANH_DAM);
         btnTimKH.setForeground(Color.WHITE);
@@ -597,7 +595,7 @@ public class QuanLyManHinhQuanLyPhuongTienXemChiTiet extends JDialog {
         btnDong.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnDong.addActionListener(e -> dispose());
 
-        JButton btnLuu = new JButton(phuongTien != null ? "💾 Lưu Thay Đổi" : "💾 Đăng Ký Phương Tiện") {
+        JButton btnLuu = new JButton(phuongTien != null ? "Lưu Thay Đổi" : "Đăng Ký Phương Tiện", IconUtil.layIcon("save.png", 14, 14, Color.WHITE)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();

@@ -43,13 +43,11 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
@@ -75,7 +73,6 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Window;
@@ -87,7 +84,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
-import java.io.File;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
@@ -786,7 +782,7 @@ public class LeTanManHinhBanHang extends JPanel {
                     @Override public void mouseClicked(MouseEvent e) {
                         if (SwingUtilities.isRightMouseButton(e)) {
                             JPopupMenu mnu = new JPopupMenu();
-                            JMenuItem itemXem = new JMenuItem("🔍 Xem chi tiết sản phẩm");
+                            JMenuItem itemXem = new JMenuItem("Xem chi tiết sản phẩm", IconUtil.layIcon("view.png", 14, 14, MAU_CAM_CHU_DAO));
                             itemXem.setFont(new Font("Segoe UI", Font.BOLD, 12));
                             itemXem.addActionListener(ev -> {
                                 Window cuaSoCha = SwingUtilities.getWindowAncestor(LeTanManHinhBanHang.this);
@@ -1979,9 +1975,10 @@ public class LeTanManHinhBanHang extends JPanel {
             super(cuaSoCha, "Tạo Nhanh Hồ Sơ Khách Hàng", ModalityType.APPLICATION_MODAL);
             this.khachHangBUS = khachHangBUS;
 
-            setSize(480, 420);
+            setSize(560, 480);
+            setMinimumSize(new Dimension(500, 440));
             setLocationRelativeTo(cuaSoCha);
-            setResizable(false);
+            setResizable(true);
             setLayout(new BorderLayout());
 
             // Header
