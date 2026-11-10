@@ -66,6 +66,26 @@ public class NhanVienDAO {
         return ds;
     }
 
+    public List<NhanVien> timKyThuatVienTheoChuyenMon(ChuyenMon chuyenMon) {
+        List<NhanVien> ds = new ArrayList<>();
+        if (chuyenMon == null) {
+            return timTheoChucVu(ChucVu.KY_THUAT_VIEN);
+        }
+        String sql = SELECT_JOIN + "WHERE nv.chuc_vu = 'KY_THUAT_VIEN' AND nv.chuyen_mon = ? AND nv.trang_thai = 1 ORDER BY nv.ma_nhan_vien";
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, chuyenMon.name());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi tìm KTV theo chuyên môn: " + chuyenMon, e);
+        }
+        return ds;
+    }
+
     public NhanVien timTheoMa(String maNhanVien) {
         String sql = SELECT_JOIN + "WHERE nv.ma_nhan_vien = ?";
         try (Connection con = ConnectDB.ketNoi();

@@ -1,5 +1,6 @@
 package ui;
 
+import bus.BaoCaoThongKeBUS;
 import entity.NhanVien;
 import entity.TaiKhoan;
 import util.IconUtil;
@@ -29,26 +30,27 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 
 public class QuanLyManHinhChinh extends JFrame {
     // Mã định danh các màn hình con trong CardLayout
@@ -81,6 +83,7 @@ public class QuanLyManHinhChinh extends JFrame {
     private static final Color MAU_NEN_HDSD_HOVER = new Color(226, 232, 240);
 
     private final TaiKhoan taiKhoanDangNhap;
+    private final BaoCaoThongKeBUS baoCaoThongKeBUS = new BaoCaoThongKeBUS();
     private BufferedImage logoHeader;
 
     private final CardLayout boCucManHinhCon = new CardLayout();
@@ -102,6 +105,10 @@ public class QuanLyManHinhChinh extends JFrame {
     private QuanLyManHinhQuanLyHoaDon manHinhHoaDon;
     private QuanLyManHinhQuanLyKhachHang manHinhKhachHang;
     private QuanLyManHinhQuanLyNhanVien manHinhNhanVien;
+    private QuanLyManHinhBaoCaoThongKe manHinhBaoCaoThongKe;
+    private final Map<String, JLabel> dashboardKpi = new LinkedHashMap<>();
+    private BieuDoDashboardPanel bieuDoDashboard;
+    private JPanel bangCanhBaoDashboard;
 
     public QuanLyManHinhChinh() {
         this(null);
@@ -346,8 +353,9 @@ public class QuanLyManHinhChinh extends JFrame {
         manHinhHoaDon = new QuanLyManHinhQuanLyHoaDon();
         manHinhKhachHang = new QuanLyManHinhQuanLyKhachHang();
         manHinhNhanVien = new QuanLyManHinhQuanLyNhanVien();
+        manHinhBaoCaoThongKe = new QuanLyManHinhBaoCaoThongKe();
 
-        vungNoiDungChinh.add(taoManHinhTrongDashboard(), MAN_DASHBOARD);
+        vungNoiDungChinh.add(taoManHinhDashboard(), MAN_DASHBOARD);
         vungNoiDungChinh.add(manHinhSanPham, MAN_SAN_PHAM);
         vungNoiDungChinh.add(manHinhDichVu, MAN_DICH_VU);
         vungNoiDungChinh.add(manHinhKhuyenMai, MAN_KHUYEN_MAI);
@@ -355,13 +363,165 @@ public class QuanLyManHinhChinh extends JFrame {
         vungNoiDungChinh.add(manHinhHoaDon, MAN_HOA_DON);
         vungNoiDungChinh.add(manHinhKhachHang, MAN_KHACH_HANG);
         vungNoiDungChinh.add(manHinhNhanVien, MAN_NHAN_VIEN);
-        vungNoiDungChinh.add(taoKhungChucNang("Quản trị cửa hàng", "Báo cáo & Thống kê"), MAN_BAO_CAO);
+        vungNoiDungChinh.add(manHinhBaoCaoThongKe, MAN_BAO_CAO);
     }
 
     private JPanel taoManHinhTrongDashboard() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(MAU_NEN_NOI_DUNG);
         return panel;
+    }
+
+    private JPanel taoManHinhDashboard() {
+        JPanel panel = new JPanel(new BorderLayout(0, 16));
+        panel.setBackground(MAU_NEN_NOI_DUNG);
+        panel.setBorder(new EmptyBorder(22, 26, 22, 26));
+
+        JPanel dauTrang = new JPanel(new BorderLayout());
+        dauTrang.setOpaque(false);
+        JPanel cumTieuDe = new JPanel();
+        cumTieuDe.setOpaque(false);
+        cumTieuDe.setLayout(new BoxLayout(cumTieuDe, BoxLayout.Y_AXIS));
+        JLabel lblNhom = new JLabel("TỔNG QUAN VẬN HÀNH");
+        lblNhom.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblNhom.setForeground(MAU_CAM_CHUC_VU);
+        JLabel lblTieuDe = new JLabel("Dashboard quản lý");
+        lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 25));
+        lblTieuDe.setForeground(MAU_XANH_DAM);
+        cumTieuDe.add(lblNhom);
+        cumTieuDe.add(Box.createVerticalStrut(5));
+        cumTieuDe.add(lblTieuDe);
+
+        JButton btnLamMoi = new JButton("Làm mới");
+        btnLamMoi.setFocusPainted(false);
+        btnLamMoi.addActionListener(e -> lamMoiDashboard());
+        dauTrang.add(cumTieuDe, BorderLayout.WEST);
+        dauTrang.add(btnLamMoi, BorderLayout.EAST);
+
+        JPanel noiDung = new JPanel();
+        noiDung.setOpaque(false);
+        noiDung.setLayout(new BoxLayout(noiDung, BoxLayout.Y_AXIS));
+        noiDung.add(taoKpiDashboard());
+        noiDung.add(Box.createVerticalStrut(16));
+
+        JPanel hangBieuDo = new JPanel(new GridLayout(1, 2, 16, 0));
+        hangBieuDo.setOpaque(false);
+        bieuDoDashboard = new BieuDoDashboardPanel("Doanh thu 7 ngày gần nhất");
+        bangCanhBaoDashboard = taoBangCanhBaoDashboard();
+        hangBieuDo.add(bieuDoDashboard);
+        hangBieuDo.add(bangCanhBaoDashboard);
+        noiDung.add(hangBieuDo);
+
+        panel.add(dauTrang, BorderLayout.NORTH);
+        panel.add(new JScrollPane(noiDung), BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel taoKpiDashboard() {
+        JPanel panel = new JPanel(new GridLayout(2, 4, 12, 12));
+        panel.setOpaque(false);
+        taoTheKpiDashboard(panel, "Doanh thu hôm nay", "—");
+        taoTheKpiDashboard(panel, "Doanh thu bán hàng", "—");
+        taoTheKpiDashboard(panel, "Doanh thu dịch vụ", "—");
+        taoTheKpiDashboard(panel, "Hóa đơn đã thanh toán", "—");
+        taoTheKpiDashboard(panel, "Xe đang sửa chữa", "—");
+        taoTheKpiDashboard(panel, "Xe chờ xử lý", "—");
+        taoTheKpiDashboard(panel, "Sản phẩm sắp hết", "—");
+        taoTheKpiDashboard(panel, "Tổng doanh thu tháng", "—");
+        return panel;
+    }
+
+    private void taoTheKpiDashboard(JPanel khung, String tieuDe, String giaTri) {
+        JPanel the = new JPanel(new BorderLayout(0, 6));
+        the.setBackground(Color.WHITE);
+        the.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(226, 232, 240)),
+                new EmptyBorder(13, 15, 13, 15)
+        ));
+        JLabel lblTieuDe = new JLabel(tieuDe);
+        lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblTieuDe.setForeground(new Color(71, 85, 105));
+        JLabel lblGiaTri = new JLabel(giaTri);
+        lblGiaTri.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblGiaTri.setForeground(MAU_XANH_DAM);
+        JLabel lblMoTa = new JLabel("Số liệu thực tế từ hệ thống");
+        lblMoTa.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblMoTa.setForeground(new Color(100, 116, 139));
+        the.add(lblTieuDe, BorderLayout.NORTH);
+        the.add(lblGiaTri, BorderLayout.CENTER);
+        the.add(lblMoTa, BorderLayout.SOUTH);
+        dashboardKpi.put(tieuDe, lblGiaTri);
+        khung.add(the);
+    }
+
+    private JPanel taoBangCanhBaoDashboard() {
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(226, 232, 240)),
+                new EmptyBorder(15, 16, 16, 16)
+        ));
+        JLabel tieuDe = new JLabel("Cảnh báo vận hành");
+        tieuDe.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        tieuDe.setForeground(MAU_XANH_DAM);
+        JPanel noiDung = new JPanel();
+        noiDung.setOpaque(false);
+        noiDung.setLayout(new BoxLayout(noiDung, BoxLayout.Y_AXIS));
+        panel.add(tieuDe, BorderLayout.NORTH);
+        panel.add(noiDung, BorderLayout.CENTER);
+        return panel;
+    }
+
+    public void lamMoiDashboard() {
+        LocalDate homNay = LocalDate.now();
+        Map<String, Double> homNayKpi = baoCaoThongKeBUS.layKpiDoanhThu(homNay, homNay);
+        Map<String, Double> thangNayKpi = baoCaoThongKeBUS.layKpiDoanhThu(
+                homNay.withDayOfMonth(1), homNay);
+        dashboardKpi.get("Doanh thu hôm nay").setText(dinhDangTien(homNayKpi.get("tong")));
+        dashboardKpi.get("Doanh thu bán hàng").setText(dinhDangTien(homNayKpi.get("banHang")));
+        dashboardKpi.get("Doanh thu dịch vụ").setText(dinhDangTien(homNayKpi.get("dichVu")));
+        dashboardKpi.get("Hóa đơn đã thanh toán").setText(
+                String.valueOf(baoCaoThongKeBUS.demHoaDonDaThanhToan(homNay, homNay)));
+        dashboardKpi.get("Xe đang sửa chữa").setText(
+                String.valueOf(baoCaoThongKeBUS.layTrangThaiSua(homNay, homNay)
+                        .getOrDefault("Đang sửa chữa", 0d).intValue()));
+        Map<String, Double> trangThaiHomNay = baoCaoThongKeBUS.layTrangThaiSua(homNay, homNay);
+        int xeChoXuLy = trangThaiHomNay.getOrDefault("Chờ kiểm tra", 0d).intValue()
+                + trangThaiHomNay.getOrDefault("Đang kiểm tra", 0d).intValue()
+                + trangThaiHomNay.getOrDefault("Chờ xác nhận báo giá", 0d).intValue();
+        dashboardKpi.get("Xe chờ xử lý").setText(String.valueOf(xeChoXuLy));
+        dashboardKpi.get("Sản phẩm sắp hết").setText(
+                String.valueOf(baoCaoThongKeBUS.demTonKhoThap()));
+        dashboardKpi.get("Tổng doanh thu tháng").setText(dinhDangTien(thangNayKpi.get("tong")));
+        bieuDoDashboard.capNhat(baoCaoThongKeBUS.layDoanhThu7Ngay(homNay));
+        capNhatCanhBaoDashboard(baoCaoThongKeBUS.layTonKhoCanhBao(5));
+    }
+
+    private void capNhatCanhBaoDashboard(Map<String, List<Double>> tonKho) {
+        Component[] components = bangCanhBaoDashboard.getComponents();
+        if (components.length < 2) {
+            return;
+        }
+        JPanel noiDung = (JPanel) components[1];
+        noiDung.removeAll();
+        if (tonKho.isEmpty()) {
+            noiDung.add(new JLabel("Không có sản phẩm dưới mức tồn tối thiểu."));
+        } else {
+            for (Map.Entry<String, List<Double>> item : tonKho.entrySet()) {
+                List<Double> soLuong = item.getValue();
+                JLabel dong = new JLabel(String.format(
+                        "%s: còn %d / tối thiểu %d",
+                        item.getKey(), soLuong.get(0).intValue(), soLuong.get(1).intValue()));
+                dong.setBorder(new EmptyBorder(6, 0, 6, 0));
+                noiDung.add(dong);
+            }
+        }
+        noiDung.revalidate();
+        noiDung.repaint();
+    }
+
+    private String dinhDangTien(double giaTri) {
+        return NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(giaTri);
     }
 
     private JPanel taoKhungChucNang(String tenNhom, String tenChucNang) {
@@ -407,7 +567,9 @@ public class QuanLyManHinhChinh extends JFrame {
 
     public void chuyenManHinh(String maManHinh) {
         this.maManHinhHienTai = maManHinh;
-        if (MAN_SAN_PHAM.equals(maManHinh) && manHinhSanPham != null) {
+        if (MAN_DASHBOARD.equals(maManHinh)) {
+            lamMoiDashboard();
+        } else if (MAN_SAN_PHAM.equals(maManHinh) && manHinhSanPham != null) {
             manHinhSanPham.lamMoiDuLieu();
         } else if (MAN_DICH_VU.equals(maManHinh) && manHinhDichVu != null) {
             manHinhDichVu.lamMoiDuLieu();
@@ -421,6 +583,8 @@ public class QuanLyManHinhChinh extends JFrame {
             manHinhKhachHang.lamMoiDuLieu();
         } else if (MAN_NHAN_VIEN.equals(maManHinh) && manHinhNhanVien != null) {
             manHinhNhanVien.lamMoiDuLieu();
+        } else if (MAN_BAO_CAO.equals(maManHinh) && manHinhBaoCaoThongKe != null) {
+            manHinhBaoCaoThongKe.lamMoiDuLieu();
         }
         boCucManHinhCon.show(vungNoiDungChinh, maManHinh);
 
@@ -910,6 +1074,72 @@ public class QuanLyManHinhChinh extends JFrame {
             if (iconImg != null) {
                 iconImg.paintIcon(c, g, x, y);
             }
+        }
+    }
+
+    private static class BieuDoDashboardPanel extends JPanel {
+        private Map<String, List<Double>> duLieu = new LinkedHashMap<>();
+        private final String tieuDe;
+
+        BieuDoDashboardPanel(String tieuDe) {
+            this.tieuDe = tieuDe;
+            setBackground(Color.WHITE);
+            setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(226, 232, 240)),
+                    new EmptyBorder(14, 16, 16, 16)
+            ));
+            setPreferredSize(new Dimension(0, 270));
+        }
+
+        void capNhat(Map<String, List<Double>> duLieuMoi) {
+            duLieu = new LinkedHashMap<>(duLieuMoi);
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+            Graphics2D g = (Graphics2D) graphics.create();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setColor(MAU_XANH_DAM);
+            g.setFont(new Font("Segoe UI", Font.BOLD, 15));
+            g.drawString(tieuDe, 16, 24);
+            if (duLieu.isEmpty()) {
+                g.setColor(new Color(100, 116, 139));
+                g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                g.drawString("Chưa có dữ liệu.", 16, 58);
+                g.dispose();
+                return;
+            }
+
+            int left = 44;
+            int top = 48;
+            int bottom = getHeight() - 34;
+            int right = getWidth() - 20;
+            double max = 1;
+            for (List<Double> giaTri : duLieu.values()) {
+                for (Double value : giaTri) {
+                    max = Math.max(max, value);
+                }
+            }
+            int soCot = duLieu.values().iterator().next().size();
+            int soChuoi = duLieu.size();
+            int rongCot = Math.max(12, (right - left) / Math.max(1, soCot * soChuoi + 1));
+            g.setColor(new Color(203, 213, 225));
+            g.drawLine(left, bottom, right, bottom);
+
+            int chiSoChuoi = 0;
+            for (Map.Entry<String, List<Double>> entry : duLieu.entrySet()) {
+                g.setColor(chiSoChuoi == 0 ? MAU_CAM_CHUC_VU : new Color(37, 99, 235));
+                List<Double> giaTri = entry.getValue();
+                for (int i = 0; i < giaTri.size(); i++) {
+                    int x = left + (i * soChuoi + chiSoChuoi + 1) * rongCot;
+                    int chieuCao = (int) ((bottom - top) * giaTri.get(i) / max);
+                    g.fillRect(x, bottom - chieuCao, Math.max(8, rongCot - 3), chieuCao);
+                }
+                chiSoChuoi++;
+            }
+            g.dispose();
         }
     }
 

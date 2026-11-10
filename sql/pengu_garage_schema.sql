@@ -86,12 +86,28 @@ CREATE TABLE tai_khoan (
 INSERT INTO nhan_vien (ma_nhan_vien, ho_ten, so_dien_thoai, dia_chi, chuc_vu, trang_thai, chuyen_mon) VALUES
     ('NV000', 'Nguyễn Thành Nam', '0901000000', 'Quận 1, TP. Hồ Chí Minh', 'QUAN_LY', 1, NULL),
     ('NV001', 'Trần Thị Thu Hà', '0901000001', 'Quận Gò Vấp, TP. Hồ Chí Minh', 'LE_TAN', 1, NULL),
-    ('NV002', 'Lê Hoàng Phúc', '0901000002', 'TP. Thủ Đức, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_BAO_DUONG');
+    ('NV002', 'Lê Hoàng Phúc', '0901000002', 'TP. Thủ Đức, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_BAO_DUONG'),
+    ('NV003', 'Trần Quốc Bảo', '0901000003', 'Quận Bình Thạnh, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_SUA_HE_THONG_DIEN'),
+    ('NV004', 'Lê Hoàng Nam', '0901000004', 'Quận 7, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_THAY_THE_LINH_KIEN'),
+    ('NV005', 'Nguyễn Văn Toàn', '0901000005', 'Quận Tân Bình, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_CHAM_SOC_VE_SINH_RUA_XE'),
+    ('NV006', 'Hoàng Văn Khang', '0901000006', 'Quận 12, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_BAO_DUONG'),
+    ('NV007', 'Vũ Đình Trọng', '0901000007', 'Quận Tân Phú, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_SUA_HE_THONG_DIEN'),
+    ('NV008', 'Đặng Quốc Hùng', '0901000008', 'Quận 8, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_THAY_THE_LINH_KIEN'),
+    ('NV009', 'Bùi Minh Trí', '0901000009', 'Quận Phú Nhuận, TP. Hồ Chí Minh', 'KY_THUAT_VIEN', 1, 'CHUYEN_CHAM_SOC_VE_SINH_RUA_XE'),
+    ('NV010', 'Phạm Thu Trang', '0901000010', 'Quận 3, TP. Hồ Chí Minh', 'LE_TAN', 1, NULL);
 
 INSERT INTO tai_khoan (ten_dang_nhap, mat_khau_ma_hoa, trang_thai, ma_nhan_vien) VALUES
     ('NV000', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV000'),
     ('NV001', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV001'),
-    ('NV002', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV002');
+    ('NV002', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV002'),
+    ('NV003', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV003'),
+    ('NV004', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV004'),
+    ('NV005', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV005'),
+    ('NV006', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV006'),
+    ('NV007', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV007'),
+    ('NV008', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV008'),
+    ('NV009', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV009'),
+    ('NV010', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'NV010');
 
 CREATE TABLE danh_muc_san_pham (
     ma_danh_muc VARCHAR(10) NOT NULL,
@@ -132,6 +148,8 @@ CREATE TABLE dich_vu (
     mo_ta TEXT DEFAULT NULL,
     don_gia DECIMAL(15,2) NOT NULL DEFAULT 0.00,
     thue_vat DECIMAL(5,2) NOT NULL DEFAULT 10.00,
+    co_phu_tung TINYINT(1) NOT NULL DEFAULT 0,
+    chuyen_mon VARCHAR(50) DEFAULT NULL,
     trang_thai TINYINT(1) NOT NULL DEFAULT 1,
     PRIMARY KEY (ma_dich_vu)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

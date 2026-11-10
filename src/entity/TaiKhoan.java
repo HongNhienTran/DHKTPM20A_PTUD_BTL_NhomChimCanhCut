@@ -82,6 +82,10 @@ public class TaiKhoan {
         return maNhanVien;
     }
 
+    public NhanVien getNhanVien() {
+        return maNhanVien;
+    }
+
     public void setMaNhanVien(NhanVien maNhanVien) {
         if (maNhanVien != null && maNhanVien.getMaNhanVien() != null
                 && this.tenDangNhap != null

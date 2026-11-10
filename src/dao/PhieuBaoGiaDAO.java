@@ -74,7 +74,7 @@ public class PhieuBaoGiaDAO {
     public PhieuBaoGia timMoiNhatTheoTiepNhan(String maTiepNhan) {
         String sql = "SELECT ma_bao_gia, thoi_gian_lap, trang_thai, ly_do_tu_choi, ghi_chu, " +
                 "ma_tiep_nhan, ma_nhan_vien FROM phieu_bao_gia " +
-                "WHERE ma_tiep_nhan = ? ORDER BY thoi_gian_lap DESC LIMIT 1";
+                "WHERE TRIM(ma_tiep_nhan) = TRIM(?) ORDER BY thoi_gian_lap DESC, ma_bao_gia DESC LIMIT 1";
         try (Connection con = ConnectDB.ketNoi();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, maTiepNhan);
@@ -141,23 +141,54 @@ public class PhieuBaoGiaDAO {
     }
 
     public boolean capNhat(PhieuBaoGia pbg) {
-        String sql = "UPDATE phieu_bao_gia SET trang_thai = ?, ly_do_tu_choi = ?, ghi_chu = ? WHERE ma_bao_gia = ?";
+        String sql = "UPDATE phieu_bao_gia SET trang_thai = ?, ly_do_tu_choi = ?, ghi_chu = ?, ma_nhan_vien = ? WHERE ma_bao_gia = ?";
         try (Connection con = ConnectDB.ketNoi()) {
             con.setAutoCommit(false);
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setString(1, pbg.getTrangThai().name());
                 ps.setString(2, pbg.getLyDoTuChoi());
                 ps.setString(3, pbg.getGhiChu());
-                ps.setString(4, pbg.getMaBaoGia());
-                ps.executeUpdate();
+                ps.setString(4, pbg.getNhanVien() != null ? pbg.getNhanVien().getMaNhanVien() : null);
+                ps.setString(5, pbg.getMaBaoGia());
+                int rows = ps.executeUpdate();
 
-                for (ChiTietBaoGia ctbg : pbg.getDanhSachChiTiet()) {
-                    chiTietBaoGiaDAO.capNhat(con, ctbg);
-                    for (ChiTietDungPhuTung pt : ctbg.getDanhSachPhuTung()) {
-                        chiTietDungPhuTungDAO.capNhat(con, pt);
-                        sanPhamDAO.capNhatSoLuongTon(con, pt.getSanPham().getMaSanPham(), pt.getSanPham().getSoLuongTon());
+                if (rows == 0) {
+                    // Nếu phiếu báo giá chưa tồn tại, thực hiện INSERT mới
+                    String sqlInsert = "INSERT INTO phieu_bao_gia (ma_bao_gia, thoi_gian_lap, trang_thai, ly_do_tu_choi, " +
+                            "ghi_chu, ma_tiep_nhan, ma_nhan_vien) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    try (PreparedStatement psIns = con.prepareStatement(sqlInsert)) {
+                        psIns.setString(1, pbg.getMaBaoGia());
+                        psIns.setTimestamp(2, Timestamp.valueOf(pbg.getThoiGianLap() != null ? pbg.getThoiGianLap() : java.time.LocalDateTime.now()));
+                        psIns.setString(3, pbg.getTrangThai().name());
+                        psIns.setString(4, pbg.getLyDoTuChoi());
+                        psIns.setString(5, pbg.getGhiChu());
+                        psIns.setString(6, pbg.getPhieuTiepNhan().getMaTiepNhan());
+                        psIns.setString(7, pbg.getNhanVien() != null ? pbg.getNhanVien().getMaNhanVien() : null);
+                        psIns.executeUpdate();
                     }
                 }
+
+                // Cập nhật hoặc thêm mới từng chi tiết dịch vụ và phụ tùng đề xuất
+                if (pbg.getDanhSachChiTiet() != null) {
+                    for (ChiTietBaoGia ctbg : pbg.getDanhSachChiTiet()) {
+                        ctbg.setPhieuBaoGia(pbg);
+                        boolean daCapNhat = chiTietBaoGiaDAO.capNhat(con, ctbg);
+                        if (!daCapNhat) {
+                            chiTietBaoGiaDAO.them(con, ctbg);
+                        } else {
+                            if (ctbg.getDanhSachPhuTung() != null) {
+                                for (ChiTietDungPhuTung pt : ctbg.getDanhSachPhuTung()) {
+                                    pt.setChiTietBaoGia(ctbg);
+                                    boolean ptDaCapNhat = chiTietDungPhuTungDAO.capNhat(con, pt);
+                                    if (!ptDaCapNhat) {
+                                        chiTietDungPhuTungDAO.them(con, pt);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 con.commit();
                 return true;
             } catch (Exception ex) {
