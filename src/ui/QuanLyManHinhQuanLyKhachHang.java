@@ -757,8 +757,8 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
                 khMoi.setGioiTinh(gioiTinh);
 
                 if (khachHangBUS.themKhachHang(khMoi)) {
-                    this.khachHangDangChon = khMoi;
                     lamMoiDuLieu();
+                    lamMoiForm();
                     JOptionPane.showMessageDialog(this,
                             "Đã thêm hồ sơ khách hàng [" + khMoi.getHoTen() + "] thành công!",
                             "Thành công", JOptionPane.INFORMATION_MESSAGE);

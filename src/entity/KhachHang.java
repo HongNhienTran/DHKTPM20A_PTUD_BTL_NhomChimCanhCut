@@ -96,6 +96,8 @@ public class KhachHang {
                 return;
             }
             throw new IllegalArgumentException("Số điện thoại khách hàng không được để trống");
+        }else if(!soDienThoai.matches("^0[0-9]{9}$")){
+            throw new IllegalArgumentException("Số điện thoại khách hàng phải bắt đầu bằng số 0 thêm 9 số phía sau");
         }
         this.soDienThoai = soDienThoai.trim();
     }

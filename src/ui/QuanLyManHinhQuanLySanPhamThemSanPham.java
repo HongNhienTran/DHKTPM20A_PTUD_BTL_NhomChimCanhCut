@@ -88,7 +88,7 @@ public class QuanLyManHinhQuanLySanPhamThemSanPham extends JDialog {
     }
 
     public QuanLyManHinhQuanLySanPhamThemSanPham(Window cuaSoCha, SanPham sanPhamHienTai,
-                                                SanPhamBUS sanPhamBUS, DanhMucSanPhamBUS danhMucBUS) {
+                                                 SanPhamBUS sanPhamBUS, DanhMucSanPhamBUS danhMucBUS) {
         super(cuaSoCha,
                 sanPhamHienTai != null ? "Cập Nhật Sản Phẩm & Phụ Tùng" : "Thêm Sản Phẩm & Phụ Tùng Mới",
                 ModalityType.APPLICATION_MODAL);
@@ -154,7 +154,7 @@ public class QuanLyManHinhQuanLySanPhamThemSanPham extends JDialog {
         JPanel pnlNutAnh = new JPanel(new GridLayout(2, 1, 0, 6));
         pnlNutAnh.setOpaque(false);
 
-        JButton btnChonAnh = new JButton("📷 Chọn ảnh...");
+        JButton btnChonAnh = new JButton("Chọn ảnh...", IconUtil.layIcon("part.png", 14, 14, new Color(30, 58, 138)));
         btnChonAnh.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnChonAnh.setForeground(new Color(30, 58, 138));
         btnChonAnh.setBackground(new Color(239, 246, 255));
@@ -166,7 +166,7 @@ public class QuanLyManHinhQuanLySanPhamThemSanPham extends JDialog {
         ));
         btnChonAnh.addActionListener(e -> xuLyChonAnhMoi());
 
-        JButton btnXoaAnh = new JButton("✕ Bỏ ảnh");
+        JButton btnXoaAnh = new JButton("Bỏ ảnh", IconUtil.layIcon("close.png", 12, 12, MAU_DO_CANH_BAO));
         btnXoaAnh.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         btnXoaAnh.setForeground(MAU_DO_CANH_BAO);
         btnXoaAnh.setBackground(Color.WHITE);
@@ -275,10 +275,10 @@ public class QuanLyManHinhQuanLySanPhamThemSanPham extends JDialog {
         cboDonViTinh.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         cboDonViTinh.setPreferredSize(new Dimension(140, 36));
 
-        spnGiaNhap = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000_000_000.0, 10_000.0));
-        spnDonGiaBan = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000_000_000.0, 10_000.0));
-        spnThueVAT = new JSpinner(new SpinnerNumberModel(8.0, 0.0, 100.0, 1.0));
-        spnSoLuongTon = new JSpinner(new SpinnerNumberModel(0, 0, 1_000_000, 1));
+        spnGiaNhap     = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000_000_000.0, 10_000.0));
+        spnDonGiaBan   = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1_000_000_000.0, 10_000.0));
+        spnThueVAT     = new JSpinner(new SpinnerNumberModel(8.0, 0.0, 100.0, 1.0));
+        spnSoLuongTon  = new JSpinner(new SpinnerNumberModel(0, 0, 1_000_000, 1));
         spnTonToiThieu = new JSpinner(new SpinnerNumberModel(5, 0, 1_000_000, 1));
 
         dinhDangSpinnerSo(spnGiaNhap, "#,##0");
@@ -633,7 +633,6 @@ public class QuanLyManHinhQuanLySanPhamThemSanPham extends JDialog {
         NumberFormatter formatter = new NumberFormatter(format);
         formatter.setValueClass(spinner.getValue().getClass());
         formatter.setAllowsInvalid(false);
-        formatter.setMinimum(0.0);
         tf.setFormatterFactory(new DefaultFormatterFactory(formatter));
     }
 }
