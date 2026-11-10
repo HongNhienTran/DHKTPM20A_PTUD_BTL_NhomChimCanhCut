@@ -5,6 +5,7 @@ import entity.ChiTietBaoGia;
 import entity.ChiTietDungPhuTung;
 import entity.DichVu;
 import entity.PhieuBaoGia;
+import enums.ChuyenMon;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,7 +21,7 @@ public class ChiTietBaoGiaDAO {
         List<ChiTietBaoGia> ds = new ArrayList<>();
         String sql = "SELECT ctbg.don_gia_dich_vu, ctbg.duoc_chap_nhan, ctbg.ghi_chu, " +
                 "dv.ma_dich_vu, dv.ten_dich_vu, dv.mo_ta, dv.don_gia AS dv_don_gia, " +
-                "dv.thue_vat, dv.trang_thai AS dv_trang_thai " +
+                "dv.thue_vat, dv.co_phu_tung, dv.chuyen_mon, dv.trang_thai AS dv_trang_thai " +
                 "FROM chi_tiet_bao_gia ctbg " +
                 "JOIN dich_vu dv ON ctbg.ma_dich_vu = dv.ma_dich_vu " +
                 "WHERE ctbg.ma_bao_gia = ?";
@@ -28,12 +29,22 @@ public class ChiTietBaoGiaDAO {
             ps.setString(1, phieuBaoGia.getMaBaoGia());
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    ChuyenMon cm = null;
+                    String cmStr = rs.getString("chuyen_mon");
+                    if (cmStr != null && !cmStr.isBlank()) {
+                        try {
+                            cm = ChuyenMon.valueOf(cmStr);
+                        } catch (Exception ignored) {
+                        }
+                    }
                     DichVu dv = new DichVu(
                             rs.getString("ma_dich_vu"),
                             rs.getString("ten_dich_vu"),
                             rs.getString("mo_ta"),
                             rs.getDouble("dv_don_gia"),
                             rs.getDouble("thue_vat"),
+                            rs.getBoolean("co_phu_tung"),
+                            cm,
                             rs.getBoolean("dv_trang_thai")
                     );
                     ChiTietBaoGia ctbg = new ChiTietBaoGia(

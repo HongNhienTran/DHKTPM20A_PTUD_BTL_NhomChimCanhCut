@@ -2,16 +2,19 @@ package ui;
 
 import bus.HoaDonBUS;
 import bus.KhachHangBUS;
+import bus.PhieuTiepNhanBUS;
 import bus.SanPhamBUS;
 import dao.NhanVienDAO;
 import entity.ChiTietHoaDon;
 import entity.HoaDon;
 import entity.KhachHang;
 import entity.NhanVien;
+import entity.PhieuTiepNhan;
 import entity.PhuongTien;
 import entity.TaiKhoan;
 import enums.LoaiHoaDon;
 import enums.PhuongThucThanhToan;
+import enums.TrangThaiPhieuTiepNhan;
 import enums.TrangThaiThanhToan;
 import util.IconUtil;
 
@@ -19,13 +22,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -38,7 +37,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -63,10 +61,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Window;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
@@ -111,6 +105,7 @@ public class LeTanManHinhLapHoaDonThanhToan extends JPanel {
     private final HoaDonBUS hoaDonBUS;
     private final SanPhamBUS sanPhamBUS;
     private final KhachHangBUS khachHangBUS;
+    private final PhieuTiepNhanBUS phieuTiepNhanBUS = new PhieuTiepNhanBUS();
     private final NhanVienDAO nhanVienDAO;
     private TaiKhoan taiKhoanDangNhap;
 
@@ -674,7 +669,7 @@ public class LeTanManHinhLapHoaDonThanhToan extends JPanel {
         hangNut.setOpaque(false);
         hangNut.setBorder(new EmptyBorder(8, 0, 0, 0));
 
-        btnHuyDon = new NutVienDo("✕ Hủy Đơn");
+        btnHuyDon = new NutVienDo("Hủy Đơn", IconUtil.layIcon("close.png", 12, 12, MAU_DO_CANH_BAO));
         btnHuyDon.setPreferredSize(new Dimension(105, 36));
         btnHuyDon.addActionListener(e -> xuLyHuyDonDangChon());
 
@@ -685,7 +680,7 @@ public class LeTanManHinhLapHoaDonThanhToan extends JPanel {
         btnInPhieuTam.setPreferredSize(new Dimension(115, 36));
         btnInPhieuTam.addActionListener(e -> xuLyInPhieuTam());
 
-        btnXacNhanThanhToan = new NutXanhXacNhan("✓ XÁC NHẬN THANH TOÁN");
+        btnXacNhanThanhToan = new NutXanhXacNhan("XÁC NHẬN THANH TOÁN", IconUtil.layIcon("check.png", 14, 14, Color.WHITE));
         btnXacNhanThanhToan.setPreferredSize(new Dimension(200, 36));
         btnXacNhanThanhToan.addActionListener(e -> xuLyXacNhanThanhToan());
 
@@ -728,10 +723,35 @@ public class LeTanManHinhLapHoaDonThanhToan extends JPanel {
     // =========================================================================
 
     /**
-     * Tải toàn bộ danh sách hóa đơn CHƯA_THANH_TOAN từ database
+     * Tải toàn bộ danh sách hóa đơn CHƯA_THANH_TOAN từ database,
+     * tự động lập hóa đơn dịch vụ cho các xe đã hoàn thành sửa chữa (HOAN_THANH) nếu chưa có.
      */
     public void taiDanhSachHoaDonCho() {
         try {
+            // Tự động kiểm tra và tạo hóa đơn dịch vụ cho các xe đã hoàn thành sửa chữa (HOAN_THANH) nếu chưa có hóa đơn
+            try {
+                List<PhieuTiepNhan> dsHoanThanh = phieuTiepNhanBUS.layTheoTrangThai(TrangThaiPhieuTiepNhan.HOAN_THANH);
+                if (dsHoanThanh != null) {
+                    NhanVien nvLeTan = (taiKhoanDangNhap != null) ? taiKhoanDangNhap.getNhanVien() : null;
+                    for (PhieuTiepNhan ptn : dsHoanThanh) {
+                        try {
+                            if (hoaDonBUS.timTheoPhieuTiepNhan(ptn.getMaTiepNhan()) == null) {
+                                String bienSo = (ptn.getPhuongTien() != null) ? ptn.getPhuongTien().getBienSoXe() : "";
+                                hoaDonBUS.taoHoaDonDichVuTuPhieuTiepNhan(
+                                        ptn.getMaTiepNhan(),
+                                        nvLeTan != null ? nvLeTan : ptn.getNhanVien(),
+                                        null,
+                                        "Thanh toán dịch vụ xe " + bienSo
+                                );
+                            }
+                        } catch (Exception ignored) {
+                            // Bỏ qua nếu phiếu tiếp nhận chưa có báo giá phù hợp
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+
             List<HoaDon> tatCa = hoaDonBUS.layTatCa();
             dsHoaDonCho.clear();
             for (HoaDon hd : tatCa) {
@@ -744,6 +764,54 @@ public class LeTanManHinhLapHoaDonThanhToan extends JPanel {
             JOptionPane.showMessageDialog(this,
                     "Không thể tải danh sách hóa đơn chờ: " + ex.getMessage(),
                     "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Tự động tìm và chọn một hóa đơn cụ thể theo mã hóa đơn
+     */
+    public void chonHoaDonTheoMa(String maHoaDon) {
+        if (maHoaDon == null || maHoaDon.trim().isEmpty()) return;
+
+        if (txtTimKiem != null) txtTimKiem.setText("");
+        if (cboNguonDon != null) cboNguonDon.setSelectedIndex(0);
+
+        taiDanhSachHoaDonCho();
+
+        for (int i = 0; i < dsHoaDonCho.size(); i++) {
+            HoaDon hd = dsHoaDonCho.get(i);
+            if (maHoaDon.equalsIgnoreCase(hd.getMaHoaDon())) {
+                if (i < bangHoaDonCho.getRowCount()) {
+                    bangHoaDonCho.setRowSelectionInterval(i, i);
+                    bangHoaDonCho.scrollRectToVisible(bangHoaDonCho.getCellRect(i, 0, true));
+                }
+                chonHoaDon(hd);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Tự động tìm và chọn hóa đơn gắn với phiếu tiếp nhận
+     */
+    public void chonHoaDonTheoPhieuTiepNhan(String maTiepNhan) {
+        if (maTiepNhan == null || maTiepNhan.trim().isEmpty()) return;
+
+        if (txtTimKiem != null) txtTimKiem.setText("");
+        if (cboNguonDon != null) cboNguonDon.setSelectedIndex(0);
+
+        taiDanhSachHoaDonCho();
+
+        for (int i = 0; i < dsHoaDonCho.size(); i++) {
+            HoaDon hd = dsHoaDonCho.get(i);
+            if (hd.getPhieuTiepNhan() != null && maTiepNhan.equalsIgnoreCase(hd.getPhieuTiepNhan().getMaTiepNhan())) {
+                if (i < bangHoaDonCho.getRowCount()) {
+                    bangHoaDonCho.setRowSelectionInterval(i, i);
+                    bangHoaDonCho.scrollRectToVisible(bangHoaDonCho.getCellRect(i, 0, true));
+                }
+                chonHoaDon(hd);
+                return;
+            }
         }
     }
 
@@ -1190,7 +1258,11 @@ public class LeTanManHinhLapHoaDonThanhToan extends JPanel {
         private boolean hover = false;
 
         NutVienDo(String chu) {
-            super(chu);
+            this(chu, null);
+        }
+
+        NutVienDo(String chu, Icon icon) {
+            super(chu, icon);
             setFocusPainted(false);
             setBorderPainted(false);
             setContentAreaFilled(false);
@@ -1264,7 +1336,11 @@ public class LeTanManHinhLapHoaDonThanhToan extends JPanel {
         private boolean hover = false;
 
         NutXanhXacNhan(String chu) {
-            super(chu);
+            this(chu, null);
+        }
+
+        NutXanhXacNhan(String chu, Icon icon) {
+            super(chu, icon);
             setFocusPainted(false);
             setBorderPainted(false);
             setContentAreaFilled(false);
