@@ -3,12 +3,9 @@ package ui;
 import bus.KhachHangBUS;
 import bus.PhuongTienBUS;
 import entity.KhachHang;
-import entity.PhuongTien;
 import util.IconUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -41,7 +38,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -54,10 +50,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -110,12 +102,14 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
 
     // Thành phần hồ sơ khách hàng bên phải
     private JLabel lblTenKhachHangTieuDe;
-    private BadgeVienXanh lblBadgeMaKH;
     private JTextField txtMaKhachHang;
     private JComboBox<String> cboGioiTinhForm;
     private JTextField txtHoTen;
     private JTextField txtSoDienThoai;
     private JTextField txtDiaChi;
+    private NutVienTrang btnLamMoiForm;
+    private NutCapNhat btnCapNhat;
+    private NutCamThem btnThemKhachHang;
 
     public QuanLyManHinhQuanLyKhachHang() {
         khoiTaoGiaoDien();
@@ -413,7 +407,7 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
         gbc.anchor = GridBagConstraints.NORTHWEST;
         int dong = 0;
 
-        // Hàng đầu thẻ bên phải: Tên khách hàng bên trái + Pill Mã KH bên phải
+        // Hàng đầu thẻ bên phải: Tên khách hàng bên trái (đã bỏ tag mã KH ở góc phải theo yêu cầu)
         JPanel dauForm = new JPanel(new BorderLayout(8, 0));
         dauForm.setOpaque(false);
 
@@ -421,10 +415,7 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
         lblTenKhachHangTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblTenKhachHangTieuDe.setForeground(MAU_XANH_DAM);
 
-        lblBadgeMaKH = new BadgeVienXanh("KH000000001", MAU_CHU_BADGE);
-
         dauForm.add(lblTenKhachHangTieuDe, BorderLayout.WEST);
-        dauForm.add(lblBadgeMaKH, BorderLayout.EAST);
 
         gbc.gridy = dong++;
         gbc.insets = new Insets(0, 0, 14, 0);
@@ -505,21 +496,28 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
         gbc.insets = new Insets(0, 0, 14, 0);
         khoiForm.add(taoKhoiNhanVaO("Địa chỉ:", txtDiaChi), gbc);
 
-        // Dòng 5: Cụm nút "Làm mới form" & "Lưu Thông Tin"
+        // Dòng 5: Cụm nút "Làm mới form", "Cập nhật" & "Thêm" (màu cam)
         JPanel hangNut = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         hangNut.setOpaque(false);
 
-        NutVienTrang btnLamMoiForm = new NutVienTrang("Làm mới form");
+        btnLamMoiForm = new NutVienTrang("Làm mới form");
         btnLamMoiForm.addActionListener(e -> lamMoiForm());
 
-        NutXanhLuu btnLuuThongTin = new NutXanhLuu(
-                "Lưu Thông Tin",
+        btnCapNhat = new NutCapNhat(
+                "Cập nhật",
                 IconUtil.layIcon("save.png", 14, 14, Color.WHITE)
         );
-        btnLuuThongTin.addActionListener(e -> xuLyLuuThongTinKhachHang());
+        btnCapNhat.addActionListener(e -> xuLyCapNhatKhachHang());
+
+        btnThemKhachHang = new NutCamThem(
+                "Thêm",
+                IconUtil.layIcon("plus.png", 14, 14, Color.WHITE)
+        );
+        btnThemKhachHang.addActionListener(e -> xuLyThemKhachHang());
 
         hangNut.add(btnLamMoiForm);
-        hangNut.add(btnLuuThongTin);
+        hangNut.add(btnCapNhat);
+        hangNut.add(btnThemKhachHang);
 
         gbc.gridy = dong++;
         gbc.insets = new Insets(4, 0, 10, 0);
@@ -684,7 +682,6 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
         }
         this.khachHangDangChon = kh;
         lblTenKhachHangTieuDe.setText(kh.getHoTen() != null ? kh.getHoTen() : "Hồ Sơ Khách Hàng");
-        lblBadgeMaKH.setText(kh.getMaKhachHang());
 
         txtMaKhachHang.setText(kh.getMaKhachHang());
         txtHoTen.setText(kh.getHoTen() != null ? kh.getHoTen() : "");
@@ -698,6 +695,14 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
             cboGioiTinhForm.setSelectedItem("Khác");
         } else {
             cboGioiTinhForm.setSelectedItem("Nam");
+        }
+
+        // Bấm xem chi tiết: nút thêm màu cam mờ xuống, nút cập nhật sáng rõ
+        if (btnThemKhachHang != null) {
+            btnThemKhachHang.setEnabled(false);
+        }
+        if (btnCapNhat != null) {
+            btnCapNhat.setEnabled(true);
         }
     }
 
@@ -733,16 +738,24 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
         }
 
         lblTenKhachHangTieuDe.setText("Thêm Khách Hàng Mới");
-        lblBadgeMaKH.setText(maDuKien);
         txtMaKhachHang.setText(maDuKien);
         cboGioiTinhForm.setSelectedIndex(0);
         txtHoTen.setText("");
         txtSoDienThoai.setText("");
         txtDiaChi.setText("");
+
+        // Form trống: nút thêm màu cam hiển thị rõ để có thể điền thông tin và thêm, nút cập nhật mờ xuống
+        if (btnThemKhachHang != null) {
+            btnThemKhachHang.setEnabled(true);
+        }
+        if (btnCapNhat != null) {
+            btnCapNhat.setEnabled(false);
+        }
+
         txtHoTen.requestFocus();
     }
 
-    private void xuLyLuuThongTinKhachHang() {
+    private void xuLyThemKhachHang() {
         try {
             String hoTen = txtHoTen.getText() != null ? txtHoTen.getText().trim() : "";
             String sdt = txtSoDienThoai.getText() != null ? txtSoDienThoai.getText().trim() : "";
@@ -775,10 +788,72 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
                             "Đã cập nhật thông tin khách hàng [" + hoTen + "] thành công!",
                             "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 }
+            if (hoTen.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập họ và tên khách hàng!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+                txtHoTen.requestFocus();
+                return;
+            }
+            if (sdt.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại khách hàng!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+                txtSoDienThoai.requestFocus();
+                return;
+            }
+
+            KhachHang khMoi = new KhachHang();
+            khMoi.setHoTen(hoTen);
+            khMoi.setSoDienThoai(sdt);
+            khMoi.setDiaChi(diaChi);
+            khMoi.setGioiTinh(gioiTinh);
+
+            if (khachHangBUS.themKhachHang(khMoi)) {
+                this.khachHangDangChon = khMoi;
+                lamMoiDuLieu();
+                JOptionPane.showMessageDialog(this,
+                        "Đã thêm hồ sơ khách hàng [" + khMoi.getHoTen() + "] thành công!",
+                        "Thành công", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(),
-                    "Không thể lưu thông tin khách hàng", JOptionPane.WARNING_MESSAGE);
+                    "Không thể thêm khách hàng", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void xuLyCapNhatKhachHang() {
+        if (khachHangDangChon == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng cần cập nhật từ danh sách!", "Chưa chọn khách hàng", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            String hoTen = txtHoTen.getText() != null ? txtHoTen.getText().trim() : "";
+            String sdt = txtSoDienThoai.getText() != null ? txtSoDienThoai.getText().trim() : "";
+            String diaChi = txtDiaChi.getText() != null ? txtDiaChi.getText().trim() : "";
+            String gioiTinh = (String) cboGioiTinhForm.getSelectedItem();
+
+            if (hoTen.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Họ và tên không được để trống!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+                txtHoTen.requestFocus();
+                return;
+            }
+            if (sdt.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không được để trống!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+                txtSoDienThoai.requestFocus();
+                return;
+            }
+
+            khachHangDangChon.setHoTen(hoTen);
+            khachHangDangChon.setSoDienThoai(sdt);
+            khachHangDangChon.setDiaChi(diaChi);
+            khachHangDangChon.setGioiTinh(gioiTinh);
+
+            if (khachHangBUS.capNhatKhachHang(khachHangDangChon)) {
+                lamMoiDuLieu();
+                JOptionPane.showMessageDialog(this,
+                        "Đã cập nhật thông tin khách hàng [" + hoTen + "] thành công!",
+                        "Cập nhật thành công", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(),
+                    "Không thể cập nhật khách hàng", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -1067,12 +1142,14 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
     }
 
     /**
-     * Nút màu xanh ngọc "💾 Lưu Thông Tin" đúng như thiết kế ảnh mẫu.
+     * Nút "Cập Nhật" (xanh ngọc).
+     * Khi xem chi tiết: sáng rõ để lưu sửa đổi.
+     * Khi form trống: mờ xuống (disabled).
      */
-    private static class NutXanhLuu extends JButton {
+    private static class NutCapNhat extends JButton {
         private boolean hover = false;
 
-        NutXanhLuu(String chu, Icon icon) {
+        NutCapNhat(String chu, Icon icon) {
             super(chu, icon);
             setFocusPainted(false);
             setBorderPainted(false);
@@ -1082,13 +1159,15 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
             setForeground(Color.WHITE);
             setIconTextGap(6);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setBorder(new EmptyBorder(7, 15, 7, 15));
+            setBorder(new EmptyBorder(7, 14, 7, 14));
 
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent e) {
-                    hover = true;
-                    repaint();
+                    if (isEnabled()) {
+                        hover = true;
+                        repaint();
+                    }
                 }
 
                 @Override
@@ -1109,7 +1188,78 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(hover ? MAU_XANH_LUU_HOVER : MAU_XANH_LUU);
+            if (isEnabled()) {
+                g2.setColor(hover ? MAU_XANH_LUU_HOVER : MAU_XANH_LUU);
+                setForeground(Color.WHITE);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            } else {
+                g2.setColor(new Color(226, 232, 240));
+                setForeground(new Color(148, 163, 184));
+                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+            g2.fill(new RoundRectangle2D.Float(0.5f, 0.5f, getWidth() - 1f, getHeight() - 1f, 8f, 8f));
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    }
+
+    /**
+     * Nút màu cam "Thêm" khách hàng.
+     * Khi xem chi tiết (chọn dòng): nút mờ xuống (disabled).
+     * Khi form trống (thêm mới): nút màu cam hiển thị rõ ràng (enabled).
+     */
+    private static class NutCamThem extends JButton {
+        private boolean hover = false;
+
+        NutCamThem(String chu, Icon icon) {
+            super(chu, icon);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+            setOpaque(false);
+            setFont(new Font("Segoe UI", Font.BOLD, 12));
+            setForeground(Color.WHITE);
+            setIconTextGap(6);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setBorder(new EmptyBorder(7, 16, 7, 16));
+
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    if (isEnabled()) {
+                        hover = true;
+                        repaint();
+                    }
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    hover = false;
+                    repaint();
+                }
+            });
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            Dimension d = super.getPreferredSize();
+            return new Dimension(d.width, 33);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            if (isEnabled()) {
+                g2.setColor(hover ? new Color(244, 124, 48) : MAU_CAM_CHU_DAO);
+                setForeground(Color.WHITE);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            } else {
+                // Mờ xuống khi xem chi tiết khách hàng
+                g2.setColor(new Color(253, 186, 116, 130));
+                setForeground(new Color(255, 255, 255, 160));
+                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
             g2.fill(new RoundRectangle2D.Float(0.5f, 0.5f, getWidth() - 1f, getHeight() - 1f, 8f, 8f));
             g2.dispose();
             super.paintComponent(g);

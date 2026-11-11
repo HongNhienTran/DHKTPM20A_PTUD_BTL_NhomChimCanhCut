@@ -55,10 +55,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -790,8 +786,7 @@ public class QuanLyManHinhQuanLyMaKhuyenMai extends JPanel {
         p.setOpaque(false);
         p.add(spinner, BorderLayout.CENTER);
 
-        JButton btnLich = new JButton("📅");
-        btnLich.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 12));
+        JButton btnLich = new JButton(IconUtil.layIcon("history.png", 14, 14, MAU_CHU_CHINH));
         btnLich.setPreferredSize(new Dimension(34, 34));
         btnLich.setFocusPainted(false);
         btnLich.setBackground(Color.WHITE);

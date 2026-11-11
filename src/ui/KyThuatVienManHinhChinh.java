@@ -2,6 +2,7 @@ package ui;
 
 import bus.ChiTietDungPhuTungBUS;
 import bus.PhieuPhanCongBUS;
+import bus.PhieuTiepNhanBUS;
 import entity.ChiTietBaoGia;
 import entity.ChiTietDungPhuTung;
 import entity.DichVu;
@@ -12,6 +13,7 @@ import entity.PhieuTiepNhan;
 import entity.PhuongTien;
 import entity.SanPham;
 import entity.TaiKhoan;
+import enums.TrangThaiPhieuTiepNhan;
 import enums.TrangThaiSua;
 import util.ChonNgayLichUtil;
 import util.IconUtil;
@@ -64,9 +66,7 @@ import java.awt.LayoutManager;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
@@ -169,6 +169,9 @@ public class KyThuatVienManHinhChinh extends JFrame {
     private JTextArea txtGhiChuThiCong;
     private DefaultTableModel modelBangPhuTung;
     private JTable tblPhuTungSuDung;
+    private KyThuatVienManHinhKiemTraXe manHinhKiemTraXe;
+    private LeTanManHinhTraCuuSanPham manHinhTraCuuPhuTung;
+    private KyThuatVienManHinhNhatKyCongViec manHinhNhatKyCongViec;
 
     public KyThuatVienManHinhChinh() {
         this(null);
@@ -231,23 +234,15 @@ public class KyThuatVienManHinhChinh extends JFrame {
         cumTraiVaMenu.add(btnCaSuaPhanCong);
         cumTraiVaMenu.add(Box.createHorizontalStrut(10));
 
-        // Danh mục 2: Vật tư & Phụ tùng
-        btnVatTuPhuTung = new NutDieuHuongHeader("Vật tư & Phụ tùng", LoaiBieuTuong.THE_PHU_TUNG, true);
-        JPopupMenu popupVatTu = taoPopupDanhMuc(
-                "VẬT TƯ & PHỤ TÙNG",
-                new ThongTinMucCon(MAN_TRA_CUU_PHU_TUNG, "Tra cứu phụ tùng", LoaiBieuTuong.THE_PHU_TUNG)
-        );
-        ganSuKienMoMenu(btnVatTuPhuTung, popupVatTu);
+        // Danh mục 2: Tra cứu phụ tùng (chuyển thẳng màn hình, dùng chung màn hình với Lễ tân)
+        btnVatTuPhuTung = new NutDieuHuongHeader("Tra cứu phụ tùng", LoaiBieuTuong.THE_PHU_TUNG, false);
+        btnVatTuPhuTung.addActionListener(e -> chuyenManHinh(MAN_TRA_CUU_PHU_TUNG));
         cumTraiVaMenu.add(btnVatTuPhuTung);
         cumTraiVaMenu.add(Box.createHorizontalStrut(10));
 
-        // Danh mục 3: Nhật ký công việc
-        btnNhatKyCongViec = new NutDieuHuongHeader("Nhật ký công việc", LoaiBieuTuong.NHAT_KY, true);
-        JPopupMenu popupNhatKy = taoPopupDanhMuc(
-                "NHẬT KÝ CÔNG VIỆC",
-                new ThongTinMucCon(MAN_LICH_SU_CA_SUA, "Lịch sử ca sửa hoàn tất", LoaiBieuTuong.NHAT_KY)
-        );
-        ganSuKienMoMenu(btnNhatKyCongViec, popupNhatKy);
+        // Danh mục 3: Nhật ký công việc (chuyển thẳng màn hình, không mở popup menu)
+        btnNhatKyCongViec = new NutDieuHuongHeader("Nhật ký công việc", LoaiBieuTuong.NHAT_KY, false);
+        btnNhatKyCongViec.addActionListener(e -> chuyenManHinh(MAN_LICH_SU_CA_SUA));
         cumTraiVaMenu.add(btnNhatKyCongViec);
         cumTraiVaMenu.add(Box.createHorizontalStrut(10));
 
@@ -386,9 +381,12 @@ public class KyThuatVienManHinhChinh extends JFrame {
     private void khoiTaoCacManHinhCon() {
         vungNoiDungChinh.setBackground(MAU_NEN_TRANG);
         vungNoiDungChinh.add(taoManHinhPhieuPhanCong(), MAN_PHIEU_PHAN_CONG);
-        vungNoiDungChinh.add(taoKhungChucNang("Ca sửa & Phân công", "Kiểm tra"), MAN_KIEM_TRA);
-        vungNoiDungChinh.add(taoKhungChucNang("Vật tư & Phụ tùng", "Tra cứu phụ tùng"), MAN_TRA_CUU_PHU_TUNG);
-        vungNoiDungChinh.add(taoKhungChucNang("Nhật ký công việc", "Lịch sử ca sửa hoàn tất"), MAN_LICH_SU_CA_SUA);
+        manHinhKiemTraXe = new KyThuatVienManHinhKiemTraXe(taiKhoanDangNhap);
+        vungNoiDungChinh.add(manHinhKiemTraXe, MAN_KIEM_TRA);
+        manHinhTraCuuPhuTung = new LeTanManHinhTraCuuSanPham();
+        vungNoiDungChinh.add(manHinhTraCuuPhuTung, MAN_TRA_CUU_PHU_TUNG);
+        manHinhNhatKyCongViec = new KyThuatVienManHinhNhatKyCongViec(taiKhoanDangNhap);
+        vungNoiDungChinh.add(manHinhNhatKyCongViec, MAN_LICH_SU_CA_SUA);
     }
 
     /**
@@ -555,6 +553,7 @@ public class KyThuatVienManHinhChinh extends JFrame {
 
         cboTrangThai = new JComboBox<>(new String[]{
                 "Trạng thái",
+                TrangThaiSua.KIEM_TRA.getTenHienThi(),
                 TrangThaiSua.CHO_THUC_HIEN.getTenHienThi(),
                 TrangThaiSua.DANG_SUA.getTenHienThi(),
                 TrangThaiSua.HOAN_THANH.getTenHienThi()
@@ -624,7 +623,7 @@ public class KyThuatVienManHinhChinh extends JFrame {
             apDungBoLocDanhSach();
         });
 
-        JMenuItem mucChonLich = new JMenuItem("📅 Chọn ngày trên lịch...");
+        JMenuItem mucChonLich = new JMenuItem("Chọn ngày trên lịch...", IconUtil.layIcon("history.png", 14, 14, MAU_XANH_DAM));
         mucChonLich.addActionListener(e -> {
             ChonNgayLichUtil.KetQuaChonNgay kq = ChonNgayLichUtil.hienThiLichChonNgay(
                     this, "Chọn Ngày Lọc Phiếu Phân Công", ngayLocCuThe != null ? ngayLocCuThe : LocalDate.now(), true
@@ -832,10 +831,10 @@ public class KyThuatVienManHinhChinh extends JFrame {
         hangNutTienDo.setAlignmentX(Component.LEFT_ALIGNMENT);
         hangNutTienDo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
 
-        btnBatDauSua = new NutHanhDongTienDo("▶  Bắt đầu sửa", MAU_CAM_CHU_DAO, MAU_CAM_HOVER, new Color(245, 180, 140));
+        btnBatDauSua = new NutHanhDongTienDo(" Bắt đầu sửa", IconUtil.layIcon("wrench.png", 14, 14, Color.WHITE), MAU_CAM_CHU_DAO, MAU_CAM_HOVER, new Color(245, 180, 140));
         btnBatDauSua.addActionListener(e -> xuLyBatDauSua());
 
-        btnHoanThanhSua = new NutHanhDongTienDo("✓  Hoàn thành", MAU_XANH_LA, new Color(5, 150, 105), MAU_XANH_LA_MO);
+        btnHoanThanhSua = new NutHanhDongTienDo(" Hoàn thành", IconUtil.layIcon("check.png", 14, 14, Color.WHITE), MAU_XANH_LA, new Color(5, 150, 105), MAU_XANH_LA_MO);
         btnHoanThanhSua.addActionListener(e -> xuLyHoanThanhSua());
 
         hangNutTienDo.add(btnBatDauSua);
@@ -998,7 +997,7 @@ public class KyThuatVienManHinhChinh extends JFrame {
 
         for (PhieuPhanCong ppc : danhSachPhanCongGoc) {
             TrangThaiSua tt = ppc.getTrangThaiSua();
-            if (tt == TrangThaiSua.CHO_THUC_HIEN) {
+            if (tt == TrangThaiSua.KIEM_TRA || tt == TrangThaiSua.CHO_THUC_HIEN) {
                 choKiemTra++;
             } else if (tt == TrangThaiSua.DANG_SUA) {
                 dangThiCong++;
@@ -1030,13 +1029,16 @@ public class KyThuatVienManHinhChinh extends JFrame {
 
         for (PhieuPhanCong ppc : danhSachPhanCongGoc) {
             // 1. Lọc theo trạng thái
-            if (chiMucTrangThai == 1 && ppc.getTrangThaiSua() != TrangThaiSua.CHO_THUC_HIEN) {
+            if (chiMucTrangThai == 1 && ppc.getTrangThaiSua() != TrangThaiSua.KIEM_TRA) {
                 continue;
             }
-            if (chiMucTrangThai == 2 && ppc.getTrangThaiSua() != TrangThaiSua.DANG_SUA) {
+            if (chiMucTrangThai == 2 && ppc.getTrangThaiSua() != TrangThaiSua.CHO_THUC_HIEN) {
                 continue;
             }
-            if (chiMucTrangThai == 3 && ppc.getTrangThaiSua() != TrangThaiSua.HOAN_THANH) {
+            if (chiMucTrangThai == 3 && ppc.getTrangThaiSua() != TrangThaiSua.DANG_SUA) {
+                continue;
+            }
+            if (chiMucTrangThai == 4 && ppc.getTrangThaiSua() != TrangThaiSua.HOAN_THANH) {
                 continue;
             }
 
@@ -1168,7 +1170,7 @@ public class KyThuatVienManHinhChinh extends JFrame {
         txtGhiChuThiCong.setEditable(choPhepCapNhat);
 
         btnBatDauSua.setEnabled(tt == TrangThaiSua.CHO_THUC_HIEN);
-        btnHoanThanhSua.setEnabled(tt == TrangThaiSua.CHO_THUC_HIEN || tt == TrangThaiSua.DANG_SUA);
+        btnHoanThanhSua.setEnabled(tt == TrangThaiSua.CHO_THUC_HIEN || tt == TrangThaiSua.DANG_SUA || tt == TrangThaiSua.KIEM_TRA);
 
         // Nạp danh sách vật tư & phụ tùng sử dụng thực tế gắn với hạng mục báo giá
         if (ctbg != null) {
@@ -1198,7 +1200,14 @@ public class KyThuatVienManHinhChinh extends JFrame {
     }
 
     private void capNhatBadgeTrangThaiChiTiet(TrangThaiSua tt) {
-        if (tt == TrangThaiSua.DANG_SUA) {
+        if (tt == TrangThaiSua.KIEM_TRA) {
+            badgeTrangThaiChiTiet.capNhat(
+                    "KIỂM TRA",
+                    new Color(224, 242, 254),
+                    new Color(186, 230, 253),
+                    new Color(3, 105, 161)
+            );
+        } else if (tt == TrangThaiSua.DANG_SUA) {
             badgeTrangThaiChiTiet.capNhat(
                     "ĐANG SỬA",
                     new Color(255, 237, 213),
@@ -1250,8 +1259,23 @@ public class KyThuatVienManHinhChinh extends JFrame {
         String ghiChuLuu = !ghiChuThiCong.isEmpty() ? ghiChuThiCong : ketLuan;
 
         try {
+            PhieuTiepNhan ptnTruoc = phieuDangChon.layPhieuTiepNhan();
+            String maTN = (ptnTruoc != null) ? ptnTruoc.getMaTiepNhan() : null;
+
             boolean ok = phieuPhanCongBUS.hoanThanhSua(phieuDangChon.getMaPhanCong(), ghiChuLuu);
             if (ok) {
+                String thongBao = "✓ Xác nhận hoàn tất ca sửa [" + phieuDangChon.getMaPhanCong() + "] thành công!";
+                if (maTN != null) {
+                    PhieuTiepNhanBUS ptBUS = new PhieuTiepNhanBUS();
+                    PhieuTiepNhan ptnSau = ptBUS.timTheoMa(maTN);
+                    if (ptnSau != null && ptnSau.getTrangThai() == TrangThaiPhieuTiepNhan.HOAN_THANH) {
+                        String bienSo = (ptnSau.getPhuongTien() != null && ptnSau.getPhuongTien().getBienSoXe() != null)
+                                ? ptnSau.getPhuongTien().getBienSoXe() : "";
+                        thongBao += "\n\n🎉 Toàn bộ các phân công của xe [" + bienSo + "] đã hoàn thành!" +
+                                "\nPhiếu tiếp nhận đã tự động chuyển sang trạng thái [Hoàn Thành - Chờ Bàn Giao].";
+                    }
+                }
+                JOptionPane.showMessageDialog(this, thongBao, "Hoàn tất nhiệm vụ", JOptionPane.INFORMATION_MESSAGE);
                 lamMoiDuLieuPhanCong();
             }
         } catch (RuntimeException ex) {
@@ -1405,6 +1429,12 @@ public class KyThuatVienManHinhChinh extends JFrame {
         this.maManHinhHienTai = maManHinh;
         if (MAN_PHIEU_PHAN_CONG.equals(maManHinh)) {
             lamMoiDuLieuPhanCong();
+        } else if (MAN_KIEM_TRA.equals(maManHinh) && manHinhKiemTraXe != null) {
+            manHinhKiemTraXe.taiLaiDanhSachXe();
+        } else if (MAN_TRA_CUU_PHU_TUNG.equals(maManHinh) && manHinhTraCuuPhuTung != null) {
+            manHinhTraCuuPhuTung.lamMoiDuLieu();
+        } else if (MAN_LICH_SU_CA_SUA.equals(maManHinh) && manHinhNhatKyCongViec != null) {
+            manHinhNhatKyCongViec.taiLaiDuLieu();
         }
         boCucManHinhCon.show(vungNoiDungChinh, maManHinh);
 
@@ -1760,7 +1790,11 @@ public class KyThuatVienManHinhChinh extends JFrame {
         private boolean dangTroChuot = false;
 
         NutHanhDongTienDo(String chuoi, Color mauNen, Color mauHover, Color mauVoHieu) {
-            super(chuoi);
+            this(chuoi, null, mauNen, mauHover, mauVoHieu);
+        }
+
+        NutHanhDongTienDo(String chuoi, Icon icon, Color mauNen, Color mauHover, Color mauVoHieu) {
+            super(chuoi, icon);
             this.mauNen = mauNen;
             this.mauHover = mauHover;
             this.mauVoHieu = mauVoHieu;

@@ -1,5 +1,12 @@
 package ui;
 
-public class LeTanManHinhHoSoKhachHang {
-    //Dùng chung với quản lý, ở class QuanLyManHinhQuanLyKhachHang
+/**
+ * Màn hình Hồ Sơ Khách Hàng dành cho Lễ tân.
+ * Kế thừa và sử dụng chung trực tiếp màn hình Quản Lý Khách Hàng (QuanLyManHinhQuanLyKhachHang).
+ */
+public class LeTanManHinhHoSoKhachHang extends QuanLyManHinhQuanLyKhachHang {
+
+    public LeTanManHinhHoSoKhachHang() {
+        super();
+    }
 }

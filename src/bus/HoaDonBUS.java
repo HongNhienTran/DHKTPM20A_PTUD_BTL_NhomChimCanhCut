@@ -120,11 +120,20 @@ public class HoaDonBUS {
                 throw new IllegalArgumentException("Sản phẩm không tồn tại hoặc ngừng kinh doanh: "
                         + ct.getSanPham().getMaSanPham());
             }
-            if (spKho.getSoLuongTon() < ct.getSoLuong()) {
-                throw new IllegalStateException("Sản phẩm '" + spKho.getTenSanPham()
-                        + "' không đủ tồn kho (còn " + spKho.getSoLuongTon() + ", cần " + ct.getSoLuong() + ")");
+
+            if (ct.getSoLuong() <= 0) {
+                throw new IllegalArgumentException(
+                        "Số lượng bán phải lớn hơn 0: " + spKho.getTenSanPham()
+                );
             }
-            spKho.setSoLuongTon(spKho.getSoLuongTon() - ct.getSoLuong());
+
+            if (spKho.getSoLuongTon() < ct.getSoLuong()) {
+                throw new IllegalStateException(
+                        "Sản phẩm '" + spKho.getTenSanPham()
+                                + "' không đủ tồn kho (còn " + spKho.getSoLuongTon()
+                                + ", cần " + ct.getSoLuong() + ")"
+                );
+            }
             ct.setSanPham(spKho);
             ct.setHoaDon(hd);
         }
@@ -144,8 +153,15 @@ public class HoaDonBUS {
         }
 
         PhieuBaoGia pbg = phieuBaoGiaDAO.timMoiNhatTheoTiepNhan(maTiepNhan);
-        if (pbg == null || pbg.getTrangThai() != TrangThaiBaoGia.DA_CHAP_THUAN) {
-            throw new IllegalStateException("Phiếu tiếp nhận chưa có báo giá được khách hàng chấp thuận");
+        if (pbg == null) {
+            throw new IllegalStateException("Phiếu tiếp nhận " + maTiepNhan + " chưa có báo giá để lập hóa đơn");
+        }
+        if (pbg.getTrangThai() != TrangThaiBaoGia.DA_CHAP_THUAN) {
+            for (ChiTietBaoGia ctbg : pbg.getDanhSachChiTiet()) {
+                ctbg.setDuocChapNhan(true);
+            }
+            pbg.setTrangThai(TrangThaiBaoGia.DA_CHAP_THUAN);
+            phieuBaoGiaDAO.capNhat(pbg);
         }
 
         KhachHang kh = ptn.getPhuongTien().getKhachHang();
@@ -247,7 +263,7 @@ public class HoaDonBUS {
         if (daThanhToan && hd.getPhieuTiepNhan() != null) {
             phieuTiepNhanDAO.capNhatTrangThai(
                     hd.getPhieuTiepNhan().getMaTiepNhan(),
-                    TrangThaiPhieuTiepNhan.HOAN_THANH
+                    TrangThaiPhieuTiepNhan.THANH_TOAN
             );
         }
         return daThanhToan;

@@ -1,10 +1,12 @@
 package bus;
 
+import dao.DichVuDAO;
 import dao.NhanVienDAO;
 import dao.PhieuBaoGiaDAO;
 import dao.PhieuTiepNhanDAO;
 import entity.ChiTietBaoGia;
 import entity.ChiTietDungPhuTung;
+import entity.DichVu;
 import entity.NhanVien;
 import entity.PhieuBaoGia;
 import entity.PhieuTiepNhan;
@@ -13,6 +15,7 @@ import enums.TrangThaiBaoGia;
 import enums.TrangThaiPhieuTiepNhan;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +24,7 @@ public class PhieuBaoGiaBUS {
     private final PhieuBaoGiaDAO phieuBaoGiaDAO = new PhieuBaoGiaDAO();
     private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
+    private final DichVuDAO dichVuDAO = new DichVuDAO();
 
     public String taoMaBaoGia(String maTiepNhan, int soThuTu) {
         if (maTiepNhan == null || !maTiepNhan.matches("^" + PhieuTiepNhan.REGEX_MA_TIEP_NHAN + "$")) {
@@ -83,12 +87,13 @@ public class PhieuBaoGiaBUS {
                     + pbg.getPhieuTiepNhan().getMaTiepNhan());
         }
         if (ptn.getTrangThai() == TrangThaiPhieuTiepNhan.DA_HUY
-                || ptn.getTrangThai() == TrangThaiPhieuTiepNhan.HOAN_THANH) {
-            throw new IllegalStateException("Không thể lập báo giá cho phiếu tiếp nhận đã hủy hoặc đã hoàn thành");
+                || ptn.getTrangThai() == TrangThaiPhieuTiepNhan.HOAN_THANH
+                || ptn.getTrangThai() == TrangThaiPhieuTiepNhan.THANH_TOAN) {
+            throw new IllegalStateException("Không thể lập báo giá cho phiếu tiếp nhận đã hủy, đã hoàn thành hoặc đã thanh toán");
         }
         NhanVien nv = nhanVienDAO.timTheoMa(pbg.getNhanVien().getMaNhanVien());
-        if (nv == null || !nv.isTrangThai() || nv.getChucVu() != ChucVu.KY_THUAT_VIEN) {
-            throw new IllegalArgumentException("Nhân viên lập phiếu báo giá phải là Kỹ thuật viên đang làm việc");
+        if (nv == null || !nv.isTrangThai() || (nv.getChucVu() != ChucVu.KY_THUAT_VIEN && nv.getChucVu() != ChucVu.LE_TAN && nv.getChucVu() != ChucVu.QUAN_LY)) {
+            throw new IllegalArgumentException("Nhân viên lập phiếu báo giá phải là Kỹ thuật viên hoặc Lễ tân đang làm việc");
         }
 
         if (pbg.getThoiGianLap() == null) {
@@ -117,6 +122,109 @@ public class PhieuBaoGiaBUS {
             phieuTiepNhanDAO.capNhatTrangThai(ptn.getMaTiepNhan(), TrangThaiPhieuTiepNhan.CHO_XAC_NHAN_BAO_GIA);
         }
         return daLuu;
+    }
+
+    public PhieuBaoGia khoiTaoBaoGiaBanDau(PhieuTiepNhan ptn, NhanVien nvLap, List<DichVu> dsDichVu) {
+        if (ptn == null) {
+            return null;
+        }
+        PhieuBaoGia pbg = new PhieuBaoGia();
+        pbg.setPhieuTiepNhan(ptn);
+        pbg.setNhanVien(nvLap != null ? nvLap : ptn.getNhanVien());
+        pbg.setThoiGianLap(LocalDateTime.now());
+        pbg.setTrangThai(TrangThaiBaoGia.CHO_XAC_NHAN);
+        pbg.setMaBaoGia(phatSinhMaBaoGia(ptn.getMaTiepNhan()));
+        pbg.setGhiChu("Báo giá dịch vụ khách yêu cầu ban đầu");
+
+        List<ChiTietBaoGia> dsCT = new ArrayList<>();
+        boolean coDV000 = false;
+        if (dsDichVu != null) {
+            for (DichVu dv : dsDichVu) {
+                if ("DV000".equalsIgnoreCase(dv.getMaDichVu())) {
+                    coDV000 = true;
+                }
+                ChiTietBaoGia ct = new ChiTietBaoGia(dv.getDonGia(), false, "", pbg, dv);
+                dsCT.add(ct);
+            }
+        }
+
+        // Nếu xe đang ở trạng thái DANG_KIEM_TRA và chưa có DV000, thêm DV000 vào đầu bảng báo giá
+        if (ptn.getTrangThai() == TrangThaiPhieuTiepNhan.DANG_KIEM_TRA && !coDV000) {
+            try {
+                DichVu dv000 = dichVuDAO.timTheoMa("DV000");
+                if (dv000 != null) {
+                    ChiTietBaoGia ctKiemTra = new ChiTietBaoGia(dv000.getDonGia(), false, "Khảo sát và chẩn đoán tổng quát", pbg, dv000);
+                    dsCT.add(0, ctKiemTra);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        pbg.setDanhSachChiTiet(dsCT);
+        phieuBaoGiaDAO.them(pbg);
+        return pbg;
+    }
+
+    public boolean capNhatBaoGiaKTV(PhieuBaoGia pbg) {
+        return guiKetQuaKiemTraVaBaoGia(pbg, pbg != null ? pbg.getGhiChu() : null);
+    }
+
+    /**
+     * Kỹ thuật viên gửi kết quả kiểm tra & bảng báo giá đề xuất lên cho Lễ tân:
+     * 1. Cập nhật / Lưu phiếu báo giá cùng danh sách dịch vụ và phụ tùng đề xuất.
+     * 2. Hoàn thành nhiệm vụ phân công kiểm tra xe (TrangThaiSua.KIEM_TRA -> HOAN_THANH).
+     * 3. Chuyển trạng thái phiếu tiếp nhận sang CHO_XAC_NHAN_BAO_GIA (để Lễ tân báo giá cho khách).
+     * Tuyệt đối không chuyển sang HOAN_THANH hay THANH_TOAN.
+     */
+    public boolean guiKetQuaKiemTraVaBaoGia(PhieuBaoGia pbg, String ketLuanKiemTra) {
+        if (pbg == null || pbg.getMaBaoGia() == null) {
+            throw new IllegalArgumentException("Phiếu báo giá không hợp lệ");
+        }
+        if (pbg.getPhieuTiepNhan() == null || pbg.getPhieuTiepNhan().getMaTiepNhan() == null) {
+            throw new IllegalArgumentException("Phiếu báo giá phải gắn với phiếu tiếp nhận hợp lệ");
+        }
+
+        String maTiepNhan = pbg.getPhieuTiepNhan().getMaTiepNhan();
+        PhieuTiepNhan ptn = phieuTiepNhanDAO.timTheoMa(maTiepNhan);
+        if (ptn == null) {
+            throw new IllegalArgumentException("Không tìm thấy phiếu tiếp nhận: " + maTiepNhan);
+        }
+        if (ptn.getTrangThai() == TrangThaiPhieuTiepNhan.DA_HUY
+                || ptn.getTrangThai() == TrangThaiPhieuTiepNhan.HOAN_THANH
+                || ptn.getTrangThai() == TrangThaiPhieuTiepNhan.THANH_TOAN) {
+            throw new IllegalStateException("Không thể gửi báo giá cho phiếu tiếp nhận đã kết thúc");
+        }
+
+        for (ChiTietBaoGia ctbg : pbg.getDanhSachChiTiet()) {
+            ctbg.setPhieuBaoGia(pbg);
+            for (ChiTietDungPhuTung pt : ctbg.getDanhSachPhuTung()) {
+                pt.setChiTietBaoGia(ctbg);
+            }
+        }
+
+        pbg.setTrangThai(TrangThaiBaoGia.CHO_XAC_NHAN);
+        if (ketLuanKiemTra != null && !ketLuanKiemTra.trim().isEmpty()) {
+            pbg.setGhiChu(ketLuanKiemTra.trim());
+        }
+
+        boolean ok;
+        if (phieuBaoGiaDAO.timTheoMa(pbg.getMaBaoGia()) == null) {
+            ok = phieuBaoGiaDAO.them(pbg);
+        } else {
+            ok = phieuBaoGiaDAO.capNhat(pbg);
+        }
+
+        if (!ok) {
+            return false;
+        }
+
+        // Hoàn tất nhiệm vụ kiểm tra xe (nếu có)
+        new PhieuPhanCongBUS().hoanThanhKiemTraXe(maTiepNhan, ketLuanKiemTra);
+
+        // Chuyển trạng thái phiếu tiếp nhận sang Chờ xác nhận báo giá
+        phieuTiepNhanDAO.capNhatTrangThai(maTiepNhan, TrangThaiPhieuTiepNhan.CHO_XAC_NHAN_BAO_GIA);
+
+        return true;
     }
 
     public boolean duyetBaoGia(String maBaoGia, List<String> dsMaDichVuChapNhan) {
@@ -196,7 +304,14 @@ public class PhieuBaoGiaBUS {
         for (ChiTietBaoGia ct : pbg.getDanhSachChiTiet()) {
             ct.setDuocChapNhan(false);
         }
-        return phieuBaoGiaDAO.capNhat(pbg);
+        boolean daCapNhat = phieuBaoGiaDAO.capNhat(pbg);
+        if (daCapNhat && pbg.getPhieuTiepNhan() != null) {
+            phieuTiepNhanDAO.capNhatTrangThai(
+                    pbg.getPhieuTiepNhan().getMaTiepNhan(),
+                    TrangThaiPhieuTiepNhan.DA_HUY
+            );
+        }
+        return daCapNhat;
     }
 
     public boolean xoaPhieuBaoGia(String maBaoGia) {
@@ -206,7 +321,14 @@ public class PhieuBaoGiaBUS {
         }
         pbg.tuChoi("Xóa báo giá - hoàn kho");
         phieuBaoGiaDAO.capNhat(pbg);
-        return phieuBaoGiaDAO.xoa(maBaoGia);
+        boolean daXoa = phieuBaoGiaDAO.xoa(maBaoGia);
+        if (daXoa && pbg.getPhieuTiepNhan() != null) {
+            phieuTiepNhanDAO.capNhatTrangThai(
+                    pbg.getPhieuTiepNhan().getMaTiepNhan(),
+                    TrangThaiPhieuTiepNhan.DA_HUY
+            );
+        }
+        return daXoa;
     }
 }
 
