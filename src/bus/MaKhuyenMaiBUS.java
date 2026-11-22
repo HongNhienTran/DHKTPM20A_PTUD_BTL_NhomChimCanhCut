@@ -3,6 +3,8 @@ package bus;
 import dao.MaKhuyenMaiDAO;
 import entity.MaKhuyenMai;
 
+import enums.LoaiGiamGia;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +19,24 @@ public class MaKhuyenMaiBUS {
         return tenMaKhuyenMai.trim().toUpperCase();
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Quản lý mã khuyến mãi đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<MaKhuyenMai> layTatCa() {
         return maKhuyenMaiDAO.layTatCa();
+    }
+
+    public List<MaKhuyenMai> layDanhSachPhanTrang(String tuKhoa, LoaiGiamGia loaiGiam,
+                                                   int chiSoTrangThai, int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 13 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return maKhuyenMaiDAO.layDanhSachPhanTrang(tuKhoa, loaiGiam, chiSoTrangThai, offset, sizeHopLe);
+    }
+
+    public int demTheoDieuKien(String tuKhoa, LoaiGiamGia loaiGiam, int chiSoTrangThai) {
+        return maKhuyenMaiDAO.demTheoDieuKien(tuKhoa, loaiGiam, chiSoTrangThai);
     }
 
     public MaKhuyenMai timTheoMa(String maKhuyenMai) {
@@ -107,4 +125,3 @@ public class MaKhuyenMaiBUS {
         return maKhuyenMaiDAO.xoa(maKhuyenMai.trim());
     }
 }
-

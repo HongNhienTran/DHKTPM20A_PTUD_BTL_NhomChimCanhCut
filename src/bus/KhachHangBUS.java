@@ -43,8 +43,23 @@ public class KhachHangBUS {
         return khachHangDAO.layTatCa();
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Quản lý khách hàng & Hồ sơ khách hàng đã thay thế bằng {@link #layDanhSachKhachDangKyPhanTrang}.
+     */
     public List<KhachHang> layDanhSachKhachDangKy() {
         return khachHangDAO.layDanhSachKhachDangKy();
+    }
+
+    public List<KhachHang> layDanhSachKhachDangKyPhanTrang(String tuKhoa, String gioiTinh, int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 13 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return khachHangDAO.layDanhSachKhachDangKyPhanTrang(tuKhoa, gioiTinh, offset, sizeHopLe);
+    }
+
+    public int demKhachDangKy(String tuKhoa, String gioiTinh) {
+        return khachHangDAO.demKhachDangKy(tuKhoa, gioiTinh);
     }
 
     public KhachHang timTheoMa(String maKhachHang) {

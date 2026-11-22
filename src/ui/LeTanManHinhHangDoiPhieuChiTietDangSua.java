@@ -196,10 +196,10 @@ public class LeTanManHinhHangDoiPhieuChiTietDangSua extends JDialog {
 
     private void khoiTaoGiaoDien() {
         Dimension manHinh = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        int rong = Math.min(1160, manHinh.width - 60);
-        int cao = Math.min(760, manHinh.height - 60);
+        int rong = Math.min(1260, manHinh.width - 40);
+        int cao = Math.min(840, manHinh.height - 40);
         setSize(rong, cao);
-        setMinimumSize(new Dimension(1000, 620));
+        setMinimumSize(new Dimension(1060, 660));
         setLocationRelativeTo(getOwner());
         setLayout(new BorderLayout());
         getContentPane().setBackground(MAU_NEN_CHINH);
@@ -270,11 +270,23 @@ public class LeTanManHinhHangDoiPhieuChiTietDangSua extends JDialog {
             chuXe = (kh.getHoTen() != null ? kh.getHoTen() : "-") + (kh.getSoDienThoai() != null ? " (" + kh.getSoDienThoai() + ")" : "");
         }
 
-        JLabel lblThongTinHeader = new JLabel("PHIẾU TIẾP NHẬN: " + maTN + " | BIỂN SỐ: " + bienSo + " | CHỦ XE: " + chuXe);
-        lblThongTinHeader.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblThongTinHeader.setForeground(new Color(30, 41, 59));
+        JPanel cumHeader = new JPanel();
+        cumHeader.setOpaque(false);
+        cumHeader.setLayout(new BoxLayout(cumHeader, BoxLayout.Y_AXIS));
 
-        header.add(lblThongTinHeader, BorderLayout.WEST);
+        JLabel lblTieuDeHeader = new JLabel("PHIẾU TIẾP NHẬN: " + maTN);
+        lblTieuDeHeader.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lblTieuDeHeader.setForeground(MAU_XANH_DAM);
+
+        JLabel lblThongTinHeader = new JLabel("BIỂN SỐ: " + bienSo + "   |   CHỦ XE: " + chuXe);
+        lblThongTinHeader.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblThongTinHeader.setForeground(new Color(51, 65, 85));
+
+        cumHeader.add(lblTieuDeHeader);
+        cumHeader.add(Box.createVerticalStrut(3));
+        cumHeader.add(lblThongTinHeader);
+
+        header.add(cumHeader, BorderLayout.CENTER);
         return header;
     }
 
@@ -598,7 +610,7 @@ public class LeTanManHinhHangDoiPhieuChiTietDangSua extends JDialog {
         btnBaoXongChuyenThuNgan.setBorderPainted(false);
         btnBaoXongChuyenThuNgan.setContentAreaFilled(false);
         btnBaoXongChuyenThuNgan.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnBaoXongChuyenThuNgan.setPreferredSize(new Dimension(250, 36));
+        btnBaoXongChuyenThuNgan.setPreferredSize(new Dimension(295, 40));
         btnBaoXongChuyenThuNgan.addActionListener(e -> xuLyBaoXongChuyenThuNgan());
 
         // Nút Đóng
@@ -622,7 +634,7 @@ public class LeTanManHinhHangDoiPhieuChiTietDangSua extends JDialog {
         btnDong.setBorderPainted(false);
         btnDong.setContentAreaFilled(false);
         btnDong.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnDong.setPreferredSize(new Dimension(90, 36));
+        btnDong.setPreferredSize(new Dimension(110, 40));
         btnDong.addActionListener(e -> dispose());
 
         footer.add(btnBaoXongChuyenThuNgan);

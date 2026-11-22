@@ -87,6 +87,9 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
     private JComboBox<DanhMucSanPham> cboDanhMuc;
     private JComboBox<String> cboDonViTinh;
     private JComboBox<String> cboTrangThai;
+    private JTextField txtDanhMucXem;
+    private JTextField txtDonViTinhXem;
+    private JTextField txtTrangThaiXem;
 
     private JSpinner spnGiaNhap;
     private JSpinner spnDonGiaBan;
@@ -335,9 +338,14 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
             capNhatBadgeTrangThaiHeader(dangBan);
         });
 
-        // Bố cục lưới 2 cột
+        // Bố cục lưới 2 cột (khi chiXem dùng JTextField chỉ đọc chữ đậm rõ ràng thay cho JComboBox bị mờ)
         themTruongForm(pnlForm, gbc, 0, 0, "Mã sản phẩm:", txtMaSP);
-        themTruongForm(pnlForm, gbc, 1, 0, "Danh mục (*):", cboDanhMuc);
+        if (chiXem) {
+            txtDanhMucXem = taoOVanBanChiDocRoChu();
+            themTruongForm(pnlForm, gbc, 1, 0, "Danh mục (*):", txtDanhMucXem);
+        } else {
+            themTruongForm(pnlForm, gbc, 1, 0, "Danh mục (*):", cboDanhMuc);
+        }
 
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -353,8 +361,15 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
         pnlForm.add(pnlTen, gbc);
 
         gbc.gridwidth = 1;
-        themTruongForm(pnlForm, gbc, 0, 2, "Đơn vị tính (ĐVT) (*):", cboDonViTinh);
-        themTruongForm(pnlForm, gbc, 1, 2, "Trạng thái kinh doanh:", cboTrangThai);
+        if (chiXem) {
+            txtDonViTinhXem = taoOVanBanChiDocRoChu();
+            txtTrangThaiXem = taoOVanBanChiDocRoChu();
+            themTruongForm(pnlForm, gbc, 0, 2, "Đơn vị tính (ĐVT) (*):", txtDonViTinhXem);
+            themTruongForm(pnlForm, gbc, 1, 2, "Trạng thái kinh doanh:", txtTrangThaiXem);
+        } else {
+            themTruongForm(pnlForm, gbc, 0, 2, "Đơn vị tính (ĐVT) (*):", cboDonViTinh);
+            themTruongForm(pnlForm, gbc, 1, 2, "Trạng thái kinh doanh:", cboTrangThai);
+        }
 
         noiDung.add(pnlKhungAnh, BorderLayout.WEST);
         noiDung.add(pnlForm, BorderLayout.CENTER);
@@ -367,7 +382,7 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
      * Thẻ 2: Thiết lập giá nhập, đơn giá bán và thuế VAT kèm tính toán tỷ suất lợi nhuận
      */
     private JPanel taoTheGiaVaThue() {
-        JPanel the = taoTheKhungBoGoc("2. THIẾT LẬP GIÁ BÁN, GIÁ NHẬP & THUẾ VAT");
+        JPanel the = taoTheKhungBoGoc(chiXem ? "2. THÔNG TIN GIÁ BÁN & THUẾ VAT" : "2. THIẾT LẬP GIÁ BÁN, GIÁ NHẬP & THUẾ VAT");
         JPanel noiDung = new JPanel(new BorderLayout(14, 10));
         noiDung.setOpaque(false);
 
@@ -390,11 +405,17 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
         spnDonGiaBan.addChangeListener(langNgheGia);
         spnThueVAT.addChangeListener(langNgheGia);
 
-        themTruongForm(pnlInput, gbc, 0, 0, "Giá vốn nhập kho (VNĐ):", spnGiaNhap);
-        themTruongForm(pnlInput, gbc, 1, 0, "Đơn giá bán niêm yết (VNĐ) (*):", spnDonGiaBan);
-        themTruongForm(pnlInput, gbc, 2, 0, "Thuế VAT (%):", spnThueVAT);
+        if (chiXem) {
+            // Đối với nhân viên: ẩn giá vốn nhập kho, chỉ hiển thị đơn giá bán và thuế VAT
+            themTruongForm(pnlInput, gbc, 0, 0, "Đơn giá bán niêm yết (VNĐ) (*):", spnDonGiaBan);
+            themTruongForm(pnlInput, gbc, 1, 0, "Thuế VAT (%):", spnThueVAT);
+        } else {
+            themTruongForm(pnlInput, gbc, 0, 0, "Giá vốn nhập kho (VNĐ):", spnGiaNhap);
+            themTruongForm(pnlInput, gbc, 1, 0, "Đơn giá bán niêm yết (VNĐ) (*):", spnDonGiaBan);
+            themTruongForm(pnlInput, gbc, 2, 0, "Thuế VAT (%):", spnThueVAT);
+        }
 
-        // Khung hiển thị tự động phân tích tỷ suất sinh lời
+        // Khung hiển thị tự động phân tích giá / tỷ suất sinh lời
         JPanel pnlThongKeGia = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 8));
         pnlThongKeGia.setBackground(new Color(241, 245, 249));
         pnlThongKeGia.setBorder(BorderFactory.createCompoundBorder(
@@ -411,13 +432,15 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
         lblTySuatLoiNhuan.setForeground(MAU_XANH_LA);
 
         lblGiaSauThue = new JLabel("Đơn giá gồm VAT: 0 đ");
-        lblGiaSauThue.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblGiaSauThue.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblGiaSauThue.setForeground(MAU_XANH_DAM);
 
-        pnlThongKeGia.add(lblChenhLechLoiNhuan);
-        pnlThongKeGia.add(new JLabel("•"));
-        pnlThongKeGia.add(lblTySuatLoiNhuan);
-        pnlThongKeGia.add(new JLabel("•"));
+        if (!chiXem) {
+            pnlThongKeGia.add(lblChenhLechLoiNhuan);
+            pnlThongKeGia.add(new JLabel("•"));
+            pnlThongKeGia.add(lblTySuatLoiNhuan);
+            pnlThongKeGia.add(new JLabel("•"));
+        }
         pnlThongKeGia.add(lblGiaSauThue);
 
         noiDung.add(pnlInput, BorderLayout.NORTH);
@@ -604,19 +627,62 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
         spnTonToiThieu.setValue(sanPham.getSoLuongTonToiThieu());
 
         if (chiXem) {
+            DanhMucSanPham dmHienTai = (DanhMucSanPham) cboDanhMuc.getSelectedItem();
+            if (txtDanhMucXem != null) {
+                txtDanhMucXem.setText(dmHienTai != null
+                        ? "[" + dmHienTai.getMaDanhMuc() + "] " + dmHienTai.getTenDanhMuc()
+                        : "---");
+            }
+            if (txtDonViTinhXem != null) {
+                txtDonViTinhXem.setText(sanPham.getDonViTinh() != null ? sanPham.getDonViTinh() : "---");
+            }
+            if (txtTrangThaiXem != null) {
+                txtTrangThaiXem.setText(sanPham.isTrangThai() ? "Đang bán" : "Ngừng bán");
+                txtTrangThaiXem.setForeground(sanPham.isTrangThai() ? new Color(21, 128, 61) : MAU_DO_CANH_BAO);
+            }
+
+            txtMaSP.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            txtMaSP.setForeground(new Color(15, 23, 42));
+            txtMaSP.setBackground(new Color(248, 250, 252));
+
             txtTenSP.setEditable(false);
-            txtTenSP.setBackground(new Color(241, 245, 249));
+            txtTenSP.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            txtTenSP.setBackground(new Color(248, 250, 252));
+            txtTenSP.setForeground(new Color(15, 23, 42));
+
             cboDonViTinh.setEnabled(false);
             cboTrangThai.setEnabled(false);
-            spnGiaNhap.setEnabled(false);
-            spnDonGiaBan.setEnabled(false);
-            spnThueVAT.setEnabled(false);
-            spnSoLuongTon.setEnabled(false);
-            spnTonToiThieu.setEnabled(false);
+            khoaSpinnerNhungRoChu(spnGiaNhap);
+            khoaSpinnerNhungRoChu(spnDonGiaBan);
+            khoaSpinnerNhungRoChu(spnThueVAT);
+            khoaSpinnerNhungRoChu(spnSoLuongTon);
+            khoaSpinnerNhungRoChu(spnTonToiThieu);
         }
 
         capNhatTinhToanLoiNhuanVaGia();
         capNhatCanhBaoTonKho();
+    }
+
+    private JTextField taoOVanBanChiDocRoChu() {
+        JTextField txt = taoOVanBan(false);
+        txt.setEditable(false);
+        txt.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        txt.setForeground(new Color(15, 23, 42));
+        txt.setBackground(new Color(248, 250, 252));
+        return txt;
+    }
+
+    private void khoaSpinnerNhungRoChu(JSpinner spn) {
+        if (spn == null) {
+            return;
+        }
+        spn.setEnabled(false);
+        if (spn.getEditor() instanceof JSpinner.DefaultEditor ed) {
+            ed.getTextField().setFont(new Font("Segoe UI", Font.BOLD, 13));
+            ed.getTextField().setForeground(new Color(15, 23, 42));
+            ed.getTextField().setDisabledTextColor(new Color(15, 23, 42));
+            ed.getTextField().setBackground(new Color(248, 250, 252));
+        }
     }
 
     private void capNhatTinhToanLoiNhuanVaGia() {
@@ -642,15 +708,15 @@ public class QuanLyManHinhQuanLySanPhamXemChiTiet extends JDialog {
         int tonMin = ((Number) spnTonToiThieu.getValue()).intValue();
 
         if (ton <= 0) {
-            lblCanhBaoTonKho.setText("⛔ HẾT HÀNG TRONG KHO (Tồn: 0)");
+            lblCanhBaoTonKho.setText("HẾT HÀNG TRONG KHO (Tồn: 0)");
             lblCanhBaoTonKho.setBackground(new Color(254, 226, 226));
             lblCanhBaoTonKho.setForeground(new Color(153, 27, 27));
         } else if (ton <= tonMin) {
-            lblCanhBaoTonKho.setText("⚠️ CẢNH BÁO: TỒN KHO DƯỚI MỨC AN TOÀN (Tồn: " + ton + " ≤ Ngưỡng: " + tonMin + ")");
+            lblCanhBaoTonKho.setText("CẢNH BÁO: TỒN KHO DƯỚI MỨC AN TOÀN (Tồn: " + ton + " <= Ngưỡng: " + tonMin + ")");
             lblCanhBaoTonKho.setBackground(new Color(254, 243, 199));
             lblCanhBaoTonKho.setForeground(new Color(146, 64, 14));
         } else {
-            lblCanhBaoTonKho.setText("✓ TỒN KHO AN TOÀN (Tồn hiện tại: " + ton + " "
+            lblCanhBaoTonKho.setText("TỒN KHO AN TOÀN (Tồn hiện tại: " + ton + " "
                     + (cboDonViTinh.getSelectedItem() != null ? cboDonViTinh.getSelectedItem() : "") + ")");
             lblCanhBaoTonKho.setBackground(new Color(220, 252, 231));
             lblCanhBaoTonKho.setForeground(new Color(22, 101, 52));

@@ -24,6 +24,10 @@ public class DichVuDAO {
         }
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Quản lý dịch vụ đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<DichVu> layTatCa() {
         List<DichVu> ds = new ArrayList<>();
         String sql = "SELECT ma_dich_vu, ten_dich_vu, mo_ta, don_gia, thue_vat, co_phu_tung, chuyen_mon, trang_thai FROM dich_vu ORDER BY ma_dich_vu";
@@ -37,6 +41,71 @@ public class DichVuDAO {
             throw new RuntimeException("Lỗi lấy danh sách dịch vụ", e);
         }
         return ds;
+    }
+
+    public List<DichVu> layDanhSachPhanTrang(String tuKhoa, Boolean trangThai, int offset, int limit) {
+        List<DichVu> ds = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, trangThai, params);
+        String sql = "SELECT ma_dich_vu, ten_dich_vu, mo_ta, don_gia, thue_vat, co_phu_tung, chuyen_mon, trang_thai " +
+                "FROM dich_vu " + where + " ORDER BY ma_dich_vu ASC LIMIT ? OFFSET ?";
+        params.add(Math.max(1, limit));
+        params.add(Math.max(0, offset));
+
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy danh sách dịch vụ phân trang", e);
+        }
+        return ds;
+    }
+
+    public int demTheoDieuKien(String tuKhoa, Boolean trangThai) {
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, trangThai, params);
+        String sql = "SELECT COUNT(*) FROM dich_vu " + where;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm số lượng dịch vụ", e);
+        }
+    }
+
+    private String xayDungDieuKienLoc(String tuKhoa, Boolean trangThai, List<Object> params) {
+        StringBuilder where = new StringBuilder("WHERE 1=1");
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            String pattern = "%" + tuKhoa.trim().toLowerCase() + "%";
+            where.append(" AND (LOWER(ma_dich_vu) LIKE ? OR LOWER(ten_dich_vu) LIKE ? OR LOWER(COALESCE(mo_ta, '')) LIKE ?)");
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+        if (trangThai != null) {
+            where.append(" AND trang_thai = ?");
+            params.add(trangThai ? 1 : 0);
+        }
+        return where.toString();
+    }
+
+    private void ganThamSo(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object val = params.get(i);
+            if (val instanceof String s) {
+                ps.setString(i + 1, s);
+            } else if (val instanceof Integer n) {
+                ps.setInt(i + 1, n);
+            }
+        }
     }
 
     public List<DichVu> layDanhSachHoatDong() {

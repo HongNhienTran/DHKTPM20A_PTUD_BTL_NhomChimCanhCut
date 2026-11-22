@@ -3,6 +3,7 @@ package ui;
 import bus.DichVuBUS;
 import entity.DichVu;
 import util.IconUtil;
+import util.ThanhPhanTrang;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -80,12 +81,14 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
     private static final Color MAU_KE_BANG = new Color(241, 245, 249);
 
     private static final String PLACEHOLDER_TIM_KIEM = "Tìm kiếm theo Mã DV, Tên dịch vụ, Mô tả...";
+    private static final int KICH_THUOC_TRANG = 13;
 
     private final DichVuBUS dichVuBUS = new DichVuBUS();
     private final DecimalFormat dinhDangTien;
 
     private List<DichVu> danhSachGoc = new ArrayList<>();
     private final List<DichVu> danhSachHienThi = new ArrayList<>();
+    private ThanhPhanTrang thanhPhanTrang;
 
     private JTextField txtTimKiem;
     private JComboBox<String> cboTrangThai;
@@ -105,12 +108,12 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
     }
 
     private void khoiTaoGiaoDien() {
-        setLayout(new BorderLayout(0, 14));
+        setLayout(new BorderLayout(0, 10));
         setBackground(MAU_NEN_TRANG);
-        setBorder(new EmptyBorder(18, 24, 22, 24));
+        setBorder(new EmptyBorder(12, 24, 14, 24));
 
         // Khu vực phía trên: Tiêu đề + nút Thêm Dịch Vụ Mới, bên dưới là thanh tìm kiếm & bộ lọc
-        JPanel khuVucTren = new JPanel(new BorderLayout(0, 14));
+        JPanel khuVucTren = new JPanel(new BorderLayout(0, 10));
         khuVucTren.setOpaque(false);
         khuVucTren.add(taoHangTieuDeVaNutThem(), BorderLayout.NORTH);
         khuVucTren.add(taoTheTimKiemVaBoLoc(), BorderLayout.CENTER);
@@ -148,7 +151,7 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
     private JPanel taoTheTimKiemVaBoLoc() {
         TheBoGoc the = new TheBoGoc(14, MAU_THE_TRANG, MAU_VIEN_THE);
         the.setLayout(new GridBagLayout());
-        the.setBorder(new EmptyBorder(12, 14, 12, 14));
+        the.setBorder(new EmptyBorder(9, 14, 9, 14));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
@@ -242,7 +245,7 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
         dauThe.setOpaque(false);
         dauThe.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, MAU_KE_BANG),
-                new EmptyBorder(14, 18, 12, 18)
+                new EmptyBorder(10, 18, 10, 18)
         ));
 
         JLabel lblTieuDeBang = new JLabel("Danh Sách Các Dịch Vụ Kỹ Thuật");
@@ -272,7 +275,7 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
         };
 
         bangDichVu = new JTable(moHinhBang);
-        bangDichVu.setRowHeight(41);
+        bangDichVu.setRowHeight(35);
         bangDichVu.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         bangDichVu.setForeground(MAU_CHU_CHINH);
         bangDichVu.setBackground(Color.WHITE);
@@ -284,10 +287,11 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
         bangDichVu.setGridColor(MAU_KE_BANG);
         bangDichVu.setIntercellSpacing(new Dimension(0, 1));
         bangDichVu.setFillsViewportHeight(true);
+        bangDichVu.setPreferredScrollableViewportSize(new Dimension(0, KICH_THUOC_TRANG * 35));
 
         JTableHeader header = bangDichVu.getTableHeader();
         header.setReorderingAllowed(false);
-        header.setPreferredSize(new Dimension(0, 40));
+        header.setPreferredSize(new Dimension(0, 36));
         header.setDefaultRenderer(new BoVeTieuDeBang());
 
         TableColumnModel cotModel = bangDichVu.getColumnModel();
@@ -340,9 +344,13 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
         JScrollPane cuonBang = new JScrollPane(bangDichVu);
         cuonBang.setBorder(BorderFactory.createEmptyBorder(0, 1, 1, 1));
         cuonBang.getViewport().setBackground(Color.WHITE);
+        ThanhPhanTrang.caiDatBangCoDinh(cuonBang, bangDichVu, KICH_THUOC_TRANG);
+
+        thanhPhanTrang = new ThanhPhanTrang(KICH_THUOC_TRANG, "dịch vụ", trang -> taiTrangDichVu());
 
         the.add(dauThe, BorderLayout.NORTH);
         the.add(cuonBang, BorderLayout.CENTER);
+        the.add(thanhPhanTrang, BorderLayout.SOUTH);
         return the;
     }
 
@@ -383,14 +391,10 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
     }
 
     /**
-     * Tải danh sách dịch vụ thực tế từ CSDL qua DichVuBUS (không tạo dữ liệu giả).
+     * Tải danh sách dịch vụ phân trang thực tế từ CSDL qua DichVuBUS.
+     * Thay thế việc gọi dichVuBUS.layTatCa() toàn bảng bằng layDanhSachPhanTrang(..., 13).
      */
     public void lamMoiDuLieu() {
-        try {
-            danhSachGoc = dichVuBUS.layTatCa();
-        } catch (Exception ex) {
-            danhSachGoc = new ArrayList<>();
-        }
         apDungBoLoc();
     }
 
@@ -407,34 +411,44 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
     }
 
     private void apDungBoLoc() {
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.datTrang(1);
+        }
+        taiTrangDichVu();
+    }
+
+    private void taiTrangDichVu() {
         String tuKhoa = txtTimKiem.getText();
         if (tuKhoa == null || PLACEHOLDER_TIM_KIEM.equals(tuKhoa)) {
             tuKhoa = "";
         }
-        tuKhoa = tuKhoa.trim().toLowerCase(Locale.ROOT);
+        tuKhoa = tuKhoa.trim();
         int chiSoTrangThai = cboTrangThai.getSelectedIndex();
+        Boolean trangThaiLoc = chiSoTrangThai == 1 ? Boolean.TRUE
+                : (chiSoTrangThai == 2 ? Boolean.FALSE : null);
+
+        int trang = thanhPhanTrang != null ? thanhPhanTrang.getTrangHienTai() : 1;
+        int tongBanGhi;
+        List<DichVu> dsTrang;
+        try {
+            tongBanGhi = dichVuBUS.demTheoDieuKien(tuKhoa, trangThaiLoc);
+            int tongTrang = Math.max(1, (int) Math.ceil((double) tongBanGhi / KICH_THUOC_TRANG));
+            if (trang > tongTrang) {
+                trang = tongTrang;
+                if (thanhPhanTrang != null) {
+                    thanhPhanTrang.datTrang(trang);
+                }
+            }
+            dsTrang = dichVuBUS.layDanhSachPhanTrang(tuKhoa, trangThaiLoc, trang, KICH_THUOC_TRANG);
+        } catch (Exception ex) {
+            tongBanGhi = 0;
+            dsTrang = new ArrayList<>();
+        }
 
         danhSachHienThi.clear();
         moHinhBang.setRowCount(0);
 
-        for (DichVu dv : danhSachGoc) {
-            // 1. Lọc theo từ khoá (Mã DV, Tên dịch vụ, Mô tả)
-            if (!tuKhoa.isEmpty()) {
-                String ma = dv.getMaDichVu() != null ? dv.getMaDichVu().toLowerCase(Locale.ROOT) : "";
-                String ten = dv.getTenDichVu() != null ? dv.getTenDichVu().toLowerCase(Locale.ROOT) : "";
-                String moTa = dv.getMoTa() != null ? dv.getMoTa().toLowerCase(Locale.ROOT) : "";
-                if (!ma.contains(tuKhoa) && !ten.contains(tuKhoa) && !moTa.contains(tuKhoa)) {
-                    continue;
-                }
-            }
-
-            // 2. Lọc theo Trạng thái
-            if (chiSoTrangThai == 1 && !dv.isTrangThai()) {
-                continue;
-            } else if (chiSoTrangThai == 2 && dv.isTrangThai()) {
-                continue;
-            }
-
+        for (DichVu dv : dsTrang) {
             danhSachHienThi.add(dv);
             moHinhBang.addRow(new Object[]{
                     dv.getMaDichVu(),
@@ -446,7 +460,10 @@ public class QuanLyManHinhQuanLyDichVu extends JPanel {
             });
         }
 
-        lblBadgeTongSo.setText("Tổng số: " + danhSachHienThi.size() + " dịch vụ");
+        lblBadgeTongSo.setText("Tổng số: " + tongBanGhi + " dịch vụ");
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.capNhat(tongBanGhi, danhSachHienThi.size());
+        }
     }
 
     private void xuLyDoiTrangThaiNhanh() {

@@ -36,6 +36,10 @@ public class PhuongTienDAO {
         }
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Quản lý phương tiện đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<PhuongTien> layTatCa() {
         List<PhuongTien> ds = new ArrayList<>();
         String sql = SELECT_JOIN + "ORDER BY pt.ma_phuong_tien";
@@ -49,6 +53,99 @@ public class PhuongTienDAO {
             throw new RuntimeException("Lỗi lấy danh sách phương tiện", e);
         }
         return ds;
+    }
+
+    public List<PhuongTien> layDanhSachPhanTrang(String tuKhoa, String maHangXe, NhienLieu nhienLieu,
+                                                 Integer namSanXuat, int offset, int limit) {
+        List<PhuongTien> ds = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, maHangXe, nhienLieu, namSanXuat, params);
+        String sql = SELECT_JOIN + where + " ORDER BY pt.ma_phuong_tien DESC LIMIT ? OFFSET ?";
+        params.add(Math.max(1, limit));
+        params.add(Math.max(0, offset));
+
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy danh sách phương tiện phân trang", e);
+        }
+        return ds;
+    }
+
+    public int demTheoDieuKien(String tuKhoa, String maHangXe, NhienLieu nhienLieu, Integer namSanXuat) {
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, maHangXe, nhienLieu, namSanXuat, params);
+        String sql = "SELECT COUNT(*) FROM phuong_tien pt " +
+                "JOIN hang_xe hx ON pt.ma_hang_xe = hx.ma_hang_xe " +
+                "JOIN khach_hang kh ON pt.ma_khach_hang = kh.ma_khach_hang " + where;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm số lượng phương tiện", e);
+        }
+    }
+
+    public List<Integer> layDanhSachNamSanXuat() {
+        List<Integer> ds = new ArrayList<>();
+        String sql = "SELECT DISTINCT nam_san_xuat FROM phuong_tien ORDER BY nam_san_xuat DESC";
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                ds.add(rs.getInt(1));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy danh sách năm sản xuất", e);
+        }
+        return ds;
+    }
+
+    private String xayDungDieuKienLoc(String tuKhoa, String maHangXe, NhienLieu nhienLieu,
+                                      Integer namSanXuat, List<Object> params) {
+        StringBuilder where = new StringBuilder("WHERE 1=1");
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            String pattern = "%" + tuKhoa.trim().toLowerCase() + "%";
+            where.append(" AND (LOWER(pt.ma_phuong_tien) LIKE ? OR LOWER(pt.bien_so_xe) LIKE ? ")
+                 .append("OR LOWER(pt.mau_xe) LIKE ? OR LOWER(hx.ten_hang) LIKE ? ")
+                 .append("OR LOWER(kh.ho_ten) LIKE ? OR LOWER(COALESCE(kh.so_dien_thoai, '')) LIKE ?)");
+            for (int i = 0; i < 6; i++) {
+                params.add(pattern);
+            }
+        }
+        if (maHangXe != null && !maHangXe.isBlank()) {
+            where.append(" AND pt.ma_hang_xe = ?");
+            params.add(maHangXe.trim());
+        }
+        if (nhienLieu != null) {
+            where.append(" AND pt.nhien_lieu = ?");
+            params.add(nhienLieu.name());
+        }
+        if (namSanXuat != null) {
+            where.append(" AND pt.nam_san_xuat = ?");
+            params.add(namSanXuat);
+        }
+        return where.toString();
+    }
+
+    private void ganThamSo(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object val = params.get(i);
+            if (val instanceof String s) {
+                ps.setString(i + 1, s);
+            } else if (val instanceof Integer n) {
+                ps.setInt(i + 1, n);
+            }
+        }
     }
 
     public List<PhuongTien> timTheoKhachHang(String maKhachHang) {

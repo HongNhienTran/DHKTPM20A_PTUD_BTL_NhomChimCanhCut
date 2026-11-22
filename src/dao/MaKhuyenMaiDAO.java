@@ -15,6 +15,10 @@ import java.util.List;
 
 public class MaKhuyenMaiDAO {
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Quản lý mã khuyến mãi đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<MaKhuyenMai> layTatCa() {
         List<MaKhuyenMai> ds = new ArrayList<>();
         String sql = "SELECT ma_khuyen_mai, loai_giam, gia_tri_giam, gia_tri_toi_thieu_ap_dung, " +
@@ -30,6 +34,78 @@ public class MaKhuyenMaiDAO {
             throw new RuntimeException("Lỗi lấy danh sách mã khuyến mãi", e);
         }
         return ds;
+    }
+
+    public List<MaKhuyenMai> layDanhSachPhanTrang(String tuKhoa, LoaiGiamGia loaiGiam,
+                                                   int chiSoTrangThai, int offset, int limit) {
+        List<MaKhuyenMai> ds = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, loaiGiam, chiSoTrangThai, params);
+        String sql = "SELECT ma_khuyen_mai, loai_giam, gia_tri_giam, gia_tri_toi_thieu_ap_dung, " +
+                "ngay_bat_dau_ap_dung, ngay_het_han, so_luong_ton, trang_thai " +
+                "FROM ma_khuyen_mai " + where +
+                " ORDER BY ngay_bat_dau_ap_dung DESC, ma_khuyen_mai ASC LIMIT ? OFFSET ?";
+        params.add(Math.max(1, limit));
+        params.add(Math.max(0, offset));
+
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy danh sách mã khuyến mãi phân trang", e);
+        }
+        return ds;
+    }
+
+    public int demTheoDieuKien(String tuKhoa, LoaiGiamGia loaiGiam, int chiSoTrangThai) {
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, loaiGiam, chiSoTrangThai, params);
+        String sql = "SELECT COUNT(*) FROM ma_khuyen_mai " + where;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm số lượng mã khuyến mãi", e);
+        }
+    }
+
+    private String xayDungDieuKienLoc(String tuKhoa, LoaiGiamGia loaiGiam, int chiSoTrangThai, List<Object> params) {
+        StringBuilder where = new StringBuilder("WHERE 1=1");
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            where.append(" AND LOWER(ma_khuyen_mai) LIKE ?");
+            params.add("%" + tuKhoa.trim().toLowerCase() + "%");
+        }
+        if (loaiGiam != null) {
+            where.append(" AND loai_giam = ?");
+            params.add(loaiGiam.name());
+        }
+        if (chiSoTrangThai == 1) {
+            where.append(" AND trang_thai = 1 AND (ngay_het_han IS NULL OR ngay_het_han >= NOW())");
+        } else if (chiSoTrangThai == 2) {
+            where.append(" AND trang_thai = 0");
+        } else if (chiSoTrangThai == 3) {
+            where.append(" AND ngay_het_han < NOW()");
+        }
+        return where.toString();
+    }
+
+    private void ganThamSo(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object val = params.get(i);
+            if (val instanceof String s) {
+                ps.setString(i + 1, s);
+            } else if (val instanceof Integer n) {
+                ps.setInt(i + 1, n);
+            }
+        }
     }
 
     public MaKhuyenMai timTheoMa(String maKhuyenMai) {

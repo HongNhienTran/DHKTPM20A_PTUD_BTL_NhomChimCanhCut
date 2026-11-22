@@ -12,6 +12,7 @@ import enums.TrangThaiBaoGia;
 import enums.TrangThaiPhieuTiepNhan;
 import enums.TrangThaiSua;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +62,25 @@ public class PhieuPhanCongBUS {
         return phieuPhanCongDAO.demSoPhieuDangXuLyCuaNhanVien(maNhanVien.trim());
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Nhật ký công việc đã thay thế bằng {@link #layNhatKyHoanThanhPhanTrang}.
+     */
     public List<PhieuPhanCong> layTatCa() {
         return phieuPhanCongDAO.layTatCa();
+    }
+
+    public List<PhieuPhanCong> layNhatKyHoanThanhPhanTrang(String maNhanVien, String tuKhoa,
+                                                            LocalDate tuNgay, LocalDate denNgay,
+                                                            int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 13 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return phieuPhanCongDAO.layNhatKyHoanThanhPhanTrang(maNhanVien, tuKhoa, tuNgay, denNgay, offset, sizeHopLe);
+    }
+
+    public int demNhatKyHoanThanh(String maNhanVien, String tuKhoa, LocalDate tuNgay, LocalDate denNgay) {
+        return phieuPhanCongDAO.demNhatKyHoanThanh(maNhanVien, tuKhoa, tuNgay, denNgay);
     }
 
     public List<PhieuPhanCong> layTheoNhanVien(String maNhanVien) {
@@ -241,4 +259,3 @@ public class PhieuPhanCongBUS {
         return phieuPhanCongDAO.xoa(maPhanCong.trim());
     }
 }
-

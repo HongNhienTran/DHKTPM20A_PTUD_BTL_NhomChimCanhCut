@@ -59,8 +59,32 @@ public class PhieuTiepNhanBUS {
         return taoMaTiepNhan(maPhuongTien, moc, next);
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Tiếp nhận xe đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<PhieuTiepNhan> layTatCa() {
         return phieuTiepNhanDAO.layTatCa();
+    }
+
+    public List<PhieuTiepNhan> layDanhSachPhanTrang(String tuKhoa, TrangThaiPhieuTiepNhan trangThai,
+                                                      int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 13 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return phieuTiepNhanDAO.layDanhSachPhanTrang(tuKhoa, trangThai, offset, sizeHopLe);
+    }
+
+    public int demTheoDieuKien(String tuKhoa, TrangThaiPhieuTiepNhan trangThai) {
+        return phieuTiepNhanDAO.demTheoDieuKien(tuKhoa, trangThai);
+    }
+
+    public int[] layThongKeKpi() {
+        return phieuTiepNhanDAO.layThongKeKpi();
+    }
+
+    public int demSoPhuongTienDangTaiXuong() {
+        return phieuTiepNhanDAO.demSoPhuongTienDangTaiXuong();
     }
 
     public List<PhieuTiepNhan> layTheoPhuongTien(String maPhuongTien) {
@@ -188,4 +212,3 @@ public class PhieuTiepNhanBUS {
         return phieuTiepNhanDAO.xoa(maTiepNhan.trim());
     }
 }
-

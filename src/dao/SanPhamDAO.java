@@ -8,8 +8,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SanPhamDAO {
 
@@ -26,6 +28,10 @@ public class SanPhamDAO {
         }
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược và phục vụ báo cáo/kiểm tra.
+     * Tại các màn hình quản lý và tra cứu sản phẩm đã thay thế bằng {@link #layDanhSachQuanLyPhanTrang}.
+     */
     public List<SanPham> layTatCa() {
         List<SanPham> ds = new ArrayList<>();
         String sql = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.don_vi_tinh, sp.so_luong_ton, " +
@@ -44,6 +50,92 @@ public class SanPhamDAO {
             throw new RuntimeException("Lỗi lấy danh sách sản phẩm", e);
         }
         return ds;
+    }
+
+    public List<SanPham> layDanhSachQuanLyPhanTrang(String tuKhoa, String maDanhMuc,
+                                                     int cheDoTonKho, Boolean trangThai,
+                                                     int offset, int limit) {
+        List<SanPham> ds = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, maDanhMuc, cheDoTonKho, trangThai, params);
+        String sql = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.don_vi_tinh, sp.so_luong_ton, " +
+                "sp.so_luong_ton_toi_thieu, sp.gia_nhap, sp.don_gia_ban, sp.thue_vat, " +
+                "sp.trang_thai AS sp_trang_thai, sp.anh_san_pham, " +
+                "dm.ma_danh_muc, dm.ten_danh_muc, dm.mo_ta, dm.trang_thai AS dm_trang_thai " +
+                "FROM san_pham sp JOIN danh_muc_san_pham dm ON sp.ma_danh_muc = dm.ma_danh_muc " +
+                where +
+                " ORDER BY sp.ma_san_pham ASC LIMIT ? OFFSET ?";
+        params.add(Math.max(1, limit));
+        params.add(Math.max(0, offset));
+
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy danh sách sản phẩm phân trang", e);
+        }
+        return ds;
+    }
+
+    public int demTheoDieuKien(String tuKhoa, String maDanhMuc, int cheDoTonKho, Boolean trangThai) {
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, maDanhMuc, cheDoTonKho, trangThai, params);
+        String sql = "SELECT COUNT(*) FROM san_pham sp " +
+                "JOIN danh_muc_san_pham dm ON sp.ma_danh_muc = dm.ma_danh_muc " + where;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm số lượng sản phẩm", e);
+        }
+    }
+
+    private String xayDungDieuKienLoc(String tuKhoa, String maDanhMuc, int cheDoTonKho,
+                                      Boolean trangThai, List<Object> params) {
+        StringBuilder where = new StringBuilder("WHERE 1=1");
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            String pattern = "%" + tuKhoa.trim().toLowerCase() + "%";
+            where.append(" AND (LOWER(sp.ma_san_pham) LIKE ? OR LOWER(sp.ten_san_pham) LIKE ? ")
+                 .append("OR LOWER(COALESCE(sp.don_vi_tinh, '')) LIKE ?)");
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+        if (maDanhMuc != null && !maDanhMuc.isBlank()) {
+            where.append(" AND sp.ma_danh_muc = ?");
+            params.add(maDanhMuc.trim());
+        }
+        if (cheDoTonKho == 1) {
+            where.append(" AND sp.so_luong_ton > 0");
+        } else if (cheDoTonKho == 2) {
+            where.append(" AND sp.so_luong_ton > 0 AND sp.so_luong_ton <= GREATEST(5, sp.so_luong_ton_toi_thieu)");
+        } else if (cheDoTonKho == 3) {
+            where.append(" AND sp.so_luong_ton = 0");
+        }
+        if (trangThai != null) {
+            where.append(" AND sp.trang_thai = ?");
+            params.add(trangThai ? 1 : 0);
+        }
+        return where.toString();
+    }
+
+    private void ganThamSo(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object val = params.get(i);
+            if (val instanceof String s) {
+                ps.setString(i + 1, s);
+            } else if (val instanceof Integer n) {
+                ps.setInt(i + 1, n);
+            }
+        }
     }
 
     public List<SanPham> timTheoDanhMuc(String maDanhMuc) {
@@ -69,57 +161,179 @@ public class SanPhamDAO {
     }
 
     public List<SanPham> layDanhSachBanChay(int gioiHan) {
+        return layDanhSachPhanTrang("BAN_CHAY", null, 0, gioiHan <= 0 ? 30 : gioiHan);
+    }
+
+    public List<SanPham> layDanhSachSanPhamMoi(int gioiHan) {
+        return layDanhSachPhanTrang("SAN_PHAM_MOI", null, 0, gioiHan <= 0 ? 30 : gioiHan);
+    }
+
+    public List<SanPham> layDanhSachPhanTrang(String cheDo, String maDanhMuc, int offset, int limit) {
+        return layDanhSachPhanTrang(cheDo, maDanhMuc, null, offset, limit);
+    }
+
+    public List<SanPham> layDanhSachPhanTrang(String cheDo, String maDanhMuc, String tuKhoa,
+                                              int offset, int limit) {
         List<SanPham> ds = new ArrayList<>();
-        String sql = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.don_vi_tinh, sp.so_luong_ton, " +
+        String baseSelect = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.don_vi_tinh, sp.so_luong_ton, " +
                 "sp.so_luong_ton_toi_thieu, sp.gia_nhap, sp.don_gia_ban, sp.thue_vat, " +
                 "sp.trang_thai AS sp_trang_thai, sp.anh_san_pham, " +
                 "dm.ma_danh_muc, dm.ten_danh_muc, dm.mo_ta, dm.trang_thai AS dm_trang_thai " +
-                "FROM san_pham sp JOIN danh_muc_san_pham dm ON sp.ma_danh_muc = dm.ma_danh_muc " +
-                "LEFT JOIN ( " +
-                "    SELECT ma_san_pham, SUM(so_luong) AS tong_ban " +
-                "    FROM chi_tiet_hoa_don " +
-                "    WHERE ma_san_pham IS NOT NULL " +
-                "    GROUP BY ma_san_pham " +
-                ") ban ON sp.ma_san_pham = ban.ma_san_pham " +
-                "WHERE sp.trang_thai = 1 " +
-                "ORDER BY COALESCE(ban.tong_ban, 0) DESC, sp.so_luong_ton ASC " +
-                "LIMIT ?";
+                "FROM san_pham sp JOIN danh_muc_san_pham dm ON sp.ma_danh_muc = dm.ma_danh_muc ";
+
+        boolean locDanhMuc = "DANH_MUC".equals(cheDo) && maDanhMuc != null && !maDanhMuc.isBlank();
+        List<String> tokens = tachTuKhoaTimKiem(tuKhoa);
+        String dieuKienTuKhoa = taoDieuKienTuKhoaTuongDoi(tokens);
+
+        StringBuilder sql = new StringBuilder(baseSelect);
+        if ("BAN_CHAY".equals(cheDo)) {
+            sql.append("LEFT JOIN ( " +
+                    "    SELECT ma_san_pham, SUM(so_luong) AS tong_ban " +
+                    "    FROM chi_tiet_hoa_don " +
+                    "    WHERE ma_san_pham IS NOT NULL " +
+                    "    GROUP BY ma_san_pham " +
+                    ") ban ON sp.ma_san_pham = ban.ma_san_pham ");
+        }
+        sql.append("WHERE sp.trang_thai = 1 ");
+        if (locDanhMuc) {
+            sql.append("AND sp.ma_danh_muc = ? ");
+        }
+        sql.append(dieuKienTuKhoa);
+        if ("BAN_CHAY".equals(cheDo)) {
+            sql.append("ORDER BY COALESCE(ban.tong_ban, 0) DESC, sp.so_luong_ton ASC, sp.ma_san_pham ASC ");
+        } else if ("SAN_PHAM_MOI".equals(cheDo)) {
+            sql.append("ORDER BY sp.ma_san_pham DESC ");
+        } else {
+            sql.append("ORDER BY sp.ma_san_pham ASC ");
+        }
+        sql.append("LIMIT ? OFFSET ?");
+
         try (Connection con = ConnectDB.ketNoi();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, gioiHan <= 0 ? 30 : gioiHan);
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            int idx = 1;
+            if (locDanhMuc) {
+                ps.setString(idx++, maDanhMuc.trim());
+            }
+            idx = ganThamSoTuKhoaTuongDoi(ps, idx, tokens);
+            ps.setInt(idx++, Math.max(1, limit));
+            ps.setInt(idx, Math.max(0, offset));
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     ds.add(mapRow(rs));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi lấy danh sách sản phẩm bán chạy", e);
+            throw new RuntimeException("Lỗi lấy danh sách sản phẩm phân trang", e);
         }
         return ds;
     }
 
-    public List<SanPham> layDanhSachSanPhamMoi(int gioiHan) {
+    public int demTongSanPhamDangKinhDoanh(String maDanhMuc) {
+        return demTongSanPhamDangKinhDoanh(maDanhMuc, null);
+    }
+
+    public int demTongSanPhamDangKinhDoanh(String maDanhMuc, String tuKhoa) {
+        boolean locDanhMuc = maDanhMuc != null && !maDanhMuc.isBlank();
+        List<String> tokens = tachTuKhoaTimKiem(tuKhoa);
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM san_pham sp " +
+                "JOIN danh_muc_san_pham dm ON sp.ma_danh_muc = dm.ma_danh_muc " +
+                "WHERE sp.trang_thai = 1 ");
+        if (locDanhMuc) {
+            sql.append("AND sp.ma_danh_muc = ? ");
+        }
+        sql.append(taoDieuKienTuKhoaTuongDoi(tokens));
+
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            int idx = 1;
+            if (locDanhMuc) {
+                ps.setString(idx++, maDanhMuc.trim());
+            }
+            ganThamSoTuKhoaTuongDoi(ps, idx, tokens);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm tổng số sản phẩm", e);
+        }
+    }
+
+    public List<SanPham> timKiemNhanh(String tuKhoa, int gioiHan) {
         List<SanPham> ds = new ArrayList<>();
+        List<String> tokens = tachTuKhoaTimKiem(tuKhoa);
+        if (tokens.isEmpty()) {
+            return ds;
+        }
         String sql = "SELECT sp.ma_san_pham, sp.ten_san_pham, sp.don_vi_tinh, sp.so_luong_ton, " +
                 "sp.so_luong_ton_toi_thieu, sp.gia_nhap, sp.don_gia_ban, sp.thue_vat, " +
                 "sp.trang_thai AS sp_trang_thai, sp.anh_san_pham, " +
                 "dm.ma_danh_muc, dm.ten_danh_muc, dm.mo_ta, dm.trang_thai AS dm_trang_thai " +
                 "FROM san_pham sp JOIN danh_muc_san_pham dm ON sp.ma_danh_muc = dm.ma_danh_muc " +
-                "WHERE sp.trang_thai = 1 " +
-                "ORDER BY sp.ma_san_pham DESC " +
-                "LIMIT ?";
+                "WHERE sp.trang_thai = 1 " + taoDieuKienTuKhoaTuongDoi(tokens) +
+                "ORDER BY CASE WHEN LOWER(sp.ma_san_pham) = ? THEN 0 " +
+                "WHEN REPLACE(LOWER(sp.ten_san_pham), 'đ', 'd') LIKE ? THEN 1 ELSE 2 END, " +
+                "sp.ma_san_pham ASC LIMIT ?";
+        String tuKhoaChuan = chuanHoaKhongDau(tuKhoa);
         try (Connection con = ConnectDB.ketNoi();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, gioiHan <= 0 ? 30 : gioiHan);
+            int idx = ganThamSoTuKhoaTuongDoi(ps, 1, tokens);
+            ps.setString(idx++, tuKhoa.trim().toLowerCase(Locale.ROOT));
+            ps.setString(idx++, tuKhoaChuan + "%");
+            ps.setInt(idx, Math.max(1, gioiHan));
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     ds.add(mapRow(rs));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi lấy danh sách sản phẩm mới", e);
+            throw new RuntimeException("Lỗi tìm kiếm nhanh sản phẩm", e);
         }
         return ds;
+    }
+
+    private static List<String> tachTuKhoaTimKiem(String tuKhoa) {
+        List<String> tokens = new ArrayList<>();
+        if (tuKhoa == null || tuKhoa.isBlank()) {
+            return tokens;
+        }
+        for (String phan : tuKhoa.trim().split("\\s+")) {
+            String daChuan = chuanHoaKhongDau(phan);
+            if (!daChuan.isEmpty()) {
+                tokens.add(daChuan);
+            }
+        }
+        return tokens;
+    }
+
+    private static String chuanHoaKhongDau(String input) {
+        if (input == null) {
+            return "";
+        }
+        String lower = input.trim().toLowerCase(Locale.ROOT).replace('đ', 'd');
+        String nfd = Normalizer.normalize(lower, Normalizer.Form.NFD);
+        return nfd.replaceAll("\\p{M}+", "");
+    }
+
+    private static String taoDieuKienTuKhoaTuongDoi(List<String> tokens) {
+        if (tokens == null || tokens.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < tokens.size(); i++) {
+            sb.append("AND REPLACE(LOWER(CONCAT_WS(' ', sp.ma_san_pham, sp.ten_san_pham, dm.ten_danh_muc, sp.don_vi_tinh)), 'đ', 'd') LIKE ? ");
+        }
+        return sb.toString();
+    }
+
+    private static int ganThamSoTuKhoaTuongDoi(PreparedStatement ps, int startIndex, List<String> tokens) throws SQLException {
+        int idx = startIndex;
+        if (tokens != null) {
+            for (String token : tokens) {
+                ps.setString(idx++, "%" + token + "%");
+            }
+        }
+        return idx;
     }
 
     public SanPham timTheoMa(String maSanPham) {

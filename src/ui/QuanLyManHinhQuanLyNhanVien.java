@@ -6,6 +6,7 @@ import entity.NhanVien;
 import enums.ChucVu;
 import enums.ChuyenMon;
 import util.IconUtil;
+import util.ThanhPhanTrang;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -88,12 +89,14 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
 
     private static final String PLACEHOLDER_TIM_KIEM = "Tìm theo Mã NV, Họ tên hoặc Số điện thoại...";
     private static final String TEXT_MA_NV_TU_SINH = "Hệ thống tự sinh theo chức vụ";
+    private static final int KICH_THUOC_TRANG = 13;
 
     private final NhanVienBUS nhanVienBUS = new NhanVienBUS();
     private final TaiKhoanBUS taiKhoanBUS = new TaiKhoanBUS();
 
     private List<NhanVien> danhSachGoc = new ArrayList<>();
     private final List<NhanVien> danhSachHienThi = new ArrayList<>();
+    private ThanhPhanTrang thanhPhanTrang;
 
     // Các thành phần bộ lọc phía trên
     private JTextField txtTimKiem;
@@ -125,11 +128,11 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
 
     public QuanLyManHinhQuanLyNhanVien() {
         setBackground(MAU_NEN_TRANG);
-        setLayout(new BorderLayout(0, 14));
-        setBorder(new EmptyBorder(16, 20, 16, 20));
+        setLayout(new BorderLayout(0, 10));
+        setBorder(new EmptyBorder(12, 20, 14, 20));
 
         // Cụm phía trên: Tiêu đề trang + Thanh tìm kiếm và bộ lọc
-        JPanel khuVucTren = new JPanel(new BorderLayout(0, 12));
+        JPanel khuVucTren = new JPanel(new BorderLayout(0, 10));
         khuVucTren.setOpaque(false);
         khuVucTren.add(taoHangTieuDeTrang(), BorderLayout.NORTH);
         khuVucTren.add(taoTheTimKiemVaBoLoc(), BorderLayout.CENTER);
@@ -161,7 +164,7 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
     private JPanel taoTheTimKiemVaBoLoc() {
         TheBoGoc the = new TheBoGoc(14, MAU_THE_TRANG, MAU_VIEN_THE);
         the.setLayout(new GridBagLayout());
-        the.setBorder(new EmptyBorder(12, 14, 12, 14));
+        the.setBorder(new EmptyBorder(9, 14, 9, 14));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
@@ -232,7 +235,7 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
         dauThe.setOpaque(false);
         dauThe.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, MAU_VIEN_THE),
-                new EmptyBorder(14, 18, 14, 18)
+                new EmptyBorder(10, 18, 10, 18)
         ));
 
         JLabel lblTieuDeBang = new JLabel("Danh Sách Nhân Sự Gara");
@@ -263,7 +266,7 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
         };
 
         bangNhanVien = new JTable(moHinhBang);
-        bangNhanVien.setRowHeight(41);
+        bangNhanVien.setRowHeight(35);
         bangNhanVien.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         bangNhanVien.setForeground(MAU_CHU_CHINH);
         bangNhanVien.setBackground(Color.WHITE);
@@ -275,11 +278,12 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
         bangNhanVien.setGridColor(MAU_KE_BANG);
         bangNhanVien.setIntercellSpacing(new Dimension(0, 1));
         bangNhanVien.setFillsViewportHeight(true);
+        bangNhanVien.setPreferredScrollableViewportSize(new Dimension(0, KICH_THUOC_TRANG * 35));
 
         // Header bảng
         JTableHeader header = bangNhanVien.getTableHeader();
         header.setReorderingAllowed(false);
-        header.setPreferredSize(new Dimension(0, 40));
+        header.setPreferredSize(new Dimension(0, 36));
         header.setDefaultRenderer(new BoVeTieuDeBang());
 
         // Độ rộng các cột
@@ -331,9 +335,13 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
         JScrollPane cuonBang = new JScrollPane(bangNhanVien);
         cuonBang.setBorder(BorderFactory.createEmptyBorder(0, 1, 1, 1));
         cuonBang.getViewport().setBackground(Color.WHITE);
+        ThanhPhanTrang.caiDatBangCoDinh(cuonBang, bangNhanVien, KICH_THUOC_TRANG);
+
+        thanhPhanTrang = new ThanhPhanTrang(KICH_THUOC_TRANG, "nhân viên", trang -> taiTrangNhanVien());
 
         the.add(dauThe, BorderLayout.NORTH);
         the.add(cuonBang, BorderLayout.CENTER);
+        the.add(thanhPhanTrang, BorderLayout.SOUTH);
         return the;
     }
 
@@ -610,17 +618,10 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
     }
 
     /**
-     * Nạp lại dữ liệu thực tế từ MariaDB thông qua NhanVienBUS.
+     * Nạp lại dữ liệu phân trang thực tế từ MariaDB thông qua NhanVienBUS.
+     * Thay thế việc gọi nhanVienBUS.layTatCa() toàn bảng bằng layDanhSachPhanTrang(..., 13).
      */
     public void lamMoiDuLieu() {
-        dangCapNhatBoLoc = true;
-        try {
-            danhSachGoc = nhanVienBUS.layTatCa();
-        } catch (Exception ex) {
-            danhSachGoc = new ArrayList<>();
-        } finally {
-            dangCapNhatBoLoc = false;
-        }
         apDungBoLoc();
     }
 
@@ -638,48 +639,56 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
     }
 
     private void apDungBoLoc() {
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.datTrang(1);
+        }
+        taiTrangNhanVien();
+    }
+
+    private void taiTrangNhanVien() {
         String tuKhoa = txtTimKiem.getText();
         if (tuKhoa == null || PLACEHOLDER_TIM_KIEM.equals(tuKhoa)) {
             tuKhoa = "";
         }
-        tuKhoa = tuKhoa.trim().toLowerCase(Locale.ROOT);
+        tuKhoa = tuKhoa.trim();
 
         int chiSoChucVu = cboLocChucVu.getSelectedIndex();
+        ChucVu chucVuLoc = switch (chiSoChucVu) {
+            case 1 -> ChucVu.QUAN_LY;
+            case 2 -> ChucVu.KY_THUAT_VIEN;
+            case 3 -> ChucVu.LE_TAN;
+            default -> null;
+        };
+
         int chiSoTrangThai = cboLocTrangThai.getSelectedIndex();
+        Boolean trangThaiLoc = chiSoTrangThai == 1 ? Boolean.TRUE
+                : (chiSoTrangThai == 2 ? Boolean.FALSE : null);
+
+        int trang = thanhPhanTrang != null ? thanhPhanTrang.getTrangHienTai() : 1;
+        int tongBanGhi;
+        List<NhanVien> dsTrang;
+        try {
+            tongBanGhi = nhanVienBUS.demTheoDieuKien(tuKhoa, chucVuLoc, trangThaiLoc);
+            int tongTrang = Math.max(1, (int) Math.ceil((double) tongBanGhi / KICH_THUOC_TRANG));
+            if (trang > tongTrang) {
+                trang = tongTrang;
+                if (thanhPhanTrang != null) {
+                    thanhPhanTrang.datTrang(trang);
+                }
+            }
+            dsTrang = nhanVienBUS.layDanhSachPhanTrang(
+                    tuKhoa, chucVuLoc, trangThaiLoc, trang, KICH_THUOC_TRANG);
+        } catch (Exception ex) {
+            tongBanGhi = 0;
+            dsTrang = new ArrayList<>();
+        }
 
         danhSachHienThi.clear();
         moHinhBang.setRowCount(0);
 
-        for (NhanVien nv : danhSachGoc) {
-            // 1. Lọc theo từ khóa (Mã NV, Họ tên, SĐT)
-            if (!tuKhoa.isEmpty()) {
-                String ma = nv.getMaNhanVien() != null ? nv.getMaNhanVien().toLowerCase(Locale.ROOT) : "";
-                String ten = nv.getHoTen() != null ? nv.getHoTen().toLowerCase(Locale.ROOT) : "";
-                String sdt = nv.getSoDienThoai() != null ? nv.getSoDienThoai().toLowerCase(Locale.ROOT) : "";
-                if (!ma.contains(tuKhoa) && !ten.contains(tuKhoa) && !sdt.contains(tuKhoa)) {
-                    continue;
-                }
-            }
-
-            // 2. Lọc theo Chức vụ
-            if (chiSoChucVu == 1 && nv.getChucVu() != ChucVu.QUAN_LY) {
-                continue;
-            } else if (chiSoChucVu == 2 && nv.getChucVu() != ChucVu.KY_THUAT_VIEN) {
-                continue;
-            } else if (chiSoChucVu == 3 && nv.getChucVu() != ChucVu.LE_TAN) {
-                continue;
-            }
-
-            // 3. Lọc theo Trạng thái
-            if (chiSoTrangThai == 1 && !nv.isTrangThai()) {
-                continue;
-            } else if (chiSoTrangThai == 2 && nv.isTrangThai()) {
-                continue;
-            }
-
+        for (NhanVien nv : dsTrang) {
             danhSachHienThi.add(nv);
 
-            // Xử lý hiển thị chuyên môn: Kỹ thuật viên hiển thị chuyên môn cụ thể, các vị trí khác hiển thị "Không có"
             String chuyenMonHienThi;
             if (nv.getChucVu() == ChucVu.KY_THUAT_VIEN) {
                 chuyenMonHienThi = nv.getChuyenMon() != null ? nv.getChuyenMon().getTenHienThi() : "Chưa phân công";
@@ -698,11 +707,19 @@ public class QuanLyManHinhQuanLyNhanVien extends JPanel {
             });
         }
 
-        lblBadgeTongSo.setText("Tổng số: " + danhSachHienThi.size() + " nhân viên");
+        lblBadgeTongSo.setText("Tổng số: " + tongBanGhi + " nhân viên");
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.capNhat(tongBanGhi, danhSachHienThi.size());
+        }
 
-        // Đồng bộ lại lựa chọn nếu có
         if (nhanVienDangChon != null) {
-            int viTri = danhSachHienThi.indexOf(nhanVienDangChon);
+            int viTri = -1;
+            for (int i = 0; i < danhSachHienThi.size(); i++) {
+                if (nhanVienDangChon.getMaNhanVien().equals(danhSachHienThi.get(i).getMaNhanVien())) {
+                    viTri = i;
+                    break;
+                }
+            }
             if (viTri >= 0) {
                 bangNhanVien.setRowSelectionInterval(viTri, viTri);
             } else {

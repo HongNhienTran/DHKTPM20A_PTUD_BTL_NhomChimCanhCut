@@ -6,6 +6,7 @@ import dao.PhieuTiepNhanDAO;
 import dao.PhuongTienDAO;
 import entity.KhachHang;
 import entity.PhuongTien;
+import enums.NhienLieu;
 
 import java.util.List;
 
@@ -38,8 +39,28 @@ public class PhuongTienBUS {
         return taoMaPhuongTien(maKhachHang, next);
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Quản lý phương tiện đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<PhuongTien> layTatCa() {
         return phuongTienDAO.layTatCa();
+    }
+
+    public List<PhuongTien> layDanhSachPhanTrang(String tuKhoa, String maHangXe, NhienLieu nhienLieu,
+                                                 Integer namSanXuat, int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 13 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return phuongTienDAO.layDanhSachPhanTrang(tuKhoa, maHangXe, nhienLieu, namSanXuat, offset, sizeHopLe);
+    }
+
+    public int demTheoDieuKien(String tuKhoa, String maHangXe, NhienLieu nhienLieu, Integer namSanXuat) {
+        return phuongTienDAO.demTheoDieuKien(tuKhoa, maHangXe, nhienLieu, namSanXuat);
+    }
+
+    public List<Integer> layDanhSachNamSanXuat() {
+        return phuongTienDAO.layDanhSachNamSanXuat();
     }
 
     public List<PhuongTien> layTheoKhachHang(String maKhachHang) {
@@ -115,4 +136,3 @@ public class PhuongTienBUS {
         return phuongTienDAO.xoa(maPhuongTien.trim());
     }
 }
-

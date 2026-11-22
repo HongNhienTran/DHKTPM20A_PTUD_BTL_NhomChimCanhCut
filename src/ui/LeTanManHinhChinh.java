@@ -819,8 +819,8 @@ public class LeTanManHinhChinh extends JFrame {
 
     private void moHopThoaiHuongDanSuDung() {
         JDialog dialog = new JDialog(this, "Hướng dẫn sử dụng (HDSD) - Phân hệ Lễ tân", true);
-        dialog.setSize(740, 560);
-        dialog.setMinimumSize(new Dimension(640, 480));
+        dialog.setSize(860, 640);
+        dialog.setMinimumSize(new Dimension(740, 540));
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new BorderLayout());
 
@@ -875,7 +875,7 @@ public class LeTanManHinhChinh extends JFrame {
         btnDong.setForeground(Color.WHITE);
         btnDong.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnDong.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnDong.setPreferredSize(new Dimension(96, 34));
+        btnDong.setPreferredSize(new Dimension(115, 38));
         btnDong.addActionListener(e -> dialog.dispose());
         chanDialog.add(btnDong);
 
@@ -1072,7 +1072,7 @@ public class LeTanManHinhChinh extends JFrame {
 
             JPanel cumXe = new JPanel();
             cumXe.setOpaque(false);
-            cumXe.setPreferredSize(new Dimension(140, 40));
+            cumXe.setPreferredSize(new Dimension(160, 44));
             cumXe.setLayout(new BoxLayout(cumXe, BoxLayout.Y_AXIS));
 
             JLabel lblBienSo = new JLabel(bienSo);
@@ -1171,7 +1171,7 @@ public class LeTanManHinhChinh extends JFrame {
             setFont(new Font("Segoe UI", Font.BOLD, 12));
             setIconTextGap(8);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setPreferredSize(new Dimension(0, 42));
+            setPreferredSize(new Dimension(0, 46));
 
             addMouseListener(new MouseAdapter() {
                 @Override
