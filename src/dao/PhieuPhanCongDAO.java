@@ -8,11 +8,13 @@ import entity.PhieuPhanCong;
 import enums.TrangThaiSua;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +67,10 @@ public class PhieuPhanCongDAO {
         }
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Nhật ký công việc đã thay thế bằng {@link #layNhatKyHoanThanhPhanTrang}.
+     */
     public List<PhieuPhanCong> layTatCa() {
         List<PhieuPhanCong> ds = new ArrayList<>();
         String sql = "SELECT ma_phan_cong, thoi_gian_phan_cong, thoi_gian_bat_dau, thoi_gian_hoan_thanh, " +
@@ -80,6 +86,97 @@ public class PhieuPhanCongDAO {
             throw new RuntimeException("Lỗi lấy danh sách phiếu phân công", e);
         }
         return ds;
+    }
+
+    public List<PhieuPhanCong> layNhatKyHoanThanhPhanTrang(String maNhanVien, String tuKhoa,
+                                                            LocalDate tuNgay, LocalDate denNgay,
+                                                            int offset, int limit) {
+        List<PhieuPhanCong> ds = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienNhatKy(maNhanVien, tuKhoa, tuNgay, denNgay, params);
+        String sql = "SELECT ppc.ma_phan_cong, ppc.thoi_gian_phan_cong, ppc.thoi_gian_bat_dau, ppc.thoi_gian_hoan_thanh, " +
+                "ppc.trang_thai_sua, ppc.ghi_chu, ppc.ma_nhan_vien, ppc.ma_bao_gia, ppc.ma_dich_vu " +
+                "FROM phieu_phan_cong ppc " +
+                "JOIN phieu_bao_gia pbg ON ppc.ma_bao_gia = pbg.ma_bao_gia " +
+                "JOIN phieu_tiep_nhan ptn ON pbg.ma_tiep_nhan = ptn.ma_tiep_nhan " +
+                "JOIN phuong_tien pt ON ptn.ma_phuong_tien = pt.ma_phuong_tien " +
+                "JOIN dich_vu dv ON ppc.ma_dich_vu = dv.ma_dich_vu " +
+                where +
+                " ORDER BY COALESCE(ppc.thoi_gian_hoan_thanh, ppc.thoi_gian_phan_cong) DESC, ppc.ma_phan_cong DESC " +
+                "LIMIT ? OFFSET ?";
+        params.add(Math.max(1, limit));
+        params.add(Math.max(0, offset));
+
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy nhật ký công việc phân trang", e);
+        }
+        return ds;
+    }
+
+    public int demNhatKyHoanThanh(String maNhanVien, String tuKhoa, LocalDate tuNgay, LocalDate denNgay) {
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienNhatKy(maNhanVien, tuKhoa, tuNgay, denNgay, params);
+        String sql = "SELECT COUNT(*) FROM phieu_phan_cong ppc " +
+                "JOIN phieu_bao_gia pbg ON ppc.ma_bao_gia = pbg.ma_bao_gia " +
+                "JOIN phieu_tiep_nhan ptn ON pbg.ma_tiep_nhan = ptn.ma_tiep_nhan " +
+                "JOIN phuong_tien pt ON ptn.ma_phuong_tien = pt.ma_phuong_tien " +
+                "JOIN dich_vu dv ON ppc.ma_dich_vu = dv.ma_dich_vu " + where;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm nhật ký công việc", e);
+        }
+    }
+
+    private String xayDungDieuKienNhatKy(String maNhanVien, String tuKhoa, LocalDate tuNgay,
+                                         LocalDate denNgay, List<Object> params) {
+        StringBuilder where = new StringBuilder("WHERE ppc.trang_thai_sua = 'HOAN_THANH'");
+        if (maNhanVien != null && !maNhanVien.trim().isEmpty()) {
+            where.append(" AND ppc.ma_nhan_vien = ?");
+            params.add(maNhanVien.trim());
+        }
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            String pattern = "%" + tuKhoa.trim().toLowerCase() + "%";
+            where.append(" AND (LOWER(ppc.ma_phan_cong) LIKE ? OR LOWER(pt.bien_so_xe) LIKE ? ")
+                 .append("OR LOWER(pt.mau_xe) LIKE ? OR LOWER(dv.ten_dich_vu) LIKE ?)");
+            for (int i = 0; i < 4; i++) {
+                params.add(pattern);
+            }
+        }
+        if (tuNgay != null) {
+            where.append(" AND DATE(COALESCE(ppc.thoi_gian_hoan_thanh, ppc.thoi_gian_phan_cong)) >= ?");
+            params.add(Date.valueOf(tuNgay));
+        }
+        if (denNgay != null) {
+            where.append(" AND DATE(COALESCE(ppc.thoi_gian_hoan_thanh, ppc.thoi_gian_phan_cong)) <= ?");
+            params.add(Date.valueOf(denNgay));
+        }
+        return where.toString();
+    }
+
+    private void ganThamSo(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object val = params.get(i);
+            if (val instanceof String s) {
+                ps.setString(i + 1, s);
+            } else if (val instanceof Integer n) {
+                ps.setInt(i + 1, n);
+            } else if (val instanceof Date d) {
+                ps.setDate(i + 1, d);
+            }
+        }
     }
 
     public List<PhieuPhanCong> timTheoNhanVien(String maNhanVien) {

@@ -50,6 +50,10 @@ public class PhieuTiepNhanDAO {
         }
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Tiếp nhận xe đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<PhieuTiepNhan> layTatCa() {
         List<PhieuTiepNhan> ds = new ArrayList<>();
         String sql = SELECT_JOIN + "ORDER BY ptn.thoi_gian_tiep_nhan DESC";
@@ -63,6 +67,113 @@ public class PhieuTiepNhanDAO {
             throw new RuntimeException("Lỗi lấy danh sách phiếu tiếp nhận", e);
         }
         return ds;
+    }
+
+    public List<PhieuTiepNhan> layDanhSachPhanTrang(String tuKhoa, TrangThaiPhieuTiepNhan trangThai,
+                                                      int offset, int limit) {
+        List<PhieuTiepNhan> ds = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, trangThai, params);
+        String sql = SELECT_JOIN + where + " ORDER BY ptn.thoi_gian_tiep_nhan DESC, ptn.ma_tiep_nhan DESC LIMIT ? OFFSET ?";
+        params.add(Math.max(1, limit));
+        params.add(Math.max(0, offset));
+
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy danh sách phiếu tiếp nhận phân trang", e);
+        }
+        return ds;
+    }
+
+    public int demTheoDieuKien(String tuKhoa, TrangThaiPhieuTiepNhan trangThai) {
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, trangThai, params);
+        String sql = "SELECT COUNT(*) FROM phieu_tiep_nhan ptn " +
+                "JOIN phuong_tien pt ON ptn.ma_phuong_tien = pt.ma_phuong_tien " +
+                "JOIN khach_hang kh ON pt.ma_khach_hang = kh.ma_khach_hang " + where;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm số lượng phiếu tiếp nhận", e);
+        }
+    }
+
+    public int[] layThongKeKpi() {
+        String sql = """
+                SELECT
+                    SUM(CASE WHEN DATE(thoi_gian_tiep_nhan) = CURDATE() THEN 1 ELSE 0 END) AS hom_nay,
+                    SUM(CASE WHEN trang_thai IN ('DANG_KIEM_TRA', 'CHO_XAC_NHAN_BAO_GIA') THEN 1 ELSE 0 END) AS kiem_tra_bao_gia,
+                    SUM(CASE WHEN trang_thai = 'DANG_SUA_CHUA' THEN 1 ELSE 0 END) AS dang_sua,
+                    SUM(CASE WHEN trang_thai IN ('HOAN_THANH', 'THANH_TOAN') THEN 1 ELSE 0 END) AS hoan_thanh
+                FROM phieu_tiep_nhan
+                """;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return new int[]{
+                        rs.getInt("hom_nay"),
+                        rs.getInt("kiem_tra_bao_gia"),
+                        rs.getInt("dang_sua"),
+                        rs.getInt("hoan_thanh")
+                };
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi thống kê KPI phiếu tiếp nhận", e);
+        }
+        return new int[]{0, 0, 0, 0};
+    }
+
+    public int demSoPhuongTienDangTaiXuong() {
+        String sql = "SELECT COUNT(DISTINCT ma_phuong_tien) FROM phieu_tiep_nhan " +
+                "WHERE trang_thai NOT IN ('HOAN_THANH', 'THANH_TOAN', 'DA_HUY')";
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm xe đang phục vụ tại xưởng", e);
+        }
+    }
+
+    private String xayDungDieuKienLoc(String tuKhoa, TrangThaiPhieuTiepNhan trangThai, List<Object> params) {
+        StringBuilder where = new StringBuilder("WHERE 1=1");
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            String pattern = "%" + tuKhoa.trim().toLowerCase() + "%";
+            where.append(" AND (LOWER(ptn.ma_tiep_nhan) LIKE ? OR LOWER(pt.bien_so_xe) LIKE ? ")
+                 .append("OR LOWER(pt.mau_xe) LIKE ? OR LOWER(kh.ho_ten) LIKE ? ")
+                 .append("OR LOWER(COALESCE(kh.so_dien_thoai, '')) LIKE ?)");
+            for (int i = 0; i < 5; i++) {
+                params.add(pattern);
+            }
+        }
+        if (trangThai != null) {
+            where.append(" AND ptn.trang_thai = ?");
+            params.add(trangThai.name());
+        }
+        return where.toString();
+    }
+
+    private void ganThamSo(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object val = params.get(i);
+            if (val instanceof String s) {
+                ps.setString(i + 1, s);
+            } else if (val instanceof Integer n) {
+                ps.setInt(i + 1, n);
+            }
+        }
     }
 
     public List<PhieuTiepNhan> timTheoPhuongTien(String maPhuongTien) {

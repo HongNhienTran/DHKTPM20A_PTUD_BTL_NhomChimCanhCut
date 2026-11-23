@@ -27,30 +27,11 @@ public class BaoCaoThongKeBUS {
     private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
 
     public Map<String, Double> layKpiDoanhThu(LocalDate tuNgay, LocalDate denNgay) {
-        Map<String, Double> ketQua = new LinkedHashMap<>();
-        ketQua.put("tong", 0d);
-        ketQua.put("banHang", 0d);
-        ketQua.put("dichVu", 0d);
-        for (HoaDon hoaDon : hoaDonDAO.layTatCa()) {
-            if (!laHoaDonDaThanhToanTrongKhoang(hoaDon, tuNgay, denNgay)) {
-                continue;
-            }
-            double tong = hoaDon.tinhTongThanhToan();
-            String khoa = hoaDon.getLoaiHoaDon() == LoaiHoaDon.BAN_HANG ? "banHang" : "dichVu";
-            ketQua.put(khoa, ketQua.get(khoa) + tong);
-            ketQua.put("tong", ketQua.get("tong") + tong);
-        }
-        return ketQua;
+        return tinhKpiDoanhThuTuDanhSach(hoaDonDAO.layTatCa(), tuNgay, denNgay);
     }
 
     public int demHoaDonDaThanhToan(LocalDate tuNgay, LocalDate denNgay) {
-        int ketQua = 0;
-        for (HoaDon hoaDon : hoaDonDAO.layTatCa()) {
-            if (laHoaDonDaThanhToanTrongKhoang(hoaDon, tuNgay, denNgay)) {
-                ketQua++;
-            }
-        }
-        return ketQua;
+        return demHoaDonDaThanhToanTuDanhSach(hoaDonDAO.layTatCa(), tuNgay, denNgay);
     }
 
     public int demPhieuSua(LocalDate tuNgay, LocalDate denNgay) {
@@ -64,28 +45,11 @@ public class BaoCaoThongKeBUS {
     }
 
     public int demTonKhoThap() {
-        int ketQua = 0;
-        for (SanPham sanPham : sanPhamDAO.layTatCa()) {
-            if (sanPham.isTrangThai() && sanPham.getSoLuongTon() <= sanPham.getSoLuongTonToiThieu()) {
-                ketQua++;
-            }
-        }
-        return ketQua;
+        return layDanhSachTonKhoThap(sanPhamDAO.layTatCa()).size();
     }
 
     public Map<String, List<Double>> layDoanhThu7Ngay(LocalDate denNgay) {
-        Map<String, List<Double>> ketQua = new LinkedHashMap<>();
-        List<Double> banHang = new ArrayList<>();
-        List<Double> dichVu = new ArrayList<>();
-        for (int i = 6; i >= 0; i--) {
-            LocalDate ngay = denNgay.minusDays(i);
-            Map<String, Double> kpiNgay = layKpiDoanhThu(ngay, ngay);
-            banHang.add(kpiNgay.get("banHang"));
-            dichVu.add(kpiNgay.get("dichVu"));
-        }
-        ketQua.put("Bán hàng", banHang);
-        ketQua.put("Dịch vụ", dichVu);
-        return ketQua;
+        return tinhDoanhThu7NgayTuDanhSach(hoaDonDAO.layTatCa(), denNgay);
     }
 
     public Map<String, Double> layCoCauDoanhThu(LocalDate tuNgay, LocalDate denNgay) {
@@ -110,16 +74,117 @@ public class BaoCaoThongKeBUS {
         return ketQua;
     }
 
+    public Map<TrangThaiPhieuTiepNhan, Integer> demTrangThaiPhieuHienTai() {
+        return demTrangThaiPhieuTuDanhSach(phieuTiepNhanDAO.layTatCa());
+    }
+
+    public Map<String, Object> layThongKeDashboard(LocalDate tuNgayKy, LocalDate denNgayKy, LocalDate homNay) {
+        List<HoaDon> dsHoaDon = hoaDonDAO.layTatCa();
+        List<PhieuTiepNhan> dsPhieu = phieuTiepNhanDAO.layTatCa();
+        List<SanPham> dsSanPham = sanPhamDAO.layTatCa();
+
+        Map<String, Double> kpiHomNay = tinhKpiDoanhThuTuDanhSach(dsHoaDon, homNay, homNay);
+        Map<String, Double> kpiKy = tinhKpiDoanhThuTuDanhSach(dsHoaDon, tuNgayKy, denNgayKy);
+        Map<String, Double> kpiThang = tinhKpiDoanhThuTuDanhSach(dsHoaDon, homNay.withDayOfMonth(1), homNay);
+        int soHoaDonKy = demHoaDonDaThanhToanTuDanhSach(dsHoaDon, tuNgayKy, denNgayKy);
+
+        Map<TrangThaiPhieuTiepNhan, Integer> trangThaiHienTai = demTrangThaiPhieuTuDanhSach(dsPhieu);
+        int xeDangSuaChua = trangThaiHienTai.getOrDefault(TrangThaiPhieuTiepNhan.DANG_SUA_CHUA, 0);
+        int xeChoXuLy = trangThaiHienTai.getOrDefault(TrangThaiPhieuTiepNhan.DANG_KIEM_TRA, 0)
+                + trangThaiHienTai.getOrDefault(TrangThaiPhieuTiepNhan.CHO_XAC_NHAN_BAO_GIA, 0);
+
+        List<SanPham> dsTonThap = layDanhSachTonKhoThap(dsSanPham);
+        Map<String, Object> ketQua = new LinkedHashMap<>();
+        ketQua.put("doanhThuHomNay", kpiHomNay.get("tong"));
+        ketQua.put("doanhThuBanHangKy", kpiKy.get("banHang"));
+        ketQua.put("doanhThuDichVuKy", kpiKy.get("dichVu"));
+        ketQua.put("soHoaDonKy", soHoaDonKy);
+        ketQua.put("xeDangSuaChua", xeDangSuaChua);
+        ketQua.put("xeChoXuLy", xeChoXuLy);
+        ketQua.put("sanPhamSapHet", dsTonThap.size());
+        ketQua.put("tongDoanhThuThang", kpiThang.get("tong"));
+        ketQua.put("doanhThu7Ngay", tinhDoanhThu7NgayTuDanhSach(dsHoaDon, homNay));
+        ketQua.put("tonKhoCanhBao", taoMapTonKhoCanhBao(dsTonThap, 5));
+        return ketQua;
+    }
+
     public Map<String, List<Double>> layTonKhoCanhBao(int gioiHan) {
+        return taoMapTonKhoCanhBao(layDanhSachTonKhoThap(sanPhamDAO.layTatCa()), gioiHan);
+    }
+
+    private Map<String, Double> tinhKpiDoanhThuTuDanhSach(
+            List<HoaDon> dsHoaDon, LocalDate tuNgay, LocalDate denNgay) {
+        Map<String, Double> ketQua = new LinkedHashMap<>();
+        ketQua.put("tong", 0d);
+        ketQua.put("banHang", 0d);
+        ketQua.put("dichVu", 0d);
+        for (HoaDon hoaDon : dsHoaDon) {
+            if (!laHoaDonDaThanhToanTrongKhoang(hoaDon, tuNgay, denNgay)) {
+                continue;
+            }
+            double tong = hoaDon.tinhTongThanhToan();
+            String khoa = hoaDon.getLoaiHoaDon() == LoaiHoaDon.BAN_HANG ? "banHang" : "dichVu";
+            ketQua.put(khoa, ketQua.get(khoa) + tong);
+            ketQua.put("tong", ketQua.get("tong") + tong);
+        }
+        return ketQua;
+    }
+
+    private int demHoaDonDaThanhToanTuDanhSach(
+            List<HoaDon> dsHoaDon, LocalDate tuNgay, LocalDate denNgay) {
+        int ketQua = 0;
+        for (HoaDon hoaDon : dsHoaDon) {
+            if (laHoaDonDaThanhToanTrongKhoang(hoaDon, tuNgay, denNgay)) {
+                ketQua++;
+            }
+        }
+        return ketQua;
+    }
+
+    private Map<String, List<Double>> tinhDoanhThu7NgayTuDanhSach(
+            List<HoaDon> dsHoaDon, LocalDate denNgay) {
+        Map<String, List<Double>> ketQua = new LinkedHashMap<>();
+        List<Double> banHang = new ArrayList<>();
+        List<Double> dichVu = new ArrayList<>();
+        for (int i = 6; i >= 0; i--) {
+            LocalDate ngay = denNgay.minusDays(i);
+            Map<String, Double> kpiNgay = tinhKpiDoanhThuTuDanhSach(dsHoaDon, ngay, ngay);
+            banHang.add(kpiNgay.get("banHang"));
+            dichVu.add(kpiNgay.get("dichVu"));
+        }
+        ketQua.put("Bán hàng", banHang);
+        ketQua.put("Dịch vụ", dichVu);
+        return ketQua;
+    }
+
+    private Map<TrangThaiPhieuTiepNhan, Integer> demTrangThaiPhieuTuDanhSach(List<PhieuTiepNhan> dsPhieu) {
+        Map<TrangThaiPhieuTiepNhan, Integer> ketQua = new LinkedHashMap<>();
+        for (TrangThaiPhieuTiepNhan trangThai : TrangThaiPhieuTiepNhan.values()) {
+            ketQua.put(trangThai, 0);
+        }
+        for (PhieuTiepNhan phieu : dsPhieu) {
+            TrangThaiPhieuTiepNhan tt = phieu.getTrangThai();
+            if (tt != null) {
+                ketQua.put(tt, ketQua.getOrDefault(tt, 0) + 1);
+            }
+        }
+        return ketQua;
+    }
+
+    private List<SanPham> layDanhSachTonKhoThap(List<SanPham> dsSanPham) {
         List<SanPham> danhSach = new ArrayList<>();
-        for (SanPham sanPham : sanPhamDAO.layTatCa()) {
+        for (SanPham sanPham : dsSanPham) {
             if (sanPham.isTrangThai() && sanPham.getSoLuongTon() <= sanPham.getSoLuongTonToiThieu()) {
                 danhSach.add(sanPham);
             }
         }
         danhSach.sort(Comparator.comparingInt(SanPham::getSoLuongTon));
+        return danhSach;
+    }
+
+    private Map<String, List<Double>> taoMapTonKhoCanhBao(List<SanPham> dsTonThap, int gioiHan) {
         Map<String, List<Double>> ketQua = new LinkedHashMap<>();
-        for (SanPham sanPham : danhSach.subList(0, Math.min(gioiHan, danhSach.size()))) {
+        for (SanPham sanPham : dsTonThap.subList(0, Math.min(gioiHan, dsTonThap.size()))) {
             List<Double> ton = new ArrayList<>();
             ton.add((double) sanPham.getSoLuongTon());
             ton.add((double) sanPham.getSoLuongTonToiThieu());

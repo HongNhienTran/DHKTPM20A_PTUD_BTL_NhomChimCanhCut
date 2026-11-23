@@ -7,6 +7,7 @@ import entity.PhuongTien;
 import entity.TaiKhoan;
 import enums.TrangThaiPhieuTiepNhan;
 import util.IconUtil;
+import util.ThanhPhanTrang;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -77,12 +78,14 @@ public class LeTanManHinhTiepNhan extends JPanel {
     private static final Color MAU_CHON_DONG = new Color(254, 243, 199);
 
     private static final DateTimeFormatter DINH_DANG_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final int KICH_THUOC_TRANG = 13;
 
     private final TaiKhoan taiKhoanDangNhap;
     private final PhieuTiepNhanBUS phieuTiepNhanBUS = new PhieuTiepNhanBUS();
 
     // Dữ liệu bộ nhớ tạm cho bảng
     private List<PhieuTiepNhan> danhSachGoc = new ArrayList<>();
+    private ThanhPhanTrang thanhPhanTrang;
 
     // Các thành phần giao diện
     private JLabel lblTiepNhanHomNayPill;
@@ -95,7 +98,6 @@ public class LeTanManHinhTiepNhan extends JPanel {
     private JComboBox<String> cboLocTrangThai;
     private DefaultTableModel moHinhBang;
     private JTable bangTiepNhan;
-    private JLabel lblTongSoPhieu;
 
     public LeTanManHinhTiepNhan() {
         this(null);
@@ -108,12 +110,12 @@ public class LeTanManHinhTiepNhan extends JPanel {
     }
 
     private void khoiTaoGiaoDien() {
-        setLayout(new BorderLayout(0, 16));
+        setLayout(new BorderLayout(0, 10));
         setBackground(MAU_NEN_TRANG);
-        setBorder(new EmptyBorder(18, 22, 18, 22));
+        setBorder(new EmptyBorder(12, 22, 12, 22));
 
         // Cụm phía trên: Header tiêu đề + 4 Thẻ chỉ số
-        JPanel pnlTren = new JPanel(new BorderLayout(0, 16));
+        JPanel pnlTren = new JPanel(new BorderLayout(0, 10));
         pnlTren.setOpaque(false);
         pnlTren.add(taoThanhTieuDe(), BorderLayout.NORTH);
         pnlTren.add(taoHangTheChiSo(), BorderLayout.CENTER);
@@ -148,8 +150,8 @@ public class LeTanManHinhTiepNhan extends JPanel {
                 new EmptyBorder(6, 12, 6, 12)
         ));
 
-        // Nút + Tạo tiếp nhận
-        JButton btnTaoTiepNhan = new JButton("+ Tạo Tiếp Nhận", IconUtil.layIcon("plus.png", 14, 14, Color.WHITE)) {
+        // Nút Tạo tiếp nhận
+        JButton btnTaoTiepNhan = new JButton("Tạo Tiếp Nhận", IconUtil.layIcon("plus.png", 14, 14, Color.WHITE)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -167,7 +169,7 @@ public class LeTanManHinhTiepNhan extends JPanel {
         btnTaoTiepNhan.setBorderPainted(false);
         btnTaoTiepNhan.setContentAreaFilled(false);
         btnTaoTiepNhan.setOpaque(false);
-        btnTaoTiepNhan.setPreferredSize(new Dimension(160, 36));
+        btnTaoTiepNhan.setPreferredSize(new Dimension(185, 38));
         btnTaoTiepNhan.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnTaoTiepNhan.addActionListener(e -> moModalThemTiepNhan());
 
@@ -190,7 +192,7 @@ public class LeTanManHinhTiepNhan extends JPanel {
         btnLamMoi.setBorderPainted(false);
         btnLamMoi.setContentAreaFilled(false);
         btnLamMoi.setOpaque(false);
-        btnLamMoi.setPreferredSize(new Dimension(115, 36));
+        btnLamMoi.setPreferredSize(new Dimension(135, 38));
         btnLamMoi.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnLamMoi.addActionListener(e -> taiLaiDuLieu());
 
@@ -222,8 +224,8 @@ public class LeTanManHinhTiepNhan extends JPanel {
     private TheBoGoc taoTheChiSo(String tenIcon, String tieuDe, JLabel lblGiaTri, Color mauChuDao, Color mauNenIcon) {
         TheBoGoc the = new TheBoGoc(12, Color.WHITE, MAU_VIEN);
         the.setLayout(new BorderLayout(14, 0));
-        the.setPreferredSize(new Dimension(0, 84));
-        the.setBorder(new EmptyBorder(16, 16, 16, 16));
+        the.setPreferredSize(new Dimension(0, 66));
+        the.setBorder(new EmptyBorder(10, 14, 10, 14));
 
         // Khối tròn icon bên trái
         JPanel pnlIcon = new JPanel() {
@@ -264,8 +266,8 @@ public class LeTanManHinhTiepNhan extends JPanel {
 
     private TheBoGoc taoTheBangDuLieu() {
         TheBoGoc the = new TheBoGoc(12, Color.WHITE, MAU_VIEN);
-        the.setLayout(new BorderLayout(0, 12));
-        the.setBorder(new EmptyBorder(16, 18, 16, 18));
+        the.setLayout(new BorderLayout(0, 10));
+        the.setBorder(new EmptyBorder(12, 16, 10, 16));
 
         // 1. Thanh tìm kiếm & lọc trạng thái
         the.add(taoThanhLocVaTimKiem(), BorderLayout.NORTH);
@@ -280,7 +282,7 @@ public class LeTanManHinhTiepNhan extends JPanel {
         };
 
         bangTiepNhan = new JTable(moHinhBang);
-        bangTiepNhan.setRowHeight(42);
+        bangTiepNhan.setRowHeight(33);
         bangTiepNhan.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         bangTiepNhan.setSelectionBackground(MAU_CHON_DONG);
         bangTiepNhan.setSelectionForeground(MAU_CHU_CHINH);
@@ -288,6 +290,7 @@ public class LeTanManHinhTiepNhan extends JPanel {
         bangTiepNhan.setShowHorizontalLines(true);
         bangTiepNhan.setShowVerticalLines(false);
         bangTiepNhan.setFillsViewportHeight(true);
+        bangTiepNhan.setPreferredScrollableViewportSize(new Dimension(0, KICH_THUOC_TRANG * 33));
 
         // Căn chỉnh độ rộng cột
         bangTiepNhan.getColumnModel().getColumn(0).setPreferredWidth(50);
@@ -303,7 +306,7 @@ public class LeTanManHinhTiepNhan extends JPanel {
         header.setFont(new Font("Segoe UI", Font.BOLD, 12));
         header.setBackground(MAU_HEADER_BANG);
         header.setForeground(MAU_XANH_DAM);
-        header.setPreferredSize(new Dimension(0, 38));
+        header.setPreferredSize(new Dimension(0, 34));
         header.setReorderingAllowed(false);
         header.setDefaultRenderer(new DinhDangHeaderBang(header.getDefaultRenderer()));
 
@@ -347,17 +350,12 @@ public class LeTanManHinhTiepNhan extends JPanel {
         JScrollPane cuonBang = new JScrollPane(bangTiepNhan);
         cuonBang.setBorder(BorderFactory.createLineBorder(MAU_VIEN, 1, true));
         cuonBang.getViewport().setBackground(Color.WHITE);
+        ThanhPhanTrang.caiDatBangCoDinh(cuonBang, bangTiepNhan, KICH_THUOC_TRANG);
         the.add(cuonBang, BorderLayout.CENTER);
 
-        // 3. Footer đếm số phiếu
-        JPanel pnlFooter = new JPanel(new BorderLayout());
-        pnlFooter.setOpaque(false);
-        lblTongSoPhieu = new JLabel("Hiển thị 0 phiếu tiếp nhận");
-        lblTongSoPhieu.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblTongSoPhieu.setForeground(MAU_CHU_PHU);
-        pnlFooter.add(lblTongSoPhieu, BorderLayout.WEST);
-
-        the.add(pnlFooter, BorderLayout.SOUTH);
+        // 3. Thanh phân trang dùng chung
+        thanhPhanTrang = new ThanhPhanTrang(KICH_THUOC_TRANG, "phiếu tiếp nhận", trang -> taiTrangTiepNhan());
+        the.add(thanhPhanTrang, BorderLayout.SOUTH);
         return the;
     }
 
@@ -426,7 +424,7 @@ public class LeTanManHinhTiepNhan extends JPanel {
         btnDatLai.setFocusPainted(false);
         btnDatLai.setBorderPainted(false);
         btnDatLai.setContentAreaFilled(false);
-        btnDatLai.setPreferredSize(new Dimension(80, 36));
+        btnDatLai.setPreferredSize(new Dimension(105, 38));
         btnDatLai.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnDatLai.addActionListener(e -> {
             txtTimKiem.setText("Tìm kiếm biển số xe, mã phiếu, tên/SĐT khách...");
@@ -443,9 +441,12 @@ public class LeTanManHinhTiepNhan extends JPanel {
         return bar;
     }
 
+    /**
+     * Tải KPI và danh sách phiếu tiếp nhận phân trang từ CSDL.
+     * Thay thế việc gọi phieuTiepNhanBUS.layTatCa() toàn bảng bằng layThongKeKpi() + layDanhSachPhanTrang(..., 13).
+     */
     public void taiLaiDuLieu() {
         try {
-            danhSachGoc = phieuTiepNhanBUS.layTatCa();
             capNhatCacChiSoTongQuan();
             locVaHienThiDuLieu();
         } catch (Exception ex) {
@@ -454,79 +455,59 @@ public class LeTanManHinhTiepNhan extends JPanel {
     }
 
     private void capNhatCacChiSoTongQuan() {
-        int demChoKiemTra = 0;
-        int demDangKiemTra = 0;
-        int demDangSuaChua = 0;
-        int demHoanThanh = 0;
-        int demHomNay = 0;
-
-        LocalDate homNay = LocalDate.now();
-
-        for (PhieuTiepNhan ptn : danhSachGoc) {
-            if (ptn.getThoiGianTiepNhan() != null
-                    && ptn.getThoiGianTiepNhan().toLocalDate().isEqual(homNay)) {
-                demHomNay++;
-            }
-
-            TrangThaiPhieuTiepNhan tt = ptn.getTrangThai();
-            if (tt == null) continue;
-
-            switch (tt) {
-                case DANG_KIEM_TRA, CHO_XAC_NHAN_BAO_GIA -> demDangKiemTra++;
-                case DANG_SUA_CHUA -> demDangSuaChua++;
-                case HOAN_THANH, THANH_TOAN -> demHoanThanh++;
-                default -> {
-                }
-            }
-        }
-
-        lblTiepNhanHomNayPill.setText("Tiếp nhận hôm nay: " + demHomNay + " xe");
-        lblSoChoKiemTra.setText(demChoKiemTra + " xe");
-        lblSoDangKiemTra.setText(demDangKiemTra + " xe");
-        lblSoDangSuaChua.setText(demDangSuaChua + " xe");
-        lblSoHoanThanh.setText(demHoanThanh + " xe");
+        int[] kpi = phieuTiepNhanBUS.layThongKeKpi();
+        lblTiepNhanHomNayPill.setText("Tiếp nhận hôm nay: " + kpi[0] + " xe");
+        lblSoChoKiemTra.setText("0 xe");
+        lblSoDangKiemTra.setText(kpi[1] + " xe");
+        lblSoDangSuaChua.setText(kpi[2] + " xe");
+        lblSoHoanThanh.setText(kpi[3] + " xe");
     }
 
     private void locVaHienThiDuLieu() {
-        moHinhBang.setRowCount(0);
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.datTrang(1);
+        }
+        taiTrangTiepNhan();
+    }
 
-        String tuKhoa = txtTimKiem.getText().trim().toLowerCase();
-        if (tuKhoa.startsWith("tìm kiếm")) {
+    private void taiTrangTiepNhan() {
+        String tuKhoa = txtTimKiem.getText().trim();
+        if (tuKhoa.toLowerCase().startsWith("tìm kiếm")) {
             tuKhoa = "";
         }
 
         String locTT = (String) cboLocTrangThai.getSelectedItem();
-        boolean locTatCa = (locTT == null || locTT.equals("Tất cả trạng thái"));
-
-        int stt = 1;
-        for (PhieuTiepNhan ptn : danhSachGoc) {
-            // Lọc trạng thái
-            if (!locTatCa) {
-                String tenTT = ptn.getTrangThai() != null ? ptn.getTrangThai().getTenHienThi() : "";
-                if (!tenTT.equalsIgnoreCase(locTT)) {
-                    continue;
+        TrangThaiPhieuTiepNhan trangThaiLoc = null;
+        if (locTT != null && !"Tất cả trạng thái".equals(locTT)) {
+            for (TrangThaiPhieuTiepNhan tt : TrangThaiPhieuTiepNhan.values()) {
+                if (tt.getTenHienThi().equalsIgnoreCase(locTT)) {
+                    trangThaiLoc = tt;
+                    break;
                 }
             }
+        }
 
-            // Lọc từ khóa
-            if (!tuKhoa.isEmpty()) {
-                String ma = ptn.getMaTiepNhan() != null ? ptn.getMaTiepNhan().toLowerCase() : "";
-                String bienSo = ptn.getPhuongTien() != null && ptn.getPhuongTien().getBienSoXe() != null
-                        ? ptn.getPhuongTien().getBienSoXe().toLowerCase() : "";
-                String tenXe = ptn.getPhuongTien() != null && ptn.getPhuongTien().getMauXe() != null
-                        ? ptn.getPhuongTien().getMauXe().toLowerCase() : "";
-
-                KhachHang kh = ptn.getPhuongTien() != null ? ptn.getPhuongTien().getKhachHang() : null;
-                String tenKH = kh != null && kh.getHoTen() != null ? kh.getHoTen().toLowerCase() : "";
-                String sdt = kh != null && kh.getSoDienThoai() != null ? kh.getSoDienThoai() : "";
-
-                if (!ma.contains(tuKhoa) && !bienSo.contains(tuKhoa) && !tenXe.contains(tuKhoa)
-                        && !tenKH.contains(tuKhoa) && !sdt.contains(tuKhoa)) {
-                    continue;
+        int trang = thanhPhanTrang != null ? thanhPhanTrang.getTrangHienTai() : 1;
+        int tongBanGhi;
+        List<PhieuTiepNhan> dsTrang;
+        try {
+            tongBanGhi = phieuTiepNhanBUS.demTheoDieuKien(tuKhoa, trangThaiLoc);
+            int tongTrang = Math.max(1, (int) Math.ceil((double) tongBanGhi / KICH_THUOC_TRANG));
+            if (trang > tongTrang) {
+                trang = tongTrang;
+                if (thanhPhanTrang != null) {
+                    thanhPhanTrang.datTrang(trang);
                 }
             }
+            dsTrang = phieuTiepNhanBUS.layDanhSachPhanTrang(tuKhoa, trangThaiLoc, trang, KICH_THUOC_TRANG);
+        } catch (Exception ex) {
+            tongBanGhi = 0;
+            dsTrang = new ArrayList<>();
+        }
 
-            // Thêm vào bảng
+        moHinhBang.setRowCount(0);
+        int stt = (trang - 1) * KICH_THUOC_TRANG + 1;
+        for (PhieuTiepNhan ptn : dsTrang) {
             PhuongTien pt = ptn.getPhuongTien();
             String bienSoXe = pt != null ? pt.getBienSoXe() : "---";
             String hangMauXe = pt != null ? (pt.getHangXe() != null ? pt.getHangXe().getTenHang() + " " : "") + pt.getMauXe() : "---";
@@ -543,7 +524,9 @@ public class LeTanManHinhTiepNhan extends JPanel {
             });
         }
 
-        lblTongSoPhieu.setText("Hiển thị " + moHinhBang.getRowCount() + " phiếu tiếp nhận");
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.capNhat(tongBanGhi, moHinhBang.getRowCount());
+        }
     }
 
     private void moModalThemTiepNhan() {

@@ -8,6 +8,7 @@ import enums.PhuongThucThanhToan;
 import enums.TrangThaiThanhToan;
 import util.ChonNgayLichUtil;
 import util.IconUtil;
+import util.ThanhPhanTrang;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -92,11 +93,14 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
     private static final DateTimeFormatter DINH_DANG_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter DINH_DANG_NGAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    private static final int KICH_THUOC_TRANG = 13;
+
     private final HoaDonBUS hoaDonBUS = new HoaDonBUS();
     private final DecimalFormat dinhDangTien;
 
     private List<HoaDon> danhSachGoc = new ArrayList<>();
     private final List<HoaDon> danhSachHienThi = new ArrayList<>();
+    private ThanhPhanTrang thanhPhanTrang;
 
     // Thành phần KPI
     private JLabel lblKpiTongHoaDon;
@@ -130,9 +134,9 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
     }
 
     private void khoiTaoGiaoDien() {
-        setLayout(new BorderLayout(0, 14));
+        setLayout(new BorderLayout(0, 10));
         setBackground(MAU_NEN_TRANG);
-        setBorder(new EmptyBorder(16, 24, 20, 24));
+        setBorder(new EmptyBorder(10, 22, 12, 22));
 
         // Khu vực phía trên gồm: Tiêu đề + 4 thẻ KPI + Thẻ tìm kiếm & bộ lọc
         JPanel khuVucTren = new JPanel();
@@ -140,9 +144,9 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
         khuVucTren.setLayout(new BoxLayout(khuVucTren, BoxLayout.Y_AXIS));
 
         khuVucTren.add(taoHangTieuDeVaNutLamMoi());
-        khuVucTren.add(Box.createVerticalStrut(12));
+        khuVucTren.add(Box.createVerticalStrut(8));
         khuVucTren.add(taoHangBonTheKpi());
-        khuVucTren.add(Box.createVerticalStrut(12));
+        khuVucTren.add(Box.createVerticalStrut(8));
         khuVucTren.add(taoTheTimKiemVaBoLoc());
 
         // Khu vực trung tâm: Thẻ bảng Danh Sách Bản Ghi Hóa Đơn
@@ -174,7 +178,7 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
     private JPanel taoHangBonTheKpi() {
         JPanel luoi = new JPanel(new GridLayout(1, 4, 16, 0));
         luoi.setOpaque(false);
-        luoi.setPreferredSize(new Dimension(0, 76));
+        luoi.setPreferredSize(new Dimension(0, 62));
 
         lblKpiTongHoaDon = taoNhanGiaTriKpi("0", MAU_XANH_DAM);
         lblKpiDaThanhToan = taoNhanGiaTriKpi("0", MAU_XANH_LA_DAM);
@@ -202,7 +206,7 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
     private JPanel taoMotTheKpi(String tieuDeNho, JLabel lblGiaTri, LoaiIcon icon, Color nenIcon, Color mauIcon) {
         TheBoGoc the = new TheBoGoc(14, MAU_THE_TRANG, MAU_VIEN_THE);
         the.setLayout(new BorderLayout(12, 0));
-        the.setBorder(new EmptyBorder(14, 16, 14, 16));
+        the.setBorder(new EmptyBorder(8, 14, 8, 14));
 
         HopIconBoGoc hopIcon = new HopIconBoGoc(nenIcon, new BieuTuongVector(icon, 18, mauIcon));
 
@@ -226,7 +230,7 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
     private JPanel taoTheTimKiemVaBoLoc() {
         TheBoGoc the = new TheBoGoc(14, MAU_THE_TRANG, MAU_VIEN_THE);
         the.setLayout(new GridBagLayout());
-        the.setBorder(new EmptyBorder(11, 14, 11, 14));
+        the.setBorder(new EmptyBorder(8, 14, 8, 14));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
@@ -385,7 +389,7 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
         dauThe.setOpaque(false);
         dauThe.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, MAU_KE_BANG),
-                new EmptyBorder(13, 18, 11, 18)
+                new EmptyBorder(9, 18, 8, 18)
         ));
 
         JLabel lblTieuDeBang = new JLabel("Danh Sách Bản Ghi Hóa Đơn");
@@ -424,7 +428,7 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
         };
 
         bangHoaDon = new JTable(moHinhBang);
-        bangHoaDon.setRowHeight(44);
+        bangHoaDon.setRowHeight(33);
         bangHoaDon.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         bangHoaDon.setForeground(MAU_CHU_CHINH);
         bangHoaDon.setBackground(Color.WHITE);
@@ -436,26 +440,28 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
         bangHoaDon.setGridColor(MAU_KE_BANG);
         bangHoaDon.setIntercellSpacing(new Dimension(0, 1));
         bangHoaDon.setFillsViewportHeight(true);
+        bangHoaDon.setPreferredScrollableViewportSize(new Dimension(0, KICH_THUOC_TRANG * 33));
 
         JTableHeader header = bangHoaDon.getTableHeader();
         header.setReorderingAllowed(false);
-        header.setPreferredSize(new Dimension(0, 39));
+        header.setPreferredSize(new Dimension(0, 34));
         header.setDefaultRenderer(new BoVeTieuDeBang());
 
         TableColumnModel cotModel = bangHoaDon.getColumnModel();
-        cotModel.getColumn(0).setPreferredWidth(42);
-        cotModel.getColumn(1).setPreferredWidth(105);
-        cotModel.getColumn(2).setPreferredWidth(76);
+        cotModel.getColumn(0).setPreferredWidth(40);
+        cotModel.getColumn(1).setPreferredWidth(180);
+        cotModel.getColumn(1).setMinWidth(155);
+        cotModel.getColumn(2).setPreferredWidth(70);
         cotModel.getColumn(3).setPreferredWidth(120);
-        cotModel.getColumn(4).setPreferredWidth(95);
+        cotModel.getColumn(4).setPreferredWidth(92);
         cotModel.getColumn(5).setPreferredWidth(108);
         cotModel.getColumn(6).setPreferredWidth(112);
-        cotModel.getColumn(7).setPreferredWidth(88);
-        cotModel.getColumn(8).setPreferredWidth(85);
+        cotModel.getColumn(7).setPreferredWidth(84);
+        cotModel.getColumn(8).setPreferredWidth(78);
         cotModel.getColumn(9).setPreferredWidth(105);
-        cotModel.getColumn(10).setPreferredWidth(105);
+        cotModel.getColumn(10).setPreferredWidth(100);
         cotModel.getColumn(11).setPreferredWidth(118);
-        cotModel.getColumn(12).setPreferredWidth(72);
+        cotModel.getColumn(12).setPreferredWidth(66);
 
         BoVeOHoaDonThuong rendererThuong = new BoVeOHoaDonThuong();
         for (int i = 0; i <= 9; i++) {
@@ -495,9 +501,13 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
         JScrollPane cuonBang = new JScrollPane(bangHoaDon);
         cuonBang.setBorder(BorderFactory.createEmptyBorder(0, 1, 1, 1));
         cuonBang.getViewport().setBackground(Color.WHITE);
+        ThanhPhanTrang.caiDatBangCoDinh(cuonBang, bangHoaDon, KICH_THUOC_TRANG);
+
+        thanhPhanTrang = new ThanhPhanTrang(KICH_THUOC_TRANG, "hóa đơn", trang -> taiTrangHoaDon());
 
         the.add(dauThe, BorderLayout.NORTH);
         the.add(cuonBang, BorderLayout.CENTER);
+        the.add(thanhPhanTrang, BorderLayout.SOUTH);
         return the;
     }
 
@@ -512,33 +522,22 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
     }
 
     /**
-     * Tải toàn bộ hóa đơn thực tế từ CSDL qua HoaDonBUS và cập nhật 4 thẻ KPI (không dùng dữ liệu giả).
+     * Nạp thống kê KPI và dữ liệu hóa đơn phân trang thực tế từ CSDL qua HoaDonBUS.
+     * Thay thế việc gọi hoaDonBUS.layTatCa() toàn bảng bằng layThongKeKpi() + layDanhSachPhanTrang(..., 13).
      */
     public void lamMoiDuLieu() {
+        double[] kpi;
         try {
-            danhSachGoc = hoaDonBUS.layTatCa();
+            // Thay thế hoaDonBUS.layTatCa() (chỉ dùng cho tương thích) bằng layThongKeKpi()
+            kpi = hoaDonBUS.layThongKeKpi();
         } catch (Exception ex) {
-            danhSachGoc = new ArrayList<>();
+            kpi = new double[]{0, 0, 0, 0};
         }
 
-        int tongHD = danhSachGoc.size();
-        int daTT = 0;
-        int choTT = 0;
-        double tongDoanhThuDaTT = 0;
-
-        for (HoaDon hd : danhSachGoc) {
-            if (hd.getTrangThaiThanhToan() == TrangThaiThanhToan.DA_THANH_TOAN) {
-                daTT++;
-                tongDoanhThuDaTT += hd.tinhTongThanhToan();
-            } else {
-                choTT++;
-            }
-        }
-
-        lblKpiTongHoaDon.setText(String.valueOf(tongHD));
-        lblKpiDaThanhToan.setText(String.valueOf(daTT));
-        lblKpiChoThanhToan.setText(String.valueOf(choTT));
-        lblKpiTongThu.setText(dinhDangTien.format(Math.round(tongDoanhThuDaTT)) + " đ");
+        lblKpiTongHoaDon.setText(String.valueOf(Math.round(kpi[0])));
+        lblKpiDaThanhToan.setText(String.valueOf(Math.round(kpi[1])));
+        lblKpiChoThanhToan.setText(String.valueOf(Math.round(kpi[2])));
+        lblKpiTongThu.setText(dinhDangTien.format(Math.round(kpi[3])) + " đ");
 
         apDungBoLoc();
     }
@@ -561,60 +560,56 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
     }
 
     private void apDungBoLoc() {
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.datTrang(1);
+        }
+        taiTrangHoaDon();
+    }
+
+    private void taiTrangHoaDon() {
         String tuKhoa = txtTimKiem.getText();
         if (tuKhoa == null || PLACEHOLDER_TIM_KIEM.equals(tuKhoa)) {
             tuKhoa = "";
         }
-        tuKhoa = tuKhoa.trim().toLowerCase(Locale.ROOT);
+        tuKhoa = tuKhoa.trim();
 
         int chiSoLoai = cboLoaiHoaDon.getSelectedIndex();
+        LoaiHoaDon loaiLoc = chiSoLoai == 1 ? LoaiHoaDon.BAN_HANG
+                : (chiSoLoai == 2 ? LoaiHoaDon.DICH_VU : null);
+
         int chiSoTrangThai = cboTrangThai.getSelectedIndex();
+        TrangThaiThanhToan trangThaiLoc = chiSoTrangThai == 1 ? TrangThaiThanhToan.DA_THANH_TOAN
+                : (chiSoTrangThai == 2 ? TrangThaiThanhToan.CHUA_THANH_TOAN : null);
+
+        int trang = thanhPhanTrang != null ? thanhPhanTrang.getTrangHienTai() : 1;
+        int tongBanGhi;
+        List<HoaDon> dsTrang;
+        try {
+            tongBanGhi = hoaDonBUS.demTheoDieuKien(tuKhoa, loaiLoc, trangThaiLoc, ngayBatDauLoc, ngayKetThucLoc);
+            int tongTrang = Math.max(1, (int) Math.ceil((double) tongBanGhi / KICH_THUOC_TRANG));
+            if (trang > tongTrang) {
+                trang = tongTrang;
+                if (thanhPhanTrang != null) {
+                    thanhPhanTrang.datTrang(trang);
+                }
+            }
+            dsTrang = hoaDonBUS.layDanhSachPhanTrang(
+                    tuKhoa, loaiLoc, trangThaiLoc, ngayBatDauLoc, ngayKetThucLoc, trang, KICH_THUOC_TRANG);
+        } catch (Exception ex) {
+            tongBanGhi = 0;
+            dsTrang = new ArrayList<>();
+        }
 
         danhSachHienThi.clear();
         moHinhBang.setRowCount(0);
 
-        int stt = 1;
-        for (HoaDon hd : danhSachGoc) {
+        int stt = (trang - 1) * KICH_THUOC_TRANG + 1;
+        for (HoaDon hd : dsTrang) {
             KhachHang kh = hd.getKhachHang();
             boolean laKhachLe = (kh == null || kh.laKhachVangLai());
             String tenKH = laKhachLe ? "Khách lẻ" : (kh.getHoTen() != null ? kh.getHoTen() : "");
             String sdtKH = laKhachLe ? "-" : (kh.getSoDienThoai() != null ? kh.getSoDienThoai() : "-");
             String maHD = hd.getMaHoaDon() != null ? hd.getMaHoaDon() : "";
-
-            // 1. Lọc theo từ khoá (Mã HĐ, Tên khách hàng, SĐT)
-            if (!tuKhoa.isEmpty()) {
-                boolean khop = maHD.toLowerCase(Locale.ROOT).contains(tuKhoa)
-                        || tenKH.toLowerCase(Locale.ROOT).contains(tuKhoa)
-                        || sdtKH.toLowerCase(Locale.ROOT).contains(tuKhoa);
-                if (!khop) {
-                    continue;
-                }
-            }
-
-            // 2. Lọc theo Loại hóa đơn ("Bán lẻ" / "Dịch vụ")
-            if (chiSoLoai == 1 && hd.getLoaiHoaDon() != LoaiHoaDon.BAN_HANG) {
-                continue;
-            } else if (chiSoLoai == 2 && hd.getLoaiHoaDon() != LoaiHoaDon.DICH_VU) {
-                continue;
-            }
-
-            // 3. Lọc theo Trạng thái
-            if (chiSoTrangThai == 1 && hd.getTrangThaiThanhToan() != TrangThaiThanhToan.DA_THANH_TOAN) {
-                continue;
-            } else if (chiSoTrangThai == 2 && hd.getTrangThaiThanhToan() != TrangThaiThanhToan.CHUA_THANH_TOAN) {
-                continue;
-            }
-
-            // 4. Lọc theo khoảng Từ ngày - Đến ngày
-            if (hd.getThoiGianLap() != null) {
-                LocalDate ngayLap = hd.getThoiGianLap().toLocalDate();
-                if (ngayBatDauLoc != null && ngayLap.isBefore(ngayBatDauLoc)) {
-                    continue;
-                }
-                if (ngayKetThucLoc != null && ngayLap.isAfter(ngayKetThucLoc)) {
-                    continue;
-                }
-            }
 
             danhSachHienThi.add(hd);
 
@@ -644,7 +639,10 @@ public class QuanLyManHinhQuanLyHoaDon extends JPanel {
             });
         }
 
-        lblHienThiSoLuong.setText("Hiển thị " + danhSachHienThi.size() + " hóa đơn");
+        lblHienThiSoLuong.setText("Hiển thị " + danhSachHienThi.size() + " / " + tongBanGhi + " hóa đơn");
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.capNhat(tongBanGhi, danhSachHienThi.size());
+        }
     }
 
     // =========================================================================

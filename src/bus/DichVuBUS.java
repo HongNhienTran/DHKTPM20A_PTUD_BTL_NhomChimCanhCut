@@ -25,8 +25,23 @@ public class DichVuBUS {
         return taoMaDichVu(next);
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Quản lý dịch vụ đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<DichVu> layTatCa() {
         return dichVuDAO.layTatCa();
+    }
+
+    public List<DichVu> layDanhSachPhanTrang(String tuKhoa, Boolean trangThai, int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 13 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return dichVuDAO.layDanhSachPhanTrang(tuKhoa, trangThai, offset, sizeHopLe);
+    }
+
+    public int demTheoDieuKien(String tuKhoa, Boolean trangThai) {
+        return dichVuDAO.demTheoDieuKien(tuKhoa, trangThai);
     }
 
     public List<DichVu> layDanhSachDangKinhDoanh() {
@@ -106,4 +121,3 @@ public class DichVuBUS {
         return dichVuDAO.xoa(maDichVu.trim());
     }
 }
-

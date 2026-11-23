@@ -13,11 +13,13 @@ import enums.PhuongThucThanhToan;
 import enums.TrangThaiThanhToan;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,10 @@ public class HoaDonDAO {
     private final ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
     private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược và phục vụ báo cáo tổng hợp.
+     * Tại màn hình danh sách hóa đơn đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<HoaDon> layTatCa() {
         List<HoaDon> ds = new ArrayList<>();
         String sql = "SELECT ma_hoa_don, loai_hoa_don, thoi_gian_lap, trang_thai_thanh_toan, " +
@@ -45,6 +51,158 @@ public class HoaDonDAO {
             throw new RuntimeException("Lỗi lấy danh sách hóa đơn", e);
         }
         return ds;
+    }
+
+    public List<HoaDon> layDanhSachPhanTrang(String tuKhoa, LoaiHoaDon loai, TrangThaiThanhToan trangThai,
+                                             LocalDate tuNgay, LocalDate denNgay, int offset, int limit) {
+        List<HoaDon> ds = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, loai, trangThai, tuNgay, denNgay, params);
+        String sql = "SELECT hd.ma_hoa_don, hd.loai_hoa_don, hd.thoi_gian_lap, hd.trang_thai_thanh_toan, " +
+                "hd.phuong_thuc_thanh_toan, hd.thoi_gian_thanh_toan, hd.ghi_chu, " +
+                "hd.ma_khach_hang, hd.ma_nhan_vien, hd.ma_khuyen_mai, hd.ma_tiep_nhan " +
+                "FROM hoa_don hd LEFT JOIN khach_hang kh ON hd.ma_khach_hang = kh.ma_khach_hang " +
+                where +
+                " ORDER BY hd.thoi_gian_lap DESC, hd.ma_hoa_don DESC LIMIT ? OFFSET ?";
+        params.add(Math.max(1, limit));
+        params.add(Math.max(0, offset));
+
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(con, rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy danh sách hóa đơn phân trang", e);
+        }
+        return ds;
+    }
+
+    public int demTheoDieuKien(String tuKhoa, LoaiHoaDon loai, TrangThaiThanhToan trangThai,
+                               LocalDate tuNgay, LocalDate denNgay) {
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, loai, trangThai, tuNgay, denNgay, params);
+        String sql = "SELECT COUNT(*) FROM hoa_don hd " +
+                "LEFT JOIN khach_hang kh ON hd.ma_khach_hang = kh.ma_khach_hang " + where;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm số lượng hóa đơn", e);
+        }
+    }
+
+    public double[] layThongKeKpi() {
+        String sql = """
+                SELECT
+                    COUNT(*) AS tong_hd,
+                    SUM(CASE WHEN hd.trang_thai_thanh_toan = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) AS da_tt,
+                    SUM(CASE WHEN hd.trang_thai_thanh_toan <> 'DA_THANH_TOAN' THEN 1 ELSE 0 END) AS cho_tt,
+                    COALESCE(SUM(CASE
+                        WHEN hd.trang_thai_thanh_toan = 'DA_THANH_TOAN' THEN
+                            GREATEST(0,
+                                COALESCE(ct.tien_hang, 0) + COALESCE(ct.thue, 0) -
+                                CASE
+                                    WHEN km.ma_khuyen_mai IS NOT NULL AND km.trang_thai = 1
+                                         AND COALESCE(ct.tien_hang, 0) >= km.gia_tri_toi_thieu_ap_dung THEN
+                                        LEAST(COALESCE(ct.tien_hang, 0),
+                                            GREATEST(0,
+                                                CASE
+                                                    WHEN km.loai_giam = 'PHAN_TRAM' THEN COALESCE(ct.tien_hang, 0) * (km.gia_tri_giam / 100.0)
+                                                    WHEN km.loai_giam = 'SO_TIEN' THEN km.gia_tri_giam
+                                                    ELSE 0
+                                                END
+                                            )
+                                        )
+                                    ELSE 0
+                                END
+                            )
+                        ELSE 0
+                    END), 0) AS tong_thu
+                FROM hoa_don hd
+                LEFT JOIN ma_khuyen_mai km ON hd.ma_khuyen_mai = km.ma_khuyen_mai
+                LEFT JOIN (
+                    SELECT cthd.ma_hoa_don,
+                           SUM(cthd.so_luong * cthd.don_gia) AS tien_hang,
+                           SUM(cthd.so_luong * cthd.don_gia *
+                               CASE
+                                   WHEN COALESCE(dv.thue_vat, sp.thue_vat, 0) > 1
+                                       THEN COALESCE(dv.thue_vat, sp.thue_vat, 0) / 100.0
+                                   ELSE COALESCE(dv.thue_vat, sp.thue_vat, 0)
+                               END
+                           ) AS thue
+                    FROM chi_tiet_hoa_don cthd
+                    LEFT JOIN dich_vu dv ON cthd.loai_hang_muc = 'DICH_VU' AND cthd.ma_dich_vu = dv.ma_dich_vu
+                    LEFT JOIN san_pham sp ON cthd.loai_hang_muc = 'SAN_PHAM' AND cthd.ma_san_pham = sp.ma_san_pham
+                    GROUP BY cthd.ma_hoa_don
+                ) ct ON hd.ma_hoa_don = ct.ma_hoa_don
+                """;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return new double[]{
+                        rs.getDouble("tong_hd"),
+                        rs.getDouble("da_tt"),
+                        rs.getDouble("cho_tt"),
+                        rs.getDouble("tong_thu")
+                };
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi thống kê KPI hóa đơn", e);
+        }
+        return new double[]{0, 0, 0, 0};
+    }
+
+    private String xayDungDieuKienLoc(String tuKhoa, LoaiHoaDon loai, TrangThaiThanhToan trangThai,
+                                      LocalDate tuNgay, LocalDate denNgay, List<Object> params) {
+        StringBuilder where = new StringBuilder("WHERE 1=1");
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            String pattern = "%" + tuKhoa.trim().toLowerCase() + "%";
+            where.append(" AND (LOWER(hd.ma_hoa_don) LIKE ? OR LOWER(COALESCE(kh.ho_ten, '')) LIKE ? ")
+                 .append("OR LOWER(COALESCE(kh.so_dien_thoai, '')) LIKE ? ")
+                 .append("OR (hd.ma_khach_hang = 'KH000000000' AND LOWER('Khách lẻ') LIKE ?))");
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+        if (loai != null) {
+            where.append(" AND hd.loai_hoa_don = ?");
+            params.add(loai.name());
+        }
+        if (trangThai != null) {
+            where.append(" AND hd.trang_thai_thanh_toan = ?");
+            params.add(trangThai.name());
+        }
+        if (tuNgay != null) {
+            where.append(" AND DATE(hd.thoi_gian_lap) >= ?");
+            params.add(Date.valueOf(tuNgay));
+        }
+        if (denNgay != null) {
+            where.append(" AND DATE(hd.thoi_gian_lap) <= ?");
+            params.add(Date.valueOf(denNgay));
+        }
+        return where.toString();
+    }
+
+    private void ganThamSo(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object val = params.get(i);
+            if (val instanceof String s) {
+                ps.setString(i + 1, s);
+            } else if (val instanceof Integer n) {
+                ps.setInt(i + 1, n);
+            } else if (val instanceof Date d) {
+                ps.setDate(i + 1, d);
+            }
+        }
     }
 
     public List<HoaDon> timTheoKhachHang(String maKhachHang) {

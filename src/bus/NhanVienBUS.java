@@ -51,8 +51,24 @@ public class NhanVienBUS {
         return String.format("%s%03d", tienTo, max + 1);
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Quản lý nhân viên đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<NhanVien> layTatCa() {
         return nhanVienDAO.layTatCa();
+    }
+
+    public List<NhanVien> layDanhSachPhanTrang(String tuKhoa, ChucVu chucVu, Boolean trangThai,
+                                               int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 13 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return nhanVienDAO.layDanhSachPhanTrang(tuKhoa, chucVu, trangThai, offset, sizeHopLe);
+    }
+
+    public int demTheoDieuKien(String tuKhoa, ChucVu chucVu, Boolean trangThai) {
+        return nhanVienDAO.demTheoDieuKien(tuKhoa, chucVu, trangThai);
     }
 
     public List<NhanVien> layTheoChucVu(ChucVu chucVu) {

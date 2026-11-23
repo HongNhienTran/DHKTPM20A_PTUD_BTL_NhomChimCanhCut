@@ -93,10 +93,10 @@ public class LeTanManHinhTiepNhanXemChiTietTiepNhan extends JDialog {
 
     private void khoiTaoGiaoDien() {
         Dimension manHinh = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        int rong = Math.min(1020, manHinh.width - 60);
-        int cao = Math.min(820, manHinh.height - 60);
+        int rong = Math.min(1200, manHinh.width - 40);
+        int cao = Math.min(860, manHinh.height - 40);
         setSize(rong, cao);
-        setMinimumSize(new Dimension(880, 640));
+        setMinimumSize(new Dimension(1020, 680));
         setLocationRelativeTo(getOwner());
         setLayout(new BorderLayout());
         getContentPane().setBackground(MAU_NEN_CHINH);
@@ -142,27 +142,32 @@ public class LeTanManHinhTiepNhanXemChiTietTiepNhan extends JDialog {
                 new EmptyBorder(14, 20, 14, 20)
         ));
 
-        // Bên trái: Icon + Biển số + Mã tiếp nhận
+        // Bên trái: Icon + (Biển số trên, Mã tiếp nhận dưới)
         JPanel pnlTrai = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         pnlTrai.setOpaque(false);
 
-        JLabel lblIcon = new JLabel(IconUtil.layIcon("car.png", 22, 22, MAU_XANH_DAM));
+        JLabel lblIcon = new JLabel(IconUtil.layIcon("car.png", 24, 24, MAU_XANH_DAM));
         pnlTrai.add(lblIcon);
+
+        JPanel cumTieuDe = new JPanel();
+        cumTieuDe.setOpaque(false);
+        cumTieuDe.setLayout(new BoxLayout(cumTieuDe, BoxLayout.Y_AXIS));
 
         PhuongTien pt = (phieuTiepNhan != null) ? phieuTiepNhan.getPhuongTien() : null;
         String bienSo = (pt != null && pt.getBienSoXe() != null) ? pt.getBienSoXe() : "Chưa có biển số";
         JLabel lblTieuDe = new JLabel("PHIẾU TIẾP NHẬN: " + bienSo);
         lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTieuDe.setForeground(MAU_XANH_DAM);
-        pnlTrai.add(lblTieuDe);
+        cumTieuDe.add(lblTieuDe);
 
         String maTN = (phieuTiepNhan != null && phieuTiepNhan.getMaTiepNhan() != null) ? phieuTiepNhan.getMaTiepNhan() : "-";
-        JLabel lblMaTN = new JLabel("(" + maTN + ")");
-        lblMaTN.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        JLabel lblMaTN = new JLabel("Mã phiếu: " + maTN);
+        lblMaTN.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblMaTN.setForeground(MAU_CHU_PHU);
-        pnlTrai.add(lblMaTN);
+        cumTieuDe.add(lblMaTN);
 
-        header.add(pnlTrai, BorderLayout.WEST);
+        pnlTrai.add(cumTieuDe);
+        header.add(pnlTrai, BorderLayout.CENTER);
 
         // Bên phải: Badge trạng thái + Thời gian tiếp nhận
         JPanel pnlPhai = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
@@ -495,7 +500,7 @@ public class LeTanManHinhTiepNhanXemChiTietTiepNhan extends JDialog {
             btnTienDo.setBackground(MAU_CAM_CHU_DAO);
             btnTienDo.setFocusPainted(false);
             btnTienDo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            btnTienDo.setPreferredSize(new Dimension(190, 36));
+            btnTienDo.setPreferredSize(new Dimension(240, 40));
             btnTienDo.addActionListener(e -> {
                 dispose();
                 onMoChiTietTienDo.run();
@@ -508,7 +513,7 @@ public class LeTanManHinhTiepNhanXemChiTietTiepNhan extends JDialog {
             btnThanhToan.setBackground(MAU_CAM_CHU_DAO);
             btnThanhToan.setFocusPainted(false);
             btnThanhToan.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            btnThanhToan.setPreferredSize(new Dimension(225, 36));
+            btnThanhToan.setPreferredSize(new Dimension(275, 40));
             btnThanhToan.addActionListener(e -> {
                 dispose();
                 Window w = getOwner();
@@ -524,7 +529,7 @@ public class LeTanManHinhTiepNhanXemChiTietTiepNhan extends JDialog {
             btnXemHD.setBackground(new Color(79, 70, 229));
             btnXemHD.setFocusPainted(false);
             btnXemHD.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            btnXemHD.setPreferredSize(new Dimension(160, 36));
+            btnXemHD.setPreferredSize(new Dimension(195, 40));
             btnXemHD.addActionListener(e -> {
                 dispose();
                 Window w = getOwner();
@@ -541,7 +546,7 @@ public class LeTanManHinhTiepNhanXemChiTietTiepNhan extends JDialog {
         btnDong.setBackground(MAU_XANH_DAM);
         btnDong.setFocusPainted(false);
         btnDong.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnDong.setPreferredSize(new Dimension(100, 36));
+        btnDong.setPreferredSize(new Dimension(115, 40));
         btnDong.addActionListener(e -> dispose());
         pnlNut.add(btnDong);
 

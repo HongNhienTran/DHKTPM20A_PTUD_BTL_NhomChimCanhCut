@@ -34,8 +34,25 @@ public class SanPhamBUS {
         return taoMaSanPham(maDanhMuc, next);
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại các màn hình quản lý và tra cứu sản phẩm đã thay thế bằng {@link #layDanhSachQuanLyPhanTrang}.
+     */
     public List<SanPham> layTatCa() {
         return sanPhamDAO.layTatCa();
+    }
+
+    public List<SanPham> layDanhSachQuanLyPhanTrang(String tuKhoa, String maDanhMuc,
+                                                     int cheDoTonKho, Boolean trangThai,
+                                                     int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 13 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return sanPhamDAO.layDanhSachQuanLyPhanTrang(tuKhoa, maDanhMuc, cheDoTonKho, trangThai, offset, sizeHopLe);
+    }
+
+    public int demTheoDieuKien(String tuKhoa, String maDanhMuc, int cheDoTonKho, Boolean trangThai) {
+        return sanPhamDAO.demTheoDieuKien(tuKhoa, maDanhMuc, cheDoTonKho, trangThai);
     }
 
     public List<SanPham> layTheoDanhMuc(String maDanhMuc) {
@@ -57,6 +74,33 @@ public class SanPhamBUS {
             gioiHan = 30;
         }
         return sanPhamDAO.layDanhSachSanPhamMoi(gioiHan);
+    }
+
+    public List<SanPham> layDanhSachPhanTrang(String cheDo, String maDanhMuc, int trang, int kichThuocTrang) {
+        return layDanhSachPhanTrang(cheDo, maDanhMuc, null, trang, kichThuocTrang);
+    }
+
+    public List<SanPham> layDanhSachPhanTrang(String cheDo, String maDanhMuc, String tuKhoa,
+                                              int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 16 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return sanPhamDAO.layDanhSachPhanTrang(cheDo, maDanhMuc, tuKhoa, offset, sizeHopLe);
+    }
+
+    public int demTongSanPhamBanHang(String maDanhMuc) {
+        return demTongSanPhamBanHang(maDanhMuc, null);
+    }
+
+    public int demTongSanPhamBanHang(String maDanhMuc, String tuKhoa) {
+        return sanPhamDAO.demTongSanPhamDangKinhDoanh(maDanhMuc, tuKhoa);
+    }
+
+    public List<SanPham> timKiemNhanh(String tuKhoa, int gioiHan) {
+        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return sanPhamDAO.timKiemNhanh(tuKhoa.trim(), gioiHan <= 0 ? 8 : gioiHan);
     }
 
     public List<SanPham> layDanhSachCanNhapThem() {
@@ -123,4 +167,3 @@ public class SanPhamBUS {
         return sanPhamDAO.xoa(maSanPham.trim());
     }
 }
-

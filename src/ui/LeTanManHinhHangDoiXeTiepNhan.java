@@ -24,7 +24,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
@@ -40,6 +42,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Window;
 import java.awt.event.FocusAdapter;
@@ -173,8 +176,8 @@ public class LeTanManHinhHangDoiXeTiepNhan extends JPanel {
                 new EmptyBorder(6, 12, 6, 12)
         ));
 
-        // Nút + Tiếp Nhận Xe (Màu xanh ngọc / xanh lá)
-        JButton btnTiepNhanXe = new JButton("+ Tiếp Nhận Xe", IconUtil.layIcon("plus.png", 14, 14, Color.WHITE)) {
+        // Nút Tiếp Nhận Xe (Màu xanh ngọc / xanh lá)
+        JButton btnTiepNhanXe = new JButton("Tiếp Nhận Xe", IconUtil.layIcon("plus.png", 14, 14, Color.WHITE)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -192,7 +195,7 @@ public class LeTanManHinhHangDoiXeTiepNhan extends JPanel {
         btnTiepNhanXe.setBorderPainted(false);
         btnTiepNhanXe.setContentAreaFilled(false);
         btnTiepNhanXe.setOpaque(false);
-        btnTiepNhanXe.setPreferredSize(new Dimension(145, 36));
+        btnTiepNhanXe.setPreferredSize(new Dimension(175, 38));
         btnTiepNhanXe.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnTiepNhanXe.addActionListener(e -> moModalThemTiepNhan());
 
@@ -215,7 +218,7 @@ public class LeTanManHinhHangDoiXeTiepNhan extends JPanel {
         btnCapNhat.setBorderPainted(false);
         btnCapNhat.setContentAreaFilled(false);
         btnCapNhat.setOpaque(false);
-        btnCapNhat.setPreferredSize(new Dimension(115, 36));
+        btnCapNhat.setPreferredSize(new Dimension(135, 38));
         btnCapNhat.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnCapNhat.addActionListener(e -> taiLaiDuLieu());
 
@@ -320,7 +323,7 @@ public class LeTanManHinhHangDoiXeTiepNhan extends JPanel {
         btnDatLai.setFocusPainted(false);
         btnDatLai.setBorderPainted(false);
         btnDatLai.setContentAreaFilled(false);
-        btnDatLai.setPreferredSize(new Dimension(90, 36));
+        btnDatLai.setPreferredSize(new Dimension(110, 38));
         btnDatLai.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnDatLai.setIconTextGap(6);
         btnDatLai.addActionListener(e -> {
@@ -388,11 +391,38 @@ public class LeTanManHinhHangDoiXeTiepNhan extends JPanel {
     }
 
     private JPanel taoDanhSachChuaTheXe() {
-        JPanel pnl = new JPanel();
+        PanelDanhSachKanban pnl = new PanelDanhSachKanban();
         pnl.setOpaque(false);
         pnl.setLayout(new BoxLayout(pnl, BoxLayout.Y_AXIS));
         pnl.setBorder(new EmptyBorder(10, 10, 10, 10));
         return pnl;
+    }
+
+    private static class PanelDanhSachKanban extends JPanel implements Scrollable {
+        @Override
+        public Dimension getPreferredScrollableViewportSize() {
+            return getPreferredSize();
+        }
+
+        @Override
+        public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+            return 16;
+        }
+
+        @Override
+        public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+            return 64;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportWidth() {
+            return true;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportHeight() {
+            return false;
+        }
     }
 
     private JLabel taoPillDemSo(Color mauChu, Color mauNen) {
@@ -531,119 +561,106 @@ public class LeTanManHinhHangDoiXeTiepNhan extends JPanel {
     private JPanel taoTheXeKanban(PhieuTiepNhan ptn, int loaiCot) {
         TheBoGoc the = new TheBoGoc(10, Color.WHITE, MAU_VIEN);
         the.setLayout(new BoxLayout(the, BoxLayout.Y_AXIS));
-        the.setBorder(new EmptyBorder(12, 14, 12, 14));
-        the.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+        the.setBorder(new EmptyBorder(11, 11, 11, 11));
+        the.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         PhuongTien pt = ptn.getPhuongTien();
         KhachHang kh = pt != null ? pt.getKhachHang() : null;
 
-        // Dòng 1: Biển số xe bên trái + Mã tiếp nhận bên phải
-        JPanel hang1 = new JPanel(new BorderLayout());
+        // Dòng 1: Biển số xe bên trái + Trạng thái thanh toán (nếu ở cột Chờ bàn giao)
+        JPanel hang1 = new JPanel(new BorderLayout(6, 0));
         hang1.setOpaque(false);
+        hang1.setAlignmentX(Component.LEFT_ALIGNMENT);
+        hang1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
 
         String bienSo = pt != null && pt.getBienSoXe() != null ? pt.getBienSoXe() : "---";
         JLabel lblBienSo = new JLabel(bienSo);
         lblBienSo.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblBienSo.setForeground(new Color(15, 23, 42));
-
-        JLabel lblMaTN = new JLabel(ptn.getMaTiepNhan());
-        lblMaTN.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        lblMaTN.setForeground(MAU_CHU_PHU);
-
         hang1.add(lblBienSo, BorderLayout.WEST);
+
         if (loaiCot == 4) {
             boolean daTT = daThanhToan(ptn);
-            JLabel lblTrangThaiTT = new JLabel(daTT ? " Đã TT" : " Chờ TT", IconUtil.layIcon(daTT ? "check.png" : "history.png", 10, 10, daTT ? new Color(21, 128, 61) : new Color(180, 83, 9)), SwingConstants.LEFT);
+            JLabel lblTrangThaiTT = new JLabel(
+                    daTT ? "Đã TT" : "Chờ TT",
+                    IconUtil.layIcon(daTT ? "check.png" : "history.png", 10, 10,
+                            daTT ? new Color(21, 128, 61) : new Color(180, 83, 9)),
+                    SwingConstants.LEFT
+            );
             lblTrangThaiTT.setFont(new Font("Segoe UI", Font.BOLD, 10));
             lblTrangThaiTT.setForeground(daTT ? new Color(21, 128, 61) : new Color(180, 83, 9));
             lblTrangThaiTT.setOpaque(true);
             lblTrangThaiTT.setBackground(daTT ? new Color(220, 252, 231) : new Color(254, 243, 199));
-            lblTrangThaiTT.setBorder(BorderFactory.createLineBorder(daTT ? new Color(134, 239, 172) : new Color(252, 211, 77), 1, true));
-
-            JPanel pnlPhai = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
-            pnlPhai.setOpaque(false);
-            pnlPhai.add(lblTrangThaiTT);
-            pnlPhai.add(lblMaTN);
-            hang1.add(pnlPhai, BorderLayout.EAST);
-        } else {
-            hang1.add(lblMaTN, BorderLayout.EAST);
+            lblTrangThaiTT.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(daTT ? new Color(134, 239, 172) : new Color(252, 211, 77), 1, true),
+                    new EmptyBorder(1, 5, 1, 5)
+            ));
+            hang1.add(lblTrangThaiTT, BorderLayout.EAST);
         }
         the.add(hang1);
+        the.add(Box.createVerticalStrut(2));
+
+        // Dòng mã phiếu tiếp nhận đặt tách dòng riêng để không đụng biển số / badge
+        JLabel lblMaTN = new JLabel(ptn.getMaTiepNhan() != null ? ptn.getMaTiepNhan() : "---");
+        lblMaTN.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        lblMaTN.setForeground(MAU_CHU_PHU);
+        lblMaTN.setAlignmentX(Component.LEFT_ALIGNMENT);
+        lblMaTN.setMinimumSize(new Dimension(0, 16));
+        lblMaTN.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
+        lblMaTN.setToolTipText(lblMaTN.getText());
+        the.add(lblMaTN);
         the.add(Box.createVerticalStrut(6));
 
         // Dòng 2: Hãng / Mẫu xe & màu sắc
         String mauXe = pt != null ? pt.getMauXe() : "---";
         String hang = pt != null && pt.getHangXe() != null ? pt.getHangXe().getTenHang() + " " : "";
         String mauSac = pt != null && pt.getMauSacXe() != null && !pt.getMauSacXe().isBlank() ? " (" + pt.getMauSacXe() + ")" : "";
-
-        JLabel lblXe = new JLabel(hang + mauXe + mauSac, IconUtil.layIcon("car.png", 13, 13, MAU_CHU_PHU), SwingConstants.LEFT);
-        lblXe.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblXe.setForeground(MAU_CHU_CHINH);
-        lblXe.setIconTextGap(6);
-        lblXe.setAlignmentX(Component.LEFT_ALIGNMENT);
-        the.add(lblXe);
+        the.add(taoDongThongTinThe("car.png", MAU_CHU_PHU, hang + mauXe + mauSac,
+                new Font("Segoe UI", Font.PLAIN, 12), MAU_CHU_CHINH, true));
         the.add(Box.createVerticalStrut(4));
 
         // Dòng 3: Chủ xe & SĐT
         String tenKH = kh != null ? kh.getHoTen() : "Khách vãng lai";
         String sdt = kh != null && kh.getSoDienThoai() != null ? " - " + kh.getSoDienThoai() : "";
-
-        JLabel lblKhach = new JLabel(tenKH + sdt, IconUtil.layIcon("user.png", 13, 13, MAU_CHU_PHU), SwingConstants.LEFT);
-        lblKhach.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblKhach.setForeground(MAU_CHU_PHU);
-        lblKhach.setIconTextGap(6);
-        lblKhach.setAlignmentX(Component.LEFT_ALIGNMENT);
-        the.add(lblKhach);
+        the.add(taoDongThongTinThe("user.png", MAU_CHU_PHU, tenKH + sdt,
+                new Font("Segoe UI", Font.PLAIN, 12), MAU_CHU_PHU, true));
         the.add(Box.createVerticalStrut(4));
 
-        // Dòng 4: Kỹ thuật viên phụ trách
+        // Dòng 4: Kỹ thuật viên phụ trách (cho phép xuống dòng nếu có nhiều KTV)
         String ktvText = tríchXuatKTV(ptn);
-        JLabel lblKTV = new JLabel(ktvText, IconUtil.layIcon("service.png", 13, 13, new Color(37, 99, 235)), SwingConstants.LEFT);
-        lblKTV.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblKTV.setForeground(new Color(15, 41, 66));
-        lblKTV.setIconTextGap(6);
-        lblKTV.setAlignmentX(Component.LEFT_ALIGNMENT);
-        the.add(lblKTV);
+        the.add(taoDongThongTinThe("service.png", new Color(37, 99, 235), ktvText,
+                new Font("Segoe UI", Font.BOLD, 12), new Color(15, 41, 66), true));
         the.add(Box.createVerticalStrut(4));
 
         // Dòng 5: Thời gian tiếp nhận vào & thời gian trôi qua
         String gioVao = ptn.getThoiGianTiepNhan() != null ? ptn.getThoiGianTiepNhan().format(DINH_DANG_GIO) : "--:--";
         String troiQua = tinhThoiGianTroiQua(ptn.getThoiGianTiepNhan());
-        JLabel lblThoiGian = new JLabel("Vào lúc " + gioVao + " (" + troiQua + ")", IconUtil.layIcon("history.png", 12, 12, new Color(59, 130, 246)), SwingConstants.LEFT);
-        lblThoiGian.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblThoiGian.setForeground(new Color(59, 130, 246));
-        lblThoiGian.setIconTextGap(6);
-        lblThoiGian.setAlignmentX(Component.LEFT_ALIGNMENT);
-        the.add(lblThoiGian);
+        the.add(taoDongThongTinThe("history.png", new Color(59, 130, 246), "Vào lúc " + gioVao + " (" + troiQua + ")",
+                new Font("Segoe UI", Font.PLAIN, 11), new Color(59, 130, 246), false));
         the.add(Box.createVerticalStrut(4));
 
         // Dòng 6: Yêu cầu / hỏng hóc
-        String yeuCau = ptn.getYeuCauKhachHang() != null ? ptn.getYeuCauKhachHang() : "-";
-        if (yeuCau.length() > 40) {
-            yeuCau = yeuCau.substring(0, 37) + "...";
-        }
-        JLabel lblYeuCau = new JLabel(yeuCau, IconUtil.layIcon("edit.png", 12, 12, MAU_CHU_PHU), SwingConstants.LEFT);
-        lblYeuCau.setFont(new Font("Segoe UI", Font.ITALIC, 11));
-        lblYeuCau.setForeground(MAU_CHU_PHU);
-        lblYeuCau.setIconTextGap(6);
-        lblYeuCau.setAlignmentX(Component.LEFT_ALIGNMENT);
-        the.add(lblYeuCau);
-        the.add(Box.createVerticalStrut(10));
+        String yeuCau = ptn.getYeuCauKhachHang() != null && !ptn.getYeuCauKhachHang().isBlank()
+                ? ptn.getYeuCauKhachHang() : "-";
+        the.add(taoDongThongTinThe("edit.png", MAU_CHU_PHU, yeuCau,
+                new Font("Segoe UI", Font.ITALIC, 11), MAU_CHU_PHU, true));
+        the.add(Box.createVerticalStrut(8));
 
-        // Dòng 7: Hàng nút thao tác dưới chân thẻ - sử dụng GridLayout(1, 2, 8, 0) để hai nút chia đều chiều rộng thẻ, không bị co nhỏ hay mất chữ
+        // Dòng 7: Hàng nút thao tác dưới chân thẻ - chia đều 2 nút vừa khít chiều rộng thẻ
         JButton btnHanhDong = taoNutHanhDongTheoCot(ptn, loaiCot);
         JPanel hangNut;
         if (btnHanhDong != null) {
-            hangNut = new JPanel(new GridLayout(1, 2, 8, 0));
+            hangNut = new JPanel(new GridLayout(1, 2, 6, 0));
         } else {
             hangNut = new JPanel(new BorderLayout());
         }
         hangNut.setOpaque(false);
-        hangNut.setPreferredSize(new Dimension(0, 32));
-        hangNut.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
+        hangNut.setAlignmentX(Component.LEFT_ALIGNMENT);
+        hangNut.setPreferredSize(new Dimension(0, 34));
+        hangNut.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
 
         // Nút bên trái: Xem chi tiết (nếu cột 3 thì mở phiếu chi tiết tiến độ sửa, các cột khác mở chi tiết tiếp nhận)
-        JButton btnChiTiet = new JButton("Xem chi tiết", IconUtil.layIcon("view.png", 13, 13, MAU_CHU_CHINH)) {
+        JButton btnChiTiet = new JButton("Xem chi tiết", IconUtil.layIcon("view.png", 12, 12, MAU_CHU_CHINH)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -664,6 +681,7 @@ public class LeTanManHinhHangDoiXeTiepNhan extends JPanel {
         btnChiTiet.setContentAreaFilled(false);
         btnChiTiet.setMargin(new Insets(0, 2, 0, 2));
         btnChiTiet.setBorder(new EmptyBorder(4, 4, 4, 4));
+        btnChiTiet.setMinimumSize(new Dimension(0, 32));
         btnChiTiet.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnChiTiet.setIconTextGap(4);
 
@@ -677,11 +695,50 @@ public class LeTanManHinhHangDoiXeTiepNhan extends JPanel {
 
         hangNut.add(btnChiTiet);
         if (btnHanhDong != null) {
+            btnHanhDong.setMinimumSize(new Dimension(0, 32));
             hangNut.add(btnHanhDong);
         }
 
         the.add(hangNut);
+        the.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         return the;
+    }
+
+    private JPanel taoDongThongTinThe(String tenIcon, Color mauIcon, String noiDung,
+                                      Font font, Color mauChu, boolean choPhepXuongDong) {
+        JPanel dong = new JPanel(new BorderLayout(6, 0));
+        dong.setOpaque(false);
+        dong.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel lblIcon = new JLabel(IconUtil.layIcon(tenIcon, 12, 12, mauIcon));
+        lblIcon.setVerticalAlignment(SwingConstants.TOP);
+        lblIcon.setBorder(new EmptyBorder(2, 0, 0, 0));
+        dong.add(lblIcon, BorderLayout.WEST);
+
+        String chu = noiDung != null ? noiDung : "";
+        if (choPhepXuongDong) {
+            JTextArea txt = new JTextArea(chu);
+            txt.setFont(font);
+            txt.setForeground(mauChu);
+            txt.setOpaque(false);
+            txt.setEditable(false);
+            txt.setFocusable(false);
+            txt.setLineWrap(true);
+            txt.setWrapStyleWord(true);
+            txt.setBorder(null);
+            txt.setMargin(new Insets(0, 0, 0, 0));
+            txt.setMinimumSize(new Dimension(0, 16));
+            txt.setToolTipText(chu.length() > 30 ? chu : null);
+            dong.add(txt, BorderLayout.CENTER);
+        } else {
+            JLabel lbl = new JLabel(chu);
+            lbl.setFont(font);
+            lbl.setForeground(mauChu);
+            lbl.setMinimumSize(new Dimension(0, 16));
+            lbl.setToolTipText(chu.length() > 30 ? chu : null);
+            dong.add(lbl, BorderLayout.CENTER);
+        }
+        return dong;
     }
 
     private JButton taoNutHanhDongTheoCot(PhieuTiepNhan ptn, int loaiCot) {

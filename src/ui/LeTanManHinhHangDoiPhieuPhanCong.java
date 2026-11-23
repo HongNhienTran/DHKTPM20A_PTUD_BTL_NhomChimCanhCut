@@ -329,10 +329,10 @@ public class LeTanManHinhHangDoiPhieuPhanCong extends JDialog {
 
     private void khoiTaoGiaoDien() {
         Dimension manHinh = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        int rong = Math.min(1180, manHinh.width - 60);
-        int cao = Math.min(780, manHinh.height - 60);
+        int rong = Math.min(1280, manHinh.width - 40);
+        int cao = Math.min(860, manHinh.height - 40);
         setSize(rong, cao);
-        setMinimumSize(new Dimension(1020, 640));
+        setMinimumSize(new Dimension(1080, 680));
         setLocationRelativeTo(getOwner());
         setLayout(new BorderLayout());
         getContentPane().setBackground(MAU_NEN_CHINH);
@@ -765,7 +765,7 @@ public class LeTanManHinhHangDoiPhieuPhanCong extends JDialog {
         btnKhachTuChoi.setBorderPainted(false);
         btnKhachTuChoi.setContentAreaFilled(false);
         btnKhachTuChoi.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnKhachTuChoi.setPreferredSize(new Dimension(150, 36));
+        btnKhachTuChoi.setPreferredSize(new Dimension(180, 40));
         btnKhachTuChoi.addActionListener(e -> xuLyKhachTuChoi());
 
         footer.add(btnKhachTuChoi, BorderLayout.WEST);
@@ -792,7 +792,7 @@ public class LeTanManHinhHangDoiPhieuPhanCong extends JDialog {
         btnKhachChot.setBorderPainted(false);
         btnKhachChot.setContentAreaFilled(false);
         btnKhachChot.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnKhachChot.setPreferredSize(new Dimension(240, 36));
+        btnKhachChot.setPreferredSize(new Dimension(285, 40));
         btnKhachChot.addActionListener(e -> xuLyKhachChotVaPhanCong());
 
         // Nút Đóng
@@ -816,7 +816,7 @@ public class LeTanManHinhHangDoiPhieuPhanCong extends JDialog {
         btnDong.setBorderPainted(false);
         btnDong.setContentAreaFilled(false);
         btnDong.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnDong.setPreferredSize(new Dimension(90, 36));
+        btnDong.setPreferredSize(new Dimension(110, 40));
         btnDong.addActionListener(e -> dispose());
 
         pnlPhai.add(btnKhachChot);

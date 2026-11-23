@@ -153,10 +153,10 @@ public class LeTanManHinhThemTiepNhan extends JDialog {
 
     private void khoiTaoGiaoDien() {
         Dimension manHinh = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        int rong = Math.min(1080, manHinh.width - 60);
-        int cao = Math.min(840, manHinh.height - 60);
+        int rong = Math.min(1220, manHinh.width - 40);
+        int cao = Math.min(880, manHinh.height - 40);
         setSize(rong, cao);
-        setMinimumSize(new Dimension(920, 700));
+        setMinimumSize(new Dimension(1020, 720));
         setLocationRelativeTo(cuaSoCha);
         setResizable(true);
 
@@ -230,7 +230,7 @@ public class LeTanManHinhThemTiepNhan extends JDialog {
         btnDong.setBorderPainted(false);
         btnDong.setContentAreaFilled(false);
         btnDong.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnDong.setPreferredSize(new Dimension(24, 24));
+        btnDong.setPreferredSize(new Dimension(32, 32));
         btnDong.addActionListener(e -> dispose());
 
         cumPhai.add(lblMaTiepNhanPill);
@@ -544,7 +544,7 @@ public class LeTanManHinhThemTiepNhan extends JDialog {
             }
         });
 
-        btnThemDichVu = new JButton("+ Thêm Dịch Vụ", IconUtil.layIcon("plus.png", 14, 14, Color.WHITE)) {
+        btnThemDichVu = new JButton("Thêm Dịch Vụ", IconUtil.layIcon("plus.png", 14, 14, Color.WHITE)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -561,7 +561,7 @@ public class LeTanManHinhThemTiepNhan extends JDialog {
         btnThemDichVu.setBorderPainted(false);
         btnThemDichVu.setContentAreaFilled(false);
         btnThemDichVu.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnThemDichVu.setPreferredSize(new Dimension(140, 36));
+        btnThemDichVu.setPreferredSize(new Dimension(170, 38));
         btnThemDichVu.addActionListener(e -> xuLyThemDichVu());
 
         hangChonDV.add(cboDichVu, BorderLayout.CENTER);
@@ -853,7 +853,7 @@ public class LeTanManHinhThemTiepNhan extends JDialog {
         btnTaoTiepNhan.setBorderPainted(false);
         btnTaoTiepNhan.setContentAreaFilled(false);
         btnTaoTiepNhan.setOpaque(false);
-        btnTaoTiepNhan.setPreferredSize(new Dimension(0, 44));
+        btnTaoTiepNhan.setPreferredSize(new Dimension(0, 48));
         btnTaoTiepNhan.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnTaoTiepNhan.addActionListener(e -> xuLyTaoTiepNhan());
 

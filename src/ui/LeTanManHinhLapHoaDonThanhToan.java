@@ -670,18 +670,18 @@ public class LeTanManHinhLapHoaDonThanhToan extends JPanel {
         hangNut.setBorder(new EmptyBorder(8, 0, 0, 0));
 
         btnHuyDon = new NutVienDo("Hủy Đơn", IconUtil.layIcon("close.png", 12, 12, MAU_DO_CANH_BAO));
-        btnHuyDon.setPreferredSize(new Dimension(105, 36));
+        btnHuyDon.setPreferredSize(new Dimension(125, 38));
         btnHuyDon.addActionListener(e -> xuLyHuyDonDangChon());
 
         JPanel cumPhai = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         cumPhai.setOpaque(false);
 
         btnInPhieuTam = new NutVienTrang("In Phiếu Tạm");
-        btnInPhieuTam.setPreferredSize(new Dimension(115, 36));
+        btnInPhieuTam.setPreferredSize(new Dimension(140, 38));
         btnInPhieuTam.addActionListener(e -> xuLyInPhieuTam());
 
         btnXacNhanThanhToan = new NutXanhXacNhan("XÁC NHẬN THANH TOÁN", IconUtil.layIcon("check.png", 14, 14, Color.WHITE));
-        btnXacNhanThanhToan.setPreferredSize(new Dimension(200, 36));
+        btnXacNhanThanhToan.setPreferredSize(new Dimension(245, 38));
         btnXacNhanThanhToan.addActionListener(e -> xuLyXacNhanThanhToan());
 
         cumPhai.add(btnInPhieuTam);

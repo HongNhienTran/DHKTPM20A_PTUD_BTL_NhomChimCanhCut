@@ -25,6 +25,7 @@ import enums.TrangThaiBaoGia;
 import enums.TrangThaiPhieuTiepNhan;
 import enums.TrangThaiThanhToan;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -74,8 +75,29 @@ public class HoaDonBUS {
         return maUngVien;
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình danh sách hóa đơn đã thay thế bằng {@link #layDanhSachPhanTrang}.
+     */
     public List<HoaDon> layTatCa() {
         return hoaDonDAO.layTatCa();
+    }
+
+    public List<HoaDon> layDanhSachPhanTrang(String tuKhoa, LoaiHoaDon loai, TrangThaiThanhToan trangThai,
+                                             LocalDate tuNgay, LocalDate denNgay, int trang, int kichThuocTrang) {
+        int trangHopLe = Math.max(1, trang);
+        int sizeHopLe = kichThuocTrang <= 0 ? 13 : kichThuocTrang;
+        int offset = (trangHopLe - 1) * sizeHopLe;
+        return hoaDonDAO.layDanhSachPhanTrang(tuKhoa, loai, trangThai, tuNgay, denNgay, offset, sizeHopLe);
+    }
+
+    public int demTheoDieuKien(String tuKhoa, LoaiHoaDon loai, TrangThaiThanhToan trangThai,
+                               LocalDate tuNgay, LocalDate denNgay) {
+        return hoaDonDAO.demTheoDieuKien(tuKhoa, loai, trangThai, tuNgay, denNgay);
+    }
+
+    public double[] layThongKeKpi() {
+        return hoaDonDAO.layThongKeKpi();
     }
 
     public List<HoaDon> layTheoKhachHang(String maKhachHang) {
@@ -323,4 +345,3 @@ public class HoaDonBUS {
         hd.setMaKhuyenMai(km);
     }
 }
-

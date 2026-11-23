@@ -5,6 +5,7 @@ import bus.SanPhamBUS;
 import entity.DanhMucSanPham;
 import entity.SanPham;
 import util.IconUtil;
+import util.ThanhPhanTrang;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -91,6 +92,7 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
     private static final Color MAU_KE_BANG = new Color(241, 245, 249);
 
     private static final String PLACEHOLDER_TIM_KIEM = "Tìm kiếm theo Mã SP, Tên sản phẩm, ĐVT...";
+    private static final int KICH_THUOC_TRANG = 13;
 
     private final SanPhamBUS sanPhamBUS = new SanPhamBUS();
     private final DanhMucSanPhamBUS danhMucBUS = new DanhMucSanPhamBUS();
@@ -98,6 +100,7 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
 
     private List<SanPham> danhSachGoc = new ArrayList<>();
     private final List<SanPham> danhSachHienThi = new ArrayList<>();
+    private ThanhPhanTrang thanhPhanTrang;
 
     private JTextField txtTimKiem;
     private JComboBox<LuaChonDanhMuc> cboDanhMuc;
@@ -119,12 +122,12 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
     }
 
     private void khoiTaoGiaoDien() {
-        setLayout(new BorderLayout(0, 14));
+        setLayout(new BorderLayout(0, 10));
         setBackground(MAU_NEN_TRANG);
-        setBorder(new EmptyBorder(18, 24, 22, 24));
+        setBorder(new EmptyBorder(12, 24, 14, 24));
 
         // Phần đầu gồm: Hàng tiêu đề + nút chức năng, bên dưới là thẻ tìm kiếm & bộ lọc
-        JPanel khuVucTren = new JPanel(new BorderLayout(0, 14));
+        JPanel khuVucTren = new JPanel(new BorderLayout(0, 10));
         khuVucTren.setOpaque(false);
         khuVucTren.add(taoHangTieuDeVaNutChucNang(), BorderLayout.NORTH);
         khuVucTren.add(taoTheTimKiemVaBoLoc(), BorderLayout.CENTER);
@@ -170,7 +173,7 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
     private JPanel taoTheTimKiemVaBoLoc() {
         TheBoGoc the = new TheBoGoc(14, MAU_THE_TRANG, MAU_VIEN_THE);
         the.setLayout(new GridBagLayout());
-        the.setBorder(new EmptyBorder(12, 14, 12, 14));
+        the.setBorder(new EmptyBorder(9, 14, 9, 14));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
@@ -290,7 +293,7 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
         dauThe.setOpaque(false);
         dauThe.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, MAU_KE_BANG),
-                new EmptyBorder(14, 18, 12, 18)
+                new EmptyBorder(10, 18, 10, 18)
         ));
 
         JLabel lblTieuDeBang = new JLabel("Danh Sách Phụ Tùng & Vật Tư");
@@ -321,7 +324,7 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
         };
 
         bangSanPham = new JTable(moHinhBang);
-        bangSanPham.setRowHeight(41);
+        bangSanPham.setRowHeight(35);
         bangSanPham.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         bangSanPham.setForeground(MAU_CHU_CHINH);
         bangSanPham.setBackground(Color.WHITE);
@@ -333,11 +336,12 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
         bangSanPham.setGridColor(MAU_KE_BANG);
         bangSanPham.setIntercellSpacing(new Dimension(0, 1));
         bangSanPham.setFillsViewportHeight(true);
+        bangSanPham.setPreferredScrollableViewportSize(new Dimension(0, KICH_THUOC_TRANG * 35));
 
         // Tuỳ chỉnh thanh tiêu đề cột (nền chuyển sắc xám bạc nhẹ giống ảnh mẫu)
         JTableHeader header = bangSanPham.getTableHeader();
         header.setReorderingAllowed(false);
-        header.setPreferredSize(new Dimension(0, 40));
+        header.setPreferredSize(new Dimension(0, 36));
         header.setDefaultRenderer(new BoVeTieuDeBang());
 
         // Độ rộng & bộ vẽ từng cột
@@ -392,9 +396,13 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
         JScrollPane cuonBang = new JScrollPane(bangSanPham);
         cuonBang.setBorder(BorderFactory.createEmptyBorder(0, 1, 1, 1));
         cuonBang.getViewport().setBackground(Color.WHITE);
+        ThanhPhanTrang.caiDatBangCoDinh(cuonBang, bangSanPham, KICH_THUOC_TRANG);
+
+        thanhPhanTrang = new ThanhPhanTrang(KICH_THUOC_TRANG, "sản phẩm", trang -> taiTrangSanPham());
 
         the.add(dauThe, BorderLayout.NORTH);
         the.add(cuonBang, BorderLayout.CENTER);
+        the.add(thanhPhanTrang, BorderLayout.SOUTH);
         return the;
     }
 
@@ -458,7 +466,7 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
             cboDanhMuc.setModel(modelDM);
             cboDanhMuc.setSelectedItem(mucCanChonLai);
 
-            danhSachGoc = sanPhamBUS.layTatCa();
+            // Thay thế việc gọi sanPhamBUS.layTatCa() toàn bảng bằng layDanhSachQuanLyPhanTrang(..., 13)
         } catch (Exception ex) {
             danhSachGoc = new ArrayList<>();
         } finally {
@@ -484,60 +492,54 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
     }
 
     private void apDungBoLoc() {
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.datTrang(1);
+        }
+        taiTrangSanPham();
+    }
+
+    private void taiTrangSanPham() {
         String tuKhoa = txtTimKiem.getText();
         if (tuKhoa == null || PLACEHOLDER_TIM_KIEM.equals(tuKhoa)) {
             tuKhoa = "";
         }
-        tuKhoa = tuKhoa.trim().toLowerCase(Locale.ROOT);
+        tuKhoa = tuKhoa.trim();
 
         LuaChonDanhMuc luaChonDM = (LuaChonDanhMuc) cboDanhMuc.getSelectedItem();
         String maDanhMucLoc = luaChonDM != null ? luaChonDM.maDanhMuc() : null;
         int chiSoTonKho = cboTonKho.getSelectedIndex();
         int chiSoTrangThai = cboTrangThai.getSelectedIndex();
+        Boolean trangThaiLoc = chiSoTrangThai == 1 ? Boolean.TRUE
+                : (chiSoTrangThai == 2 ? Boolean.FALSE : null);
+
+        int trang = thanhPhanTrang != null ? thanhPhanTrang.getTrangHienTai() : 1;
+        int tongBanGhi;
+        List<SanPham> dsTrang;
+        try {
+            tongBanGhi = sanPhamBUS.demTheoDieuKien(tuKhoa, maDanhMucLoc, chiSoTonKho, trangThaiLoc);
+            int tongTrang = Math.max(1, (int) Math.ceil((double) tongBanGhi / KICH_THUOC_TRANG));
+            if (trang > tongTrang) {
+                trang = tongTrang;
+                if (thanhPhanTrang != null) {
+                    thanhPhanTrang.datTrang(trang);
+                }
+            }
+            dsTrang = sanPhamBUS.layDanhSachQuanLyPhanTrang(
+                    tuKhoa, maDanhMucLoc, chiSoTonKho, trangThaiLoc, trang, KICH_THUOC_TRANG);
+        } catch (Exception ex) {
+            tongBanGhi = 0;
+            dsTrang = new ArrayList<>();
+        }
 
         danhSachHienThi.clear();
         moHinhBang.setRowCount(0);
 
-        for (SanPham sp : danhSachGoc) {
-            // 1. Lọc theo từ khoá (Mã SP, Tên sản phẩm, ĐVT)
-            if (!tuKhoa.isEmpty()) {
-                String ma = sp.getMaSanPham() != null ? sp.getMaSanPham().toLowerCase(Locale.ROOT) : "";
-                String ten = sp.getTenSanPham() != null ? sp.getTenSanPham().toLowerCase(Locale.ROOT) : "";
-                String dvt = sp.getDonViTinh() != null ? sp.getDonViTinh().toLowerCase(Locale.ROOT) : "";
-                if (!ma.contains(tuKhoa) && !ten.contains(tuKhoa) && !dvt.contains(tuKhoa)) {
-                    continue;
-                }
-            }
-
-            // 2. Lọc theo Danh mục
-            if (maDanhMucLoc != null) {
-                String maDM = sp.getDanhMucSanPham() != null ? sp.getDanhMucSanPham().getMaDanhMuc() : null;
-                if (!maDanhMucLoc.equals(maDM)) {
-                    continue;
-                }
-            }
-
-            // 3. Lọc theo Tồn kho
-            int ton = sp.getSoLuongTon();
-            if (chiSoTonKho == 1 && ton <= 0) {
-                continue;
-            } else if (chiSoTonKho == 2 && !(ton > 0 && ton <= Math.max(5, sp.getSoLuongTonToiThieu()))) {
-                continue;
-            } else if (chiSoTonKho == 3 && ton != 0) {
-                continue;
-            }
-
-            // 4. Lọc theo Trạng thái
-            if (chiSoTrangThai == 1 && !sp.isTrangThai()) {
-                continue;
-            } else if (chiSoTrangThai == 2 && sp.isTrangThai()) {
-                continue;
-            }
-
+        for (SanPham sp : dsTrang) {
             danhSachHienThi.add(sp);
             String tenDanhMuc = (sp.getDanhMucSanPham() != null && sp.getDanhMucSanPham().getTenDanhMuc() != null)
                     ? sp.getDanhMucSanPham().getTenDanhMuc()
                     : "";
+            int ton = sp.getSoLuongTon();
 
             moHinhBang.addRow(new Object[]{
                     sp.getMaSanPham(),
@@ -550,7 +552,10 @@ public class QuanLyManHinhQuanLySanPham extends JPanel {
             });
         }
 
-        lblBadgeTongSo.setText("Tổng số: " + danhSachHienThi.size() + " sản phẩm");
+        lblBadgeTongSo.setText("Tổng số: " + tongBanGhi + " sản phẩm");
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.capNhat(tongBanGhi, danhSachHienThi.size());
+        }
     }
 
     private void xuLyNhapThemTonKhoNhanh() {

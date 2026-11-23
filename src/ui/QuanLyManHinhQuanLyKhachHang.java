@@ -4,6 +4,7 @@ import bus.KhachHangBUS;
 import bus.PhuongTienBUS;
 import entity.KhachHang;
 import util.IconUtil;
+import util.ThanhPhanTrang;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -80,12 +81,14 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
     private static final Color MAU_DO_CANH_BAO = new Color(220, 38, 38);
 
     private static final String PLACEHOLDER_TIM_KIEM = "Tìm kiếm theo Mã KH, Họ tên, Số điện thoại, Địa chỉ...";
+    private static final int KICH_THUOC_TRANG = 13;
 
     private final KhachHangBUS khachHangBUS = new KhachHangBUS();
     private final PhuongTienBUS phuongTienBUS = new PhuongTienBUS();
 
     private List<KhachHang> danhSachGoc = new ArrayList<>();
     private final List<KhachHang> danhSachHienThi = new ArrayList<>();
+    private ThanhPhanTrang thanhPhanTrang;
     private KhachHang khachHangDangChon = null;
 
     // Thành phần đầu trang & bộ lọc
@@ -117,12 +120,12 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
     }
 
     private void khoiTaoGiaoDien() {
-        setLayout(new BorderLayout(0, 14));
+        setLayout(new BorderLayout(0, 10));
         setBackground(MAU_NEN_TRANG);
-        setBorder(new EmptyBorder(16, 24, 20, 24));
+        setBorder(new EmptyBorder(12, 24, 14, 24));
 
         // Khu vực phía trên: Hàng tiêu đề + Thanh tìm kiếm & bộ lọc giới tính
-        JPanel khuVucTren = new JPanel(new BorderLayout(0, 12));
+        JPanel khuVucTren = new JPanel(new BorderLayout(0, 10));
         khuVucTren.setOpaque(false);
         khuVucTren.add(taoHangTieuDe(), BorderLayout.NORTH);
         khuVucTren.add(taoTheTimKiemVaBoLoc(), BorderLayout.CENTER);
@@ -160,7 +163,7 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
     private JPanel taoTheTimKiemVaBoLoc() {
         TheBoGoc the = new TheBoGoc(14, MAU_THE_TRANG, MAU_VIEN_THE);
         the.setLayout(new GridBagLayout());
-        the.setBorder(new EmptyBorder(11, 14, 11, 14));
+        the.setBorder(new EmptyBorder(9, 14, 9, 14));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
@@ -289,7 +292,7 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
         };
 
         bangKhachHang = new JTable(moHinhBangKH);
-        bangKhachHang.setRowHeight(41);
+        bangKhachHang.setRowHeight(35);
         bangKhachHang.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         bangKhachHang.setForeground(MAU_CHU_CHINH);
         bangKhachHang.setBackground(Color.WHITE);
@@ -301,10 +304,11 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
         bangKhachHang.setGridColor(MAU_KE_BANG);
         bangKhachHang.setIntercellSpacing(new Dimension(0, 1));
         bangKhachHang.setFillsViewportHeight(true);
+        bangKhachHang.setPreferredScrollableViewportSize(new Dimension(0, KICH_THUOC_TRANG * 35));
 
         JTableHeader header = bangKhachHang.getTableHeader();
         header.setReorderingAllowed(false);
-        header.setPreferredSize(new Dimension(0, 39));
+        header.setPreferredSize(new Dimension(0, 36));
         header.setDefaultRenderer(new BoVeTieuDeBang());
 
         TableColumnModel cotModel = bangKhachHang.getColumnModel();
@@ -383,9 +387,13 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
         JScrollPane cuonBang = new JScrollPane(bangKhachHang);
         cuonBang.setBorder(BorderFactory.createEmptyBorder(0, 1, 1, 1));
         cuonBang.getViewport().setBackground(Color.WHITE);
+        ThanhPhanTrang.caiDatBangCoDinh(cuonBang, bangKhachHang, KICH_THUOC_TRANG);
+
+        thanhPhanTrang = new ThanhPhanTrang(KICH_THUOC_TRANG, "khách hàng", trang -> taiTrangKhachHang());
 
         the.add(dauThe, BorderLayout.NORTH);
         the.add(cuonBang, BorderLayout.CENTER);
+        the.add(thanhPhanTrang, BorderLayout.SOUTH);
         return the;
     }
 
@@ -578,35 +586,22 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
     // =========================================================================
 
     /**
-     * Tải danh sách khách hàng đăng ký từ CSDL qua KhachHangBUS (không dùng dữ liệu giả).
+     * Tải danh sách khách hàng đăng ký phân trang thực tế từ CSDL qua KhachHangBUS.
+     * Thay thế việc gọi khachHangBUS.layDanhSachKhachDangKy() toàn bảng bằng layDanhSachKhachDangKyPhanTrang(..., 14).
      */
     public void lamMoiDuLieu() {
         String maDangChonCu = khachHangDangChon != null ? khachHangDangChon.getMaKhachHang() : null;
         try {
-            danhSachGoc = khachHangBUS.layDanhSachKhachDangKy();
-            danhSachGoc.sort(Comparator.comparing(KhachHang::getMaKhachHang).reversed());
+            int tongKhach = khachHangBUS.demKhachDangKy(null, null);
+            lblBadgeTongDauTrang.setText(String.valueOf(tongKhach));
         } catch (Exception ex) {
-            danhSachGoc = new ArrayList<>();
+            lblBadgeTongDauTrang.setText("0");
         }
 
-        lblBadgeTongDauTrang.setText(String.valueOf(danhSachGoc.size()));
-        apDungBoLoc();
-
-        if (!danhSachHienThi.isEmpty()) {
-            int viTri = 0;
-            if (maDangChonCu != null) {
-                for (int i = 0; i < danhSachHienThi.size(); i++) {
-                    if (maDangChonCu.equals(danhSachHienThi.get(i).getMaKhachHang())) {
-                        viTri = i;
-                        break;
-                    }
-                }
-            }
-            bangKhachHang.setRowSelectionInterval(viTri, viTri);
-            hienThiChiTietKhachHang(danhSachHienThi.get(viTri));
-        } else {
-            lamMoiForm();
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.datTrang(1);
         }
+        taiTrangKhachHang(maDangChonCu);
     }
 
     private void datLaiBoLocVaTaiLai() {
@@ -622,42 +617,57 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
     }
 
     private void apDungBoLoc() {
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.datTrang(1);
+        }
+        taiTrangKhachHang(null);
+    }
+
+    private void taiTrangKhachHang() {
+        String maDangChonCu = khachHangDangChon != null ? khachHangDangChon.getMaKhachHang() : null;
+        taiTrangKhachHang(maDangChonCu);
+    }
+
+    private void taiTrangKhachHang(String maUuTienChon) {
         String tuKhoa = txtTimKiem.getText();
         if (tuKhoa == null || PLACEHOLDER_TIM_KIEM.equals(tuKhoa)) {
             tuKhoa = "";
         }
-        tuKhoa = tuKhoa.trim().toLowerCase(Locale.ROOT);
+        tuKhoa = tuKhoa.trim();
         int chiSoGioiTinh = cboLocGioiTinh.getSelectedIndex();
-        String gioiTinhLoc = (String) cboLocGioiTinh.getSelectedItem();
+        String gioiTinhLoc = chiSoGioiTinh > 0 ? (String) cboLocGioiTinh.getSelectedItem() : null;
+
+        int trang = thanhPhanTrang != null ? thanhPhanTrang.getTrangHienTai() : 1;
+        int tongBanGhi;
+        List<KhachHang> dsTrang;
+        try {
+            tongBanGhi = khachHangBUS.demKhachDangKy(tuKhoa, gioiTinhLoc);
+            int tongTrang = Math.max(1, (int) Math.ceil((double) tongBanGhi / KICH_THUOC_TRANG));
+            if (trang > tongTrang) {
+                trang = tongTrang;
+                if (thanhPhanTrang != null) {
+                    thanhPhanTrang.datTrang(trang);
+                }
+            }
+            dsTrang = khachHangBUS.layDanhSachKhachDangKyPhanTrang(
+                    tuKhoa, gioiTinhLoc, trang, KICH_THUOC_TRANG);
+        } catch (Exception ex) {
+            tongBanGhi = 0;
+            dsTrang = new ArrayList<>();
+        }
 
         dangDongBoBang = true;
         try {
             danhSachHienThi.clear();
             moHinhBangKH.setRowCount(0);
 
-            int stt = 1;
-            for (KhachHang kh : danhSachGoc) {
+            int stt = (trang - 1) * KICH_THUOC_TRANG + 1;
+            for (KhachHang kh : dsTrang) {
                 String ma = kh.getMaKhachHang() != null ? kh.getMaKhachHang() : "";
                 String ten = kh.getHoTen() != null ? kh.getHoTen() : "";
                 String sdt = kh.getSoDienThoai() != null ? kh.getSoDienThoai() : "";
                 String gt = kh.getGioiTinh() != null ? kh.getGioiTinh() : "";
                 String dc = kh.getDiaChi() != null ? kh.getDiaChi() : "";
-
-                if (!tuKhoa.isEmpty()) {
-                    boolean khop = ma.toLowerCase(Locale.ROOT).contains(tuKhoa)
-                            || ten.toLowerCase(Locale.ROOT).contains(tuKhoa)
-                            || sdt.toLowerCase(Locale.ROOT).contains(tuKhoa)
-                            || dc.toLowerCase(Locale.ROOT).contains(tuKhoa);
-                    if (!khop) {
-                        continue;
-                    }
-                }
-
-                if (chiSoGioiTinh > 0 && gioiTinhLoc != null) {
-                    if (!gt.equalsIgnoreCase(gioiTinhLoc)) {
-                        continue;
-                    }
-                }
 
                 danhSachHienThi.add(kh);
                 moHinhBangKH.addRow(new Object[]{
@@ -669,9 +679,28 @@ public class QuanLyManHinhQuanLyKhachHang extends JPanel {
                         dc
                 });
             }
-            lblHienThiSoKhachHang.setText("Hiển thị " + danhSachHienThi.size() + " khách hàng");
+            lblHienThiSoKhachHang.setText("Hiển thị " + danhSachHienThi.size() + " / " + tongBanGhi + " khách hàng");
+            if (thanhPhanTrang != null) {
+                thanhPhanTrang.capNhat(tongBanGhi, danhSachHienThi.size());
+            }
         } finally {
             dangDongBoBang = false;
+        }
+
+        if (!danhSachHienThi.isEmpty()) {
+            int viTri = 0;
+            if (maUuTienChon != null) {
+                for (int i = 0; i < danhSachHienThi.size(); i++) {
+                    if (maUuTienChon.equals(danhSachHienThi.get(i).getMaKhachHang())) {
+                        viTri = i;
+                        break;
+                    }
+                }
+            }
+            bangKhachHang.setRowSelectionInterval(viTri, viTri);
+            hienThiChiTietKhachHang(danhSachHienThi.get(viTri));
+        } else {
+            lamMoiForm();
         }
     }
 

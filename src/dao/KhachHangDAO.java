@@ -47,6 +47,10 @@ public class KhachHangDAO {
         return ds;
     }
 
+    /**
+     * Giữ lại phương thức cũ để tương thích ngược.
+     * Tại màn hình Quản lý khách hàng đã thay thế bằng {@link #layDanhSachKhachDangKyPhanTrang}.
+     */
     public List<KhachHang> layDanhSachKhachDangKy() {
         List<KhachHang> ds = new ArrayList<>();
         String sql = "SELECT ma_khach_hang, ho_ten, so_dien_thoai, dia_chi, gioi_tinh " +
@@ -63,6 +67,74 @@ public class KhachHangDAO {
             throw new RuntimeException("Lỗi lấy danh sách khách hàng đăng ký", e);
         }
         return ds;
+    }
+
+    public List<KhachHang> layDanhSachKhachDangKyPhanTrang(String tuKhoa, String gioiTinh, int offset, int limit) {
+        List<KhachHang> ds = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, gioiTinh, params);
+        String sql = "SELECT ma_khach_hang, ho_ten, so_dien_thoai, dia_chi, gioi_tinh " +
+                "FROM khach_hang " + where + " ORDER BY ma_khach_hang DESC LIMIT ? OFFSET ?";
+        params.add(Math.max(1, limit));
+        params.add(Math.max(0, offset));
+
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi lấy danh sách khách hàng phân trang", e);
+        }
+        return ds;
+    }
+
+    public int demKhachDangKy(String tuKhoa, String gioiTinh) {
+        List<Object> params = new ArrayList<>();
+        String where = xayDungDieuKienLoc(tuKhoa, gioiTinh, params);
+        String sql = "SELECT COUNT(*) FROM khach_hang " + where;
+        try (Connection con = ConnectDB.ketNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ganThamSo(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi đếm số lượng khách hàng", e);
+        }
+    }
+
+    private String xayDungDieuKienLoc(String tuKhoa, String gioiTinh, List<Object> params) {
+        StringBuilder where = new StringBuilder("WHERE ma_khach_hang <> ?");
+        params.add(KhachHang.MA_KHACH_VANG_LAI);
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            String pattern = "%" + tuKhoa.trim().toLowerCase() + "%";
+            where.append(" AND (LOWER(ma_khach_hang) LIKE ? OR LOWER(ho_ten) LIKE ? ")
+                 .append("OR LOWER(COALESCE(so_dien_thoai, '')) LIKE ? OR LOWER(COALESCE(dia_chi, '')) LIKE ?)");
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+        if (gioiTinh != null && !gioiTinh.isBlank()) {
+            where.append(" AND LOWER(COALESCE(gioi_tinh, '')) = LOWER(?)");
+            params.add(gioiTinh.trim());
+        }
+        return where.toString();
+    }
+
+    private void ganThamSo(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object val = params.get(i);
+            if (val instanceof String s) {
+                ps.setString(i + 1, s);
+            } else if (val instanceof Integer n) {
+                ps.setInt(i + 1, n);
+            }
+        }
     }
 
     public KhachHang timTheoMa(String maKhachHang) {

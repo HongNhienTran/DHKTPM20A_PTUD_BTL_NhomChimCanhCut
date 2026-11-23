@@ -6,6 +6,7 @@ import entity.TaiKhoan;
 import enums.TrangThaiSua;
 import util.ChonNgayLichUtil;
 import util.IconUtil;
+import util.ThanhPhanTrang;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -80,6 +81,7 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
 
     private static final DateTimeFormatter DINH_DANG_GIO_NGAY = DateTimeFormatter.ofPattern("dd/MM HH:mm");
     private static final DateTimeFormatter DINH_DANG_NGAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final int KICH_THUOC_TRANG = 13;
 
     private final TaiKhoan taiKhoanDangNhap;
     private final PhieuPhanCongBUS phieuPhanCongBUS = new PhieuPhanCongBUS();
@@ -87,6 +89,7 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
     // Dữ liệu danh sách
     private final List<PhieuPhanCong> danhSachPhanCongGoc = new ArrayList<>();
     private final List<PhieuPhanCong> danhSachPhanCongHienThi = new ArrayList<>();
+    private ThanhPhanTrang thanhPhanTrang;
 
     // Các thành phần UI Thống kê
     private JLabel lblTongCa;
@@ -119,27 +122,33 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
     }
 
     private void khoiTaoGiaoDien() {
-        setLayout(new BorderLayout(0, 14));
+        setLayout(new BorderLayout(0, 10));
         setBackground(MAU_NEN_CHINH);
-        setBorder(new EmptyBorder(16, 22, 16, 22));
+        setBorder(new EmptyBorder(12, 22, 12, 22));
 
         // 1. Header trên cùng
         add(taoHeaderPanel(), BorderLayout.NORTH);
 
         // 2. Nội dung chính: 3 Thẻ chỉ số + Thanh lọc + Bảng toàn màn hình
-        JPanel pnlTrungTam = new JPanel(new BorderLayout(0, 12));
+        JPanel pnlTrungTam = new JPanel(new BorderLayout(0, 10));
         pnlTrungTam.setOpaque(false);
 
         // 3 Thẻ chỉ số tổng quan
         pnlTrungTam.add(tao3TheChiSo(), BorderLayout.NORTH);
 
         // Thẻ trắng lớn chứa Thanh lọc + Bảng
-        TheBoGocTrang cardBang = new TheBoGocTrang(new BorderLayout(0, 10));
-        cardBang.setBorder(new EmptyBorder(14, 16, 14, 16));
+        TheBoGocTrang cardBang = new TheBoGocTrang(new BorderLayout(0, 8));
+        cardBang.setBorder(new EmptyBorder(10, 16, 10, 16));
+
+        thanhPhanTrang = new ThanhPhanTrang(KICH_THUOC_TRANG, "ca sửa", trang -> taiTrangNhatKy());
+        JPanel pnlDuoiCard = new JPanel(new BorderLayout(0, 4));
+        pnlDuoiCard.setOpaque(false);
+        pnlDuoiCard.add(thanhPhanTrang, BorderLayout.NORTH);
+        pnlDuoiCard.add(taoFooterHuongDan(), BorderLayout.SOUTH);
 
         cardBang.add(taoThanhLoc(), BorderLayout.NORTH);
         cardBang.add(taoBangDuLieu(), BorderLayout.CENTER);
-        cardBang.add(taoFooterHuongDan(), BorderLayout.SOUTH);
+        cardBang.add(pnlDuoiCard, BorderLayout.SOUTH);
 
         pnlTrungTam.add(cardBang, BorderLayout.CENTER);
 
@@ -226,7 +235,7 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
     private JPanel tao3TheChiSo() {
         JPanel hangThe = new JPanel(new GridLayout(1, 3, 16, 0));
         hangThe.setOpaque(false);
-        hangThe.setPreferredSize(new Dimension(0, 96));
+        hangThe.setPreferredSize(new Dimension(0, 68));
 
         lblTongCa = new JLabel("0 ca");
         lblSoCaHoanThanh = new JLabel("0 ca");
@@ -240,8 +249,8 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
     }
 
     private TheBoGocTrang taoTheChiSo(String tieuDe, JLabel lblGiaTri, Color mauGiaTri) {
-        TheBoGocTrang the = new TheBoGocTrang(new BorderLayout(0, 8));
-        the.setBorder(new EmptyBorder(16, 20, 16, 20));
+        TheBoGocTrang the = new TheBoGocTrang(new BorderLayout(0, 4));
+        the.setBorder(new EmptyBorder(10, 18, 10, 18));
 
         JLabel lblTieuDe = new JLabel(tieuDe);
         lblTieuDe.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -450,24 +459,26 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
         };
 
         bangLichSu = new JTable(modelBang);
-        bangLichSu.setRowHeight(38);
+        bangLichSu.setRowHeight(33);
         bangLichSu.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         bangLichSu.setForeground(MAU_CHU_CHINH);
         bangLichSu.setGridColor(new Color(235, 238, 242));
         bangLichSu.setShowVerticalLines(true);
         bangLichSu.setShowHorizontalLines(true);
+        bangLichSu.setFillsViewportHeight(true);
+        bangLichSu.setPreferredScrollableViewportSize(new Dimension(0, KICH_THUOC_TRANG * 33));
         bangLichSu.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         bangLichSu.setSelectionBackground(new Color(254, 243, 199)); // Highlight màu cam nhẹ
         bangLichSu.setSelectionForeground(MAU_CHU_CHINH);
         bangLichSu.getTableHeader().setReorderingAllowed(false);
-        bangLichSu.getTableHeader().setPreferredSize(new Dimension(0, 36));
+        bangLichSu.getTableHeader().setPreferredSize(new Dimension(0, 34));
         bangLichSu.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         bangLichSu.getTableHeader().setBackground(new Color(241, 245, 249));
         bangLichSu.getTableHeader().setForeground(new Color(51, 65, 85));
 
         TableColumnModel colModel = bangLichSu.getColumnModel();
         colModel.getColumn(0).setPreferredWidth(50);  // STT
-        colModel.getColumn(1).setPreferredWidth(140); // Mã phân công
+        colModel.getColumn(1).setPreferredWidth(170); // Mã phân công
         colModel.getColumn(2).setPreferredWidth(110); // Biển số
         colModel.getColumn(3).setPreferredWidth(130); // Dòng xe
         colModel.getColumn(4).setPreferredWidth(270); // Hạng mục thi công
@@ -520,6 +531,7 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
         JScrollPane cuon = new JScrollPane(bangLichSu);
         cuon.setBorder(BorderFactory.createLineBorder(MAU_VIEN));
         cuon.getViewport().setBackground(Color.WHITE);
+        ThanhPhanTrang.caiDatBangCoDinh(cuon, bangLichSu, KICH_THUOC_TRANG);
         return cuon;
     }
 
@@ -539,91 +551,60 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
         modal.setVisible(true);
     }
 
+    /**
+     * Tải danh sách nhật ký công việc hoàn thành phân trang từ CSDL qua PhieuPhanCongBUS.
+     * Thay thế việc gọi phieuPhanCongBUS.layTheoNhanVien() / layTatCa() toàn bảng bằng layNhatKyHoanThanhPhanTrang(..., 13).
+     */
     public void taiLaiDuLieu() {
-        danhSachPhanCongGoc.clear();
-
-        try {
-            List<PhieuPhanCong> ds = null;
-            if (taiKhoanDangNhap != null && taiKhoanDangNhap.getMaNhanVien() != null) {
-                ds = phieuPhanCongBUS.layTheoNhanVien(taiKhoanDangNhap.getMaNhanVien().getMaNhanVien());
-            } else {
-                ds = phieuPhanCongBUS.layTatCa();
-            }
-
-            if (ds != null) {
-                for (PhieuPhanCong ppc : ds) {
-                    if (ppc.getTrangThaiSua() == TrangThaiSua.HOAN_THANH) {
-                        danhSachPhanCongGoc.add(ppc);
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-        }
-
         locDuLieu();
     }
 
-    /**
-     * Lọc dữ liệu tức thì trên giao diện (in-memory filtering)
-     */
     private void locDuLieu() {
-        String tuKhoa = (txtTimKiem != null) ? txtTimKiem.getText().trim().toLowerCase() : "";
-        danhSachPhanCongHienThi.clear();
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.datTrang(1);
+        }
+        taiTrangNhatKy();
+    }
 
-        for (PhieuPhanCong ppc : danhSachPhanCongGoc) {
-            boolean hopLe = true;
+    private void taiTrangNhatKy() {
+        String maNhanVien = (taiKhoanDangNhap != null && taiKhoanDangNhap.getMaNhanVien() != null)
+                ? taiKhoanDangNhap.getMaNhanVien().getMaNhanVien()
+                : null;
+        String tuKhoa = (txtTimKiem != null) ? txtTimKiem.getText().trim() : "";
 
-            // 1. Lọc theo từ khóa (Biển số xe, Mã phiếu, Dòng xe, Hạng mục)
-            if (!tuKhoa.isEmpty()) {
-                String maPC = ppc.getMaPhanCong() != null ? ppc.getMaPhanCong().toLowerCase() : "";
-                String bienSo = "";
-                String dongXe = "";
-                if (ppc.layPhieuTiepNhan() != null && ppc.layPhieuTiepNhan().getPhuongTien() != null) {
-                    bienSo = ppc.layPhieuTiepNhan().getPhuongTien().getBienSoXe().toLowerCase();
-                    if (ppc.layPhieuTiepNhan().getPhuongTien().getMauXe() != null) {
-                        dongXe = ppc.layPhieuTiepNhan().getPhuongTien().getMauXe().toLowerCase();
-                    }
-                }
-                String hangMuc = "";
-                if (ppc.getChiTietBaoGia() != null && ppc.getChiTietBaoGia().getDichVu() != null) {
-                    hangMuc = ppc.getChiTietBaoGia().getDichVu().getTenDichVu().toLowerCase();
-                }
-
-                hopLe = maPC.contains(tuKhoa) || bienSo.contains(tuKhoa) || dongXe.contains(tuKhoa) || hangMuc.contains(tuKhoa);
-            }
-
-            // 2. Lọc theo khoảng ngày (Từ ngày -> Đến ngày)
-            if (hopLe) {
-                LocalDateTime tg = ppc.getThoiGianHoanThanh() != null ? ppc.getThoiGianHoanThanh() : ppc.getThoiGianPhanCong();
-                if (tg != null) {
-                    LocalDate ngayCa = tg.toLocalDate();
-                    if (ngayTu != null && ngayCa.isBefore(ngayTu)) {
-                        hopLe = false;
-                    }
-                    if (ngayDen != null && ngayCa.isAfter(ngayDen)) {
-                        hopLe = false;
-                    }
+        int trang = thanhPhanTrang != null ? thanhPhanTrang.getTrangHienTai() : 1;
+        int tongTatCa = 0;
+        int tongSauLoc = 0;
+        List<PhieuPhanCong> dsTrang;
+        try {
+            tongTatCa = phieuPhanCongBUS.demNhatKyHoanThanh(maNhanVien, null, null, null);
+            tongSauLoc = phieuPhanCongBUS.demNhatKyHoanThanh(maNhanVien, tuKhoa, ngayTu, ngayDen);
+            int tongTrang = Math.max(1, (int) Math.ceil((double) tongSauLoc / KICH_THUOC_TRANG));
+            if (trang > tongTrang) {
+                trang = tongTrang;
+                if (thanhPhanTrang != null) {
+                    thanhPhanTrang.datTrang(trang);
                 }
             }
-
-            if (hopLe) {
-                danhSachPhanCongHienThi.add(ppc);
-            }
+            dsTrang = phieuPhanCongBUS.layNhatKyHoanThanhPhanTrang(
+                    maNhanVien, tuKhoa, ngayTu, ngayDen, trang, KICH_THUOC_TRANG);
+        } catch (Exception ex) {
+            dsTrang = new ArrayList<>();
         }
 
-        // Cập nhật số liệu trên 3 thẻ chỉ số
-        int tongTatCa = danhSachPhanCongGoc.size();
-        int soHienThi = danhSachPhanCongHienThi.size();
+        danhSachPhanCongHienThi.clear();
+        danhSachPhanCongHienThi.addAll(dsTrang);
 
         lblTongCa.setText(tongTatCa + " ca");
-        lblSoCaHoanThanh.setText(soHienThi + " ca");
+        lblSoCaHoanThanh.setText(tongSauLoc + " ca");
         lblSoCaHuy.setText("0 ca");
+        lblSoLuongHienThi.setText("Hiển thị " + dsTrang.size() + " / " + tongSauLoc + " ca sửa hoàn tất");
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.capNhat(tongSauLoc, dsTrang.size());
+        }
 
-        lblSoLuongHienThi.setText("Hiển thị " + soHienThi + " ca sửa hoàn tất");
-
-        // Đổ dữ liệu vào JTable
         modelBang.setRowCount(0);
-        int stt = 1;
+        int stt = (trang - 1) * KICH_THUOC_TRANG + 1;
         for (PhieuPhanCong ppc : danhSachPhanCongHienThi) {
             String bienSo = "-";
             String dongXe = "-";
@@ -659,7 +640,13 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
      * Xuất báo cáo danh sách ca sửa hoàn tất ra file CSV
      */
     private void xuLyXuatBaoCao() {
-        if (danhSachPhanCongHienThi.isEmpty()) {
+        String maNhanVien = (taiKhoanDangNhap != null && taiKhoanDangNhap.getMaNhanVien() != null)
+                ? taiKhoanDangNhap.getMaNhanVien().getMaNhanVien()
+                : null;
+        String tuKhoa = (txtTimKiem != null) ? txtTimKiem.getText().trim() : "";
+        List<PhieuPhanCong> dsXuat = phieuPhanCongBUS.layNhatKyHoanThanhPhanTrang(
+                maNhanVien, tuKhoa, ngayTu, ngayDen, 1, Integer.MAX_VALUE);
+        if (dsXuat.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Không có dữ liệu ca sửa nào để xuất báo cáo!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -673,7 +660,7 @@ public class KyThuatVienManHinhNhatKyCongViec extends JPanel {
             try (PrintWriter pw = new PrintWriter(tenFile, StandardCharsets.UTF_8)) {
                 pw.println("\uFEFFSTT,Mã phân công,Biển số xe,Dòng xe,Hạng mục thi công,Thời gian hoàn thành,Trạng thái");
                 int stt = 1;
-                for (PhieuPhanCong ppc : danhSachPhanCongHienThi) {
+                for (PhieuPhanCong ppc : dsXuat) {
                     String bienSo = (ppc.layPhieuTiepNhan() != null && ppc.layPhieuTiepNhan().getPhuongTien() != null)
                             ? ppc.layPhieuTiepNhan().getPhuongTien().getBienSoXe() : "-";
                     String dongXe = (ppc.layPhieuTiepNhan() != null && ppc.layPhieuTiepNhan().getPhuongTien() != null && ppc.layPhieuTiepNhan().getPhuongTien().getMauXe() != null)

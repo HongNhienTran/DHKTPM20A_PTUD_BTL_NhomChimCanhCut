@@ -3,6 +3,7 @@ package ui;
 import bus.BaoCaoThongKeBUS;
 import entity.NhanVien;
 import entity.TaiKhoan;
+import util.ChonNgayLichUtil;
 import util.IconUtil;
 
 import javax.imageio.ImageIO;
@@ -12,6 +13,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -46,6 +48,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -107,6 +110,12 @@ public class QuanLyManHinhChinh extends JFrame {
     private QuanLyManHinhQuanLyNhanVien manHinhNhanVien;
     private QuanLyManHinhBaoCaoThongKe manHinhBaoCaoThongKe;
     private final Map<String, JLabel> dashboardKpi = new LinkedHashMap<>();
+    private final Map<String, JLabel> dashboardMoTa = new LinkedHashMap<>();
+    private JComboBox<String> cboKyDashboard;
+    private JButton btnTuNgayDashboard;
+    private JButton btnDenNgayDashboard;
+    private LocalDate tuNgayDashboard = LocalDate.now();
+    private LocalDate denNgayDashboard = LocalDate.now();
     private BieuDoDashboardPanel bieuDoDashboard;
     private JPanel bangCanhBaoDashboard;
 
@@ -392,11 +401,43 @@ public class QuanLyManHinhChinh extends JFrame {
         cumTieuDe.add(Box.createVerticalStrut(5));
         cumTieuDe.add(lblTieuDe);
 
+        JPanel cumHanhDong = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        cumHanhDong.setOpaque(false);
+        JLabel lblKy = new JLabel("Khoảng thời gian:");
+        lblKy.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lblKy.setForeground(new Color(71, 85, 105));
+        cboKyDashboard = new JComboBox<>(new String[]{
+                "Hôm nay", "7 ngày gần nhất", "Tháng này", "Năm nay", "Tùy chọn"
+        });
+        cboKyDashboard.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        cboKyDashboard.setBackground(Color.WHITE);
+        cboKyDashboard.addActionListener(e -> {
+            if (!"Tùy chọn".equals(cboKyDashboard.getSelectedItem())) {
+                capNhatKhoangNgayDashboard(LocalDate.now());
+                lamMoiDashboard();
+            }
+        });
+
+        btnTuNgayDashboard = taoNutNgayDashboard();
+        btnDenNgayDashboard = taoNutNgayDashboard();
+        btnTuNgayDashboard.addActionListener(e -> chonNgayDashboard(true));
+        btnDenNgayDashboard.addActionListener(e -> chonNgayDashboard(false));
+        capNhatKhoangNgayDashboard(LocalDate.now());
+
         JButton btnLamMoi = new JButton("Làm mới");
         btnLamMoi.setFocusPainted(false);
         btnLamMoi.addActionListener(e -> lamMoiDashboard());
+
+        cumHanhDong.add(lblKy);
+        cumHanhDong.add(cboKyDashboard);
+        cumHanhDong.add(new JLabel("Từ"));
+        cumHanhDong.add(btnTuNgayDashboard);
+        cumHanhDong.add(new JLabel("đến"));
+        cumHanhDong.add(btnDenNgayDashboard);
+        cumHanhDong.add(btnLamMoi);
+
         dauTrang.add(cumTieuDe, BorderLayout.WEST);
-        dauTrang.add(btnLamMoi, BorderLayout.EAST);
+        dauTrang.add(cumHanhDong, BorderLayout.EAST);
 
         JPanel noiDung = new JPanel();
         noiDung.setOpaque(false);
@@ -451,6 +492,7 @@ public class QuanLyManHinhChinh extends JFrame {
         the.add(lblGiaTri, BorderLayout.CENTER);
         the.add(lblMoTa, BorderLayout.SOUTH);
         dashboardKpi.put(tieuDe, lblGiaTri);
+        dashboardMoTa.put(tieuDe, lblMoTa);
         khung.add(the);
     }
 
@@ -472,29 +514,132 @@ public class QuanLyManHinhChinh extends JFrame {
         return panel;
     }
 
+    @SuppressWarnings("unchecked")
     public void lamMoiDashboard() {
         LocalDate homNay = LocalDate.now();
-        Map<String, Double> homNayKpi = baoCaoThongKeBUS.layKpiDoanhThu(homNay, homNay);
-        Map<String, Double> thangNayKpi = baoCaoThongKeBUS.layKpiDoanhThu(
-                homNay.withDayOfMonth(1), homNay);
-        dashboardKpi.get("Doanh thu hôm nay").setText(dinhDangTien(homNayKpi.get("tong")));
-        dashboardKpi.get("Doanh thu bán hàng").setText(dinhDangTien(homNayKpi.get("banHang")));
-        dashboardKpi.get("Doanh thu dịch vụ").setText(dinhDangTien(homNayKpi.get("dichVu")));
-        dashboardKpi.get("Hóa đơn đã thanh toán").setText(
-                String.valueOf(baoCaoThongKeBUS.demHoaDonDaThanhToan(homNay, homNay)));
-        dashboardKpi.get("Xe đang sửa chữa").setText(
-                String.valueOf(baoCaoThongKeBUS.layTrangThaiSua(homNay, homNay)
-                        .getOrDefault("Đang sửa chữa", 0d).intValue()));
-        Map<String, Double> trangThaiHomNay = baoCaoThongKeBUS.layTrangThaiSua(homNay, homNay);
-        int xeChoXuLy = trangThaiHomNay.getOrDefault("Chờ kiểm tra", 0d).intValue()
-                + trangThaiHomNay.getOrDefault("Đang kiểm tra", 0d).intValue()
-                + trangThaiHomNay.getOrDefault("Chờ xác nhận báo giá", 0d).intValue();
-        dashboardKpi.get("Xe chờ xử lý").setText(String.valueOf(xeChoXuLy));
-        dashboardKpi.get("Sản phẩm sắp hết").setText(
-                String.valueOf(baoCaoThongKeBUS.demTonKhoThap()));
-        dashboardKpi.get("Tổng doanh thu tháng").setText(dinhDangTien(thangNayKpi.get("tong")));
-        bieuDoDashboard.capNhat(baoCaoThongKeBUS.layDoanhThu7Ngay(homNay));
-        capNhatCanhBaoDashboard(baoCaoThongKeBUS.layTonKhoCanhBao(5));
+        String kyChon = cboKyDashboard != null
+                ? String.valueOf(cboKyDashboard.getSelectedItem())
+                : "Hôm nay";
+        if (!"Tùy chọn".equals(kyChon)) {
+            capNhatKhoangNgayDashboard(homNay);
+        }
+        String nhanKy = taoNhanKyThongKe(kyChon, tuNgayDashboard, denNgayDashboard);
+
+        Map<String, Object> duLieu = baoCaoThongKeBUS.layThongKeDashboard(
+                tuNgayDashboard, denNgayDashboard, homNay);
+        DateTimeFormatter dinhDangNgay = DateTimeFormatter.ofPattern("dd/MM");
+
+        capNhatTheKpi("Doanh thu hôm nay",
+                dinhDangTien((Double) duLieu.get("doanhThuHomNay")),
+                "Ngày " + homNay.format(dinhDangNgay));
+        capNhatTheKpi("Doanh thu bán hàng",
+                dinhDangTien((Double) duLieu.get("doanhThuBanHangKy")),
+                nhanKy);
+        capNhatTheKpi("Doanh thu dịch vụ",
+                dinhDangTien((Double) duLieu.get("doanhThuDichVuKy")),
+                nhanKy);
+        capNhatTheKpi("Hóa đơn đã thanh toán",
+                String.valueOf(duLieu.get("soHoaDonKy")),
+                nhanKy);
+        capNhatTheKpi("Xe đang sửa chữa",
+                String.valueOf(duLieu.get("xeDangSuaChua")),
+                "Hiện đang sửa tại xưởng");
+        capNhatTheKpi("Xe chờ xử lý",
+                String.valueOf(duLieu.get("xeChoXuLy")),
+                "Đang kiểm tra / chờ duyệt giá");
+        capNhatTheKpi("Sản phẩm sắp hết",
+                String.valueOf(duLieu.get("sanPhamSapHet")),
+                "Tồn kho <= mức tối thiểu");
+        capNhatTheKpi("Tổng doanh thu tháng",
+                dinhDangTien((Double) duLieu.get("tongDoanhThuThang")),
+                "Tháng " + homNay.getMonthValue() + "/" + homNay.getYear());
+
+        bieuDoDashboard.capNhat((Map<String, List<Double>>) duLieu.get("doanhThu7Ngay"), homNay);
+        capNhatCanhBaoDashboard((Map<String, List<Double>>) duLieu.get("tonKhoCanhBao"));
+    }
+
+    private JButton taoNutNgayDashboard() {
+        JButton btn = new JButton();
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        btn.setBackground(Color.WHITE);
+        btn.setFocusPainted(false);
+        return btn;
+    }
+
+    private void capNhatKhoangNgayDashboard(LocalDate homNay) {
+        String kyChon = cboKyDashboard != null
+                ? String.valueOf(cboKyDashboard.getSelectedItem())
+                : "Hôm nay";
+        if ("Tùy chọn".equals(kyChon)) {
+            capNhatNhanNutNgayDashboard();
+            return;
+        }
+        denNgayDashboard = homNay;
+        if ("7 ngày gần nhất".equals(kyChon)) {
+            tuNgayDashboard = homNay.minusDays(6);
+        } else if ("Tháng này".equals(kyChon)) {
+            tuNgayDashboard = homNay.withDayOfMonth(1);
+        } else if ("Năm nay".equals(kyChon)) {
+            tuNgayDashboard = homNay.withDayOfYear(1);
+        } else {
+            tuNgayDashboard = homNay;
+        }
+        capNhatNhanNutNgayDashboard();
+    }
+
+    private void chonNgayDashboard(boolean laTuNgay) {
+        LocalDate hienTai = laTuNgay ? tuNgayDashboard : denNgayDashboard;
+        ChonNgayLichUtil.KetQuaChonNgay ketQua = ChonNgayLichUtil.hienThiLichChonNgay(
+                laTuNgay ? btnTuNgayDashboard : btnDenNgayDashboard,
+                laTuNgay ? "Chọn ngày bắt đầu" : "Chọn ngày kết thúc",
+                hienTai,
+                false);
+        if (!ketQua.daXacNhan() || ketQua.ngay() == null) {
+            return;
+        }
+        cboKyDashboard.setSelectedItem("Tùy chọn");
+        if (laTuNgay) {
+            tuNgayDashboard = ketQua.ngay();
+            if (denNgayDashboard.isBefore(tuNgayDashboard)) {
+                denNgayDashboard = tuNgayDashboard;
+            }
+        } else {
+            denNgayDashboard = ketQua.ngay();
+            if (tuNgayDashboard.isAfter(denNgayDashboard)) {
+                tuNgayDashboard = denNgayDashboard;
+            }
+        }
+        capNhatNhanNutNgayDashboard();
+        lamMoiDashboard();
+    }
+
+    private void capNhatNhanNutNgayDashboard() {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        if (btnTuNgayDashboard != null) {
+            btnTuNgayDashboard.setText(tuNgayDashboard.format(fmt));
+        }
+        if (btnDenNgayDashboard != null) {
+            btnDenNgayDashboard.setText(denNgayDashboard.format(fmt));
+        }
+    }
+
+    private String taoNhanKyThongKe(String kyChon, LocalDate tuNgay, LocalDate denNgay) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM");
+        if (tuNgay.equals(denNgay)) {
+            return kyChon + " (" + denNgay.format(fmt) + ")";
+        }
+        return kyChon + " (" + tuNgay.format(fmt) + " - " + denNgay.format(fmt) + ")";
+    }
+
+    private void capNhatTheKpi(String tieuDe, String giaTri, String moTa) {
+        JLabel lblGiaTri = dashboardKpi.get(tieuDe);
+        if (lblGiaTri != null) {
+            lblGiaTri.setText(giaTri);
+        }
+        JLabel lblMoTa = dashboardMoTa.get(tieuDe);
+        if (lblMoTa != null) {
+            lblMoTa.setText(moTa);
+        }
     }
 
     private void capNhatCanhBaoDashboard(Map<String, List<Double>> tonKho) {
@@ -1079,6 +1224,7 @@ public class QuanLyManHinhChinh extends JFrame {
 
     private static class BieuDoDashboardPanel extends JPanel {
         private Map<String, List<Double>> duLieu = new LinkedHashMap<>();
+        private LocalDate ngayKetThuc = LocalDate.now();
         private final String tieuDe;
 
         BieuDoDashboardPanel(String tieuDe) {
@@ -1091,8 +1237,9 @@ public class QuanLyManHinhChinh extends JFrame {
             setPreferredSize(new Dimension(0, 270));
         }
 
-        void capNhat(Map<String, List<Double>> duLieuMoi) {
+        void capNhat(Map<String, List<Double>> duLieuMoi, LocalDate ngayKetThuc) {
             duLieu = new LinkedHashMap<>(duLieuMoi);
+            this.ngayKetThuc = ngayKetThuc != null ? ngayKetThuc : LocalDate.now();
             repaint();
         }
 
@@ -1104,7 +1251,8 @@ public class QuanLyManHinhChinh extends JFrame {
             g.setColor(MAU_XANH_DAM);
             g.setFont(new Font("Segoe UI", Font.BOLD, 15));
             g.drawString(tieuDe, 16, 24);
-            if (duLieu.isEmpty()) {
+
+            if (duLieu.isEmpty() || duLieu.values().iterator().next().isEmpty()) {
                 g.setColor(new Color(100, 116, 139));
                 g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
                 g.drawString("Chưa có dữ liệu.", 16, 58);
@@ -1112,34 +1260,107 @@ public class QuanLyManHinhChinh extends JFrame {
                 return;
             }
 
-            int left = 44;
-            int top = 48;
+            Color[] mauChuoi = {MAU_CAM_CHUC_VU, new Color(37, 99, 235)};
+            veChuThich(g, mauChuoi);
+
+            int left = 54;
+            int top = 54;
             int bottom = getHeight() - 34;
-            int right = getWidth() - 20;
-            double max = 1;
+            int right = getWidth() - 18;
+            if (right <= left + 40 || bottom <= top + 20) {
+                g.dispose();
+                return;
+            }
+
+            double max = 0;
             for (List<Double> giaTri : duLieu.values()) {
                 for (Double value : giaTri) {
-                    max = Math.max(max, value);
+                    if (value != null) {
+                        max = Math.max(max, value);
+                    }
                 }
             }
-            int soCot = duLieu.values().iterator().next().size();
-            int soChuoi = duLieu.size();
-            int rongCot = Math.max(12, (right - left) / Math.max(1, soCot * soChuoi + 1));
-            g.setColor(new Color(203, 213, 225));
-            g.drawLine(left, bottom, right, bottom);
+            if (max <= 0) {
+                max = 1;
+            }
 
-            int chiSoChuoi = 0;
-            for (Map.Entry<String, List<Double>> entry : duLieu.entrySet()) {
-                g.setColor(chiSoChuoi == 0 ? MAU_CAM_CHUC_VU : new Color(37, 99, 235));
-                List<Double> giaTri = entry.getValue();
-                for (int i = 0; i < giaTri.size(); i++) {
-                    int x = left + (i * soChuoi + chiSoChuoi + 1) * rongCot;
-                    int chieuCao = (int) ((bottom - top) * giaTri.get(i) / max);
-                    g.fillRect(x, bottom - chieuCao, Math.max(8, rongCot - 3), chieuCao);
+            veLuoiTrucY(g, left, top, bottom, right, max);
+
+            int soNgay = duLieu.values().iterator().next().size();
+            int soChuoi = duLieu.size();
+            double chieuRongNhom = (double) (right - left) / soNgay;
+            int rongCot = Math.max(8, Math.min(24, (int) ((chieuRongNhom * 0.65) / soChuoi)));
+            int khoangCachCot = 3;
+            int tongRongNhom = soChuoi * rongCot + (soChuoi - 1) * khoangCachCot;
+            DateTimeFormatter fmtNgay = DateTimeFormatter.ofPattern("dd/MM");
+
+            for (int i = 0; i < soNgay; i++) {
+                int xNhom = left + (int) (i * chieuRongNhom + (chieuRongNhom - tongRongNhom) / 2);
+                int chiSoChuoi = 0;
+                for (Map.Entry<String, List<Double>> entry : duLieu.entrySet()) {
+                    double giaTri = entry.getValue().get(i);
+                    int chieuCao = giaTri <= 0 ? 0 : Math.max(3, (int) ((bottom - top) * giaTri / max));
+                    int xCot = xNhom + chiSoChuoi * (rongCot + khoangCachCot);
+                    g.setColor(mauChuoi[chiSoChuoi % mauChuoi.length]);
+                    if (chieuCao > 0) {
+                        g.fillRect(xCot, bottom - chieuCao, rongCot, chieuCao);
+                        g.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+                        g.setColor(new Color(71, 85, 105));
+                        String nhanGiaTri = dinhDangNganGon(giaTri);
+                        int wText = g.getFontMetrics().stringWidth(nhanGiaTri);
+                        g.drawString(nhanGiaTri, xCot + (rongCot - wText) / 2, bottom - chieuCao - 4);
+                    }
+                    chiSoChuoi++;
                 }
-                chiSoChuoi++;
+                LocalDate ngayCot = ngayKetThuc.minusDays(soNgay - 1L - i);
+                String nhanNgay = ngayCot.format(fmtNgay);
+                g.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+                g.setColor(new Color(100, 116, 139));
+                int wNgay = g.getFontMetrics().stringWidth(nhanNgay);
+                g.drawString(nhanNgay, xNhom + (tongRongNhom - wNgay) / 2, bottom + 17);
             }
             g.dispose();
+        }
+
+        private void veChuThich(Graphics2D g, Color[] mauChuoi) {
+            g.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            int x = getWidth() - 18;
+            List<String> keys = new ArrayList<>(duLieu.keySet());
+            for (int i = keys.size() - 1; i >= 0; i--) {
+                String ten = keys.get(i);
+                int w = g.getFontMetrics().stringWidth(ten);
+                x -= w;
+                g.setColor(new Color(71, 85, 105));
+                g.drawString(ten, x, 23);
+                x -= 15;
+                g.setColor(mauChuoi[i % mauChuoi.length]);
+                g.fillRect(x, 14, 10, 10);
+                x -= 14;
+            }
+        }
+
+        private void veLuoiTrucY(Graphics2D g, int left, int top, int bottom, int right, double max) {
+            g.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            double[] tyLe = {0d, 0.5d, 1d};
+            for (double t : tyLe) {
+                int y = bottom - (int) ((bottom - top) * t);
+                g.setColor(t == 0d ? new Color(203, 213, 225) : new Color(241, 245, 249));
+                g.drawLine(left, y, right, y);
+                String nhan = t == 0d ? "0" : dinhDangNganGon(max * t);
+                g.setColor(new Color(100, 116, 139));
+                int w = g.getFontMetrics().stringWidth(nhan);
+                g.drawString(nhan, left - w - 6, y + 4);
+            }
+        }
+
+        private String dinhDangNganGon(double giaTri) {
+            if (giaTri >= 1_000_000) {
+                return String.format(Locale.US, "%.1ftr", giaTri / 1_000_000d).replace(".0tr", "tr");
+            }
+            if (giaTri >= 1_000) {
+                return Math.round(giaTri / 1_000d) + "k";
+            }
+            return String.valueOf(Math.round(giaTri));
         }
     }
 

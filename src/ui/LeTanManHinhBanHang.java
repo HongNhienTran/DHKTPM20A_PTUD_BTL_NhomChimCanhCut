@@ -50,6 +50,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -142,7 +143,10 @@ public class LeTanManHinhBanHang extends JPanel {
 
     // Component vùng bên trái (Tìm kiếm, Giỏ hàng, Menu sản phẩm)
     private JTextField txtTimKiemSP;
+    private JButton btnXoaTimSP;
     private JPopupMenu popupGoiYSP;
+    private Timer timKiemDebounceTimer;
+    private final List<SanPham> dsSanPhamNganKeoHienTai = new ArrayList<>();
     private JPanel pnlThanhTabs;
     private CardLayout layoutVungGioHang;
     private JPanel pnlVungGioHang;
@@ -157,6 +161,16 @@ public class LeTanManHinhBanHang extends JPanel {
     private NutTabNganKeo btnTabSanPhamMoi;
     private enum CheDoNganKeo { DANH_MUC, BAN_CHAY, SAN_PHAM_MOI }
     private CheDoNganKeo cheDoNganKeoHienTai = CheDoNganKeo.DANH_MUC;
+    private static final int SO_SAN_PHAM_MOI_TRANG = 16;
+    private int trangHienTai = 1;
+    private int tongSoTrang = 1;
+    private int tongSoSanPham = 0;
+    private JLabel lblThongTinPhanTrang;
+    private JLabel lblSoTrangHienTai;
+    private JButton btnTrangDau;
+    private JButton btnTrangTruoc;
+    private JButton btnTrangSau;
+    private JButton btnTrangCuoi;
     private JButton btnMoRongThuNho;
     private boolean dangMoRongNganKeo = false;
 
@@ -271,6 +285,21 @@ public class LeTanManHinhBanHang extends JPanel {
         txtTimKiemSP.setForeground(MAU_CHU_MO);
 
         popupGoiYSP = new JPopupMenu();
+        popupGoiYSP.setFocusable(false);
+
+        btnXoaTimSP = new JButton("✕");
+        btnXoaTimSP.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnXoaTimSP.setForeground(MAU_CHU_MO);
+        btnXoaTimSP.setFocusPainted(false);
+        btnXoaTimSP.setBorderPainted(false);
+        btnXoaTimSP.setContentAreaFilled(false);
+        btnXoaTimSP.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnXoaTimSP.setToolTipText("Xóa từ khóa tìm kiếm");
+        btnXoaTimSP.setVisible(false);
+        btnXoaTimSP.addActionListener(e -> xoaTuKhoaTimSanPham(true));
+
+        timKiemDebounceTimer = new Timer(120, e -> thucHienTimKiemSanPhamTuongDoi());
+        timKiemDebounceTimer.setRepeats(false);
 
         txtTimKiemSP.addFocusListener(new FocusAdapter() {
             @Override
@@ -286,6 +315,7 @@ public class LeTanManHinhBanHang extends JPanel {
                 if (txtTimKiemSP.getText().trim().isEmpty()) {
                     txtTimKiemSP.setText(PLACEHOLDER_TIM_SP);
                     txtTimKiemSP.setForeground(MAU_CHU_MO);
+                    btnXoaTimSP.setVisible(false);
                 }
             }
         });
@@ -301,12 +331,15 @@ public class LeTanManHinhBanHang extends JPanel {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     xuLyChonSanPhamBangEnter();
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    xoaTuKhoaTimSanPham(true);
                 }
             }
         });
 
         the.add(lblIcon, BorderLayout.WEST);
         the.add(txtTimKiemSP, BorderLayout.CENTER);
+        the.add(btnXoaTimSP, BorderLayout.EAST);
         return the;
     }
 
@@ -335,7 +368,7 @@ public class LeTanManHinhBanHang extends JPanel {
                 }
             };
             tabItem.setOpaque(false);
-            tabItem.setPreferredSize(new Dimension(125, 36));
+            tabItem.setPreferredSize(new Dimension(145, 38));
             tabItem.setBorder(new EmptyBorder(0, 10, 0, 6));
             tabItem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             tabItem.addMouseListener(new MouseAdapter() {
@@ -611,6 +644,7 @@ public class LeTanManHinhBanHang extends JPanel {
         napDanhMucVaoCombo();
         cboDanhMucSanPham.addActionListener(e -> {
             cheDoNganKeoHienTai = CheDoNganKeo.DANH_MUC;
+            trangHienTai = 1;
             if (btnTabBanChay != null) btnTabBanChay.setDangChon(false);
             if (btnTabSanPhamMoi != null) btnTabSanPhamMoi.setDangChon(false);
             if (!dangMoRongNganKeo) {
@@ -623,6 +657,7 @@ public class LeTanManHinhBanHang extends JPanel {
         btnTabBanChay = new NutTabNganKeo("Bán chạy", "chart.png");
         btnTabBanChay.addActionListener(e -> {
             cheDoNganKeoHienTai = CheDoNganKeo.BAN_CHAY;
+            trangHienTai = 1;
             btnTabBanChay.setDangChon(true);
             btnTabSanPhamMoi.setDangChon(false);
             if (!dangMoRongNganKeo) {
@@ -635,6 +670,7 @@ public class LeTanManHinhBanHang extends JPanel {
         btnTabSanPhamMoi = new NutTabNganKeo("Sản phẩm mới", "plus.png");
         btnTabSanPhamMoi.addActionListener(e -> {
             cheDoNganKeoHienTai = CheDoNganKeo.SAN_PHAM_MOI;
+            trangHienTai = 1;
             btnTabSanPhamMoi.setDangChon(true);
             btnTabBanChay.setDangChon(false);
             if (!dangMoRongNganKeo) {
@@ -671,29 +707,25 @@ public class LeTanManHinhBanHang extends JPanel {
         btnMoRongThuNho.setBorderPainted(false);
         btnMoRongThuNho.setContentAreaFilled(false);
         btnMoRongThuNho.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnMoRongThuNho.setPreferredSize(new Dimension(105, 34));
+        btnMoRongThuNho.setPreferredSize(new Dimension(130, 36));
         btnMoRongThuNho.addActionListener(e -> chuyenDoiTrangThaiNganKeo());
 
         thanhNganKeo.add(cumTrai, BorderLayout.WEST);
         thanhNganKeo.add(btnMoRongThuNho, BorderLayout.EAST);
 
-        // 2. Nội dung lưới sản phẩm phụ tùng - Chiều cao mở rộng đủ cho 2 hàng sản phẩm
+        // 2. Nội dung lưới sản phẩm phụ tùng - Phân trang mỗi trang 16 sản phẩm (2 hàng x 8 cột)
         pnlLuoiSanPham = new JPanel();
-        pnlLuoiSanPham.setOpaque(false);
-        pnlLuoiSanPham.setBorder(new EmptyBorder(8, 12, 8, 12));
-
-        JScrollPane cuonLuoi = new JScrollPane(pnlLuoiSanPham);
-        cuonLuoi.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, MAU_VIEN));
-        cuonLuoi.getViewport().setBackground(Color.WHITE);
-        cuonLuoi.getHorizontalScrollBar().setUnitIncrement(25);
-        cuonLuoi.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        cuonLuoi.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-        cuonLuoi.setPreferredSize(new Dimension(0, 365)); // Tăng chiều cao để hiển thị đủ 2 hàng
+        pnlLuoiSanPham.setBackground(Color.WHITE);
+        pnlLuoiSanPham.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, MAU_VIEN),
+                new EmptyBorder(10, 12, 10, 12)
+        ));
 
         pnlNganKeo = new JPanel(new BorderLayout());
         pnlNganKeo.setOpaque(false);
-        pnlNganKeo.setPreferredSize(new Dimension(0, 365));
-        pnlNganKeo.add(cuonLuoi, BorderLayout.CENTER);
+        pnlNganKeo.setPreferredSize(new Dimension(0, 395));
+        pnlNganKeo.add(pnlLuoiSanPham, BorderLayout.CENTER);
+        pnlNganKeo.add(taoThanhPhanTrang(), BorderLayout.SOUTH);
         pnlNganKeo.setVisible(false); // Mặc định thu nhỏ, bấm mở rộng sẽ hiển thị 2 hàng
 
         the.add(thanhNganKeo, BorderLayout.NORTH);
@@ -702,11 +734,75 @@ public class LeTanManHinhBanHang extends JPanel {
         return the;
     }
 
+    private JPanel taoThanhPhanTrang() {
+        JPanel thanh = new JPanel(new BorderLayout());
+        thanh.setBackground(new Color(248, 250, 252));
+        thanh.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, MAU_VIEN),
+                new EmptyBorder(6, 14, 6, 14)
+        ));
+
+        lblThongTinPhanTrang = new JLabel("Hiển thị 0 / 0 sản phẩm");
+        lblThongTinPhanTrang.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblThongTinPhanTrang.setForeground(MAU_CHU_PHU);
+
+        JPanel cumNut = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        cumNut.setOpaque(false);
+
+        btnTrangDau = taoNutPhanTrang("« Đầu", 68);
+        btnTrangTruoc = taoNutPhanTrang("‹ Trước", 78);
+        lblSoTrangHienTai = new JLabel("Trang 1 / 1", SwingConstants.CENTER);
+        lblSoTrangHienTai.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblSoTrangHienTai.setForeground(MAU_XANH_DAM);
+        lblSoTrangHienTai.setPreferredSize(new Dimension(92, 28));
+        btnTrangSau = taoNutPhanTrang("Sau ›", 70);
+        btnTrangCuoi = taoNutPhanTrang("Cuối »", 72);
+
+        btnTrangDau.addActionListener(e -> chuyenTrang(1));
+        btnTrangTruoc.addActionListener(e -> chuyenTrang(trangHienTai - 1));
+        btnTrangSau.addActionListener(e -> chuyenTrang(trangHienTai + 1));
+        btnTrangCuoi.addActionListener(e -> chuyenTrang(tongSoTrang));
+
+        cumNut.add(btnTrangDau);
+        cumNut.add(btnTrangTruoc);
+        cumNut.add(lblSoTrangHienTai);
+        cumNut.add(btnTrangSau);
+        cumNut.add(btnTrangCuoi);
+
+        thanh.add(lblThongTinPhanTrang, BorderLayout.WEST);
+        thanh.add(cumNut, BorderLayout.EAST);
+        return thanh;
+    }
+
+    private JButton taoNutPhanTrang(String nhan, int rong) {
+        JButton btn = new JButton(nhan);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btn.setForeground(MAU_XANH_DAM);
+        btn.setBackground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setPreferredSize(new Dimension(rong, 28));
+        btn.setBorder(BorderFactory.createLineBorder(MAU_VIEN, 1, true));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
+    private void chuyenTrang(int trangMoi) {
+        if (trangMoi < 1 || trangMoi > tongSoTrang || trangMoi == trangHienTai) {
+            return;
+        }
+        trangHienTai = trangMoi;
+        napDanhSachPhuTungVaoNganKeo();
+    }
+
     private void chuyenDoiTrangThaiNganKeo() {
         dangMoRongNganKeo = !dangMoRongNganKeo;
         pnlNganKeo.setVisible(dangMoRongNganKeo);
         btnMoRongThuNho.setText(dangMoRongNganKeo ? "▼ Thu nhỏ" : "▲ Mở rộng");
-        if (dangMoRongNganKeo && pnlLuoiSanPham.getComponentCount() == 0) {
+        if (dangMoRongNganKeo) {
+            if (popupGoiYSP != null) {
+                popupGoiYSP.setVisible(false);
+            }
+            trangHienTai = 1;
             napDanhSachPhuTungVaoNganKeo();
         }
         revalidate();
@@ -728,24 +824,36 @@ public class LeTanManHinhBanHang extends JPanel {
 
     private void napDanhSachPhuTungVaoNganKeo() {
         pnlLuoiSanPham.removeAll();
+        dsSanPhamNganKeoHienTai.clear();
+
+        String tuKhoa = layTuKhoaTimSanPham();
+        String maDanhMucLoc = null;
+        if (cheDoNganKeoHienTai == CheDoNganKeo.DANH_MUC) {
+            LuaChonDanhMuc sel = (LuaChonDanhMuc) cboDanhMucSanPham.getSelectedItem();
+            maDanhMucLoc = sel != null ? sel.maDanhMuc() : null;
+        }
 
         List<SanPham> ds;
         try {
-            switch (cheDoNganKeoHienTai) {
-                case BAN_CHAY -> ds = sanPhamBUS.layDanhSachBanChay(30);
-                case SAN_PHAM_MOI -> ds = sanPhamBUS.layDanhSachSanPhamMoi(30);
-                case DANH_MUC -> {
-                    LuaChonDanhMuc sel = (LuaChonDanhMuc) cboDanhMucSanPham.getSelectedItem();
-                    String maDanhMuc = sel != null ? sel.maDanhMuc() : null;
-                    if (maDanhMuc != null) {
-                        ds = sanPhamBUS.layTheoDanhMuc(maDanhMuc);
-                    } else {
-                        ds = sanPhamBUS.layTatCa();
-                    }
-                }
-                default -> ds = sanPhamBUS.layTatCa();
+            tongSoSanPham = sanPhamBUS.demTongSanPhamBanHang(maDanhMucLoc, tuKhoa);
+            tongSoTrang = Math.max(1, (int) Math.ceil((double) tongSoSanPham / SO_SAN_PHAM_MOI_TRANG));
+            if (trangHienTai > tongSoTrang) {
+                trangHienTai = tongSoTrang;
             }
+            if (trangHienTai < 1) {
+                trangHienTai = 1;
+            }
+            ds = sanPhamBUS.layDanhSachPhanTrang(
+                    cheDoNganKeoHienTai.name(),
+                    maDanhMucLoc,
+                    tuKhoa,
+                    trangHienTai,
+                    SO_SAN_PHAM_MOI_TRANG
+            );
         } catch (Exception ex) {
+            tongSoSanPham = 0;
+            tongSoTrang = 1;
+            trangHienTai = 1;
             ds = new ArrayList<>();
         }
 
@@ -754,24 +862,57 @@ public class LeTanManHinhBanHang extends JPanel {
             if (sp == null || !sp.isTrangThai()) {
                 continue;
             }
+            dsSanPhamNganKeoHienTai.add(sp);
             pnlLuoiSanPham.add(taoThePhuTungPOS(sp));
             soLuong++;
         }
 
         if (soLuong == 0) {
             pnlLuoiSanPham.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 60));
-            JLabel lblTrong = new JLabel("Không có sản phẩm nào để hiển thị trong mục này");
+            String thongBaoTrong = tuKhoa.isEmpty()
+                    ? "Không có sản phẩm nào để hiển thị trong mục này"
+                    : "Không tìm thấy sản phẩm nào khớp với \"" + tuKhoa + "\"";
+            JLabel lblTrong = new JLabel(thongBaoTrong);
             lblTrong.setFont(new Font("Segoe UI", Font.ITALIC, 13));
             lblTrong.setForeground(MAU_CHU_MO);
             pnlLuoiSanPham.add(lblTrong);
         } else {
-            // Chia đều sản phẩm thành đúng 2 hàng
-            int soCot = Math.max(1, (soLuong + 1) / 2);
-            pnlLuoiSanPham.setLayout(new GridLayout(2, soCot, 12, 10));
+            // Cố định lưới 2 hàng x 8 cột (tối đa 16 sản phẩm/trang), điền ô trống giữ đều kích thước thẻ
+            pnlLuoiSanPham.setLayout(new GridLayout(2, 8, 8, 8));
+            for (int i = soLuong; i < SO_SAN_PHAM_MOI_TRANG; i++) {
+                JPanel oTrong = new JPanel();
+                oTrong.setOpaque(false);
+                pnlLuoiSanPham.add(oTrong);
+            }
         }
 
+        capNhatTrangThaiPhanTrang(soLuong);
         pnlLuoiSanPham.revalidate();
         pnlLuoiSanPham.repaint();
+    }
+
+    private void capNhatTrangThaiPhanTrang(int soLuongTrenTrang) {
+        String tuKhoa = layTuKhoaTimSanPham();
+        String donVi = tuKhoa.isEmpty() ? "sản phẩm" : "kết quả tìm kiếm";
+        if (lblThongTinPhanTrang != null) {
+            if (tongSoSanPham == 0 || soLuongTrenTrang == 0) {
+                lblThongTinPhanTrang.setText("Hiển thị 0 / 0 " + donVi);
+            } else {
+                int batDau = (trangHienTai - 1) * SO_SAN_PHAM_MOI_TRANG + 1;
+                int ketThuc = batDau + soLuongTrenTrang - 1;
+                lblThongTinPhanTrang.setText(String.format("Hiển thị %d - %d / %d %s",
+                        batDau, ketThuc, tongSoSanPham, donVi));
+            }
+        }
+        if (lblSoTrangHienTai != null) {
+            lblSoTrangHienTai.setText("Trang " + trangHienTai + " / " + tongSoTrang);
+        }
+        if (btnTrangDau != null) {
+            btnTrangDau.setEnabled(trangHienTai > 1);
+            btnTrangTruoc.setEnabled(trangHienTai > 1);
+            btnTrangSau.setEnabled(trangHienTai < tongSoTrang);
+            btnTrangCuoi.setEnabled(trangHienTai < tongSoTrang);
+        }
     }
 
     private JPanel taoThePhuTungPOS(SanPham sp) {
@@ -815,23 +956,22 @@ public class LeTanManHinhBanHang extends JPanel {
             }
         };
 
-        the.setPreferredSize(new Dimension(126, 162));
+        the.setPreferredSize(new Dimension(112, 160));
         the.setOpaque(false);
         the.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        the.setBorder(new EmptyBorder(6, 6, 6, 6));
+        the.setBorder(new EmptyBorder(6, 5, 6, 5));
 
         // Hình ảnh sản phẩm
         JLabel lblAnh = new JLabel();
         lblAnh.setHorizontalAlignment(SwingConstants.CENTER);
-        lblAnh.setPreferredSize(new Dimension(114, 70));
-        ImageIcon iconSP = IconUtil.layAnhSanPham(sp.getAnhSanPham(), 96, 64);
+        lblAnh.setPreferredSize(new Dimension(100, 62));
+        ImageIcon iconSP = IconUtil.layAnhSanPham(sp.getAnhSanPham(), 84, 56);
         if (iconSP != null) {
             lblAnh.setIcon(iconSP);
         }
 
         // Tên sản phẩm
-        JLabel lblTen = new JLabel("<html><div style='text-align: center; width: 105px;'>"
-                + sp.getTenSanPham() + "</div></html>");
+        JLabel lblTen = new JLabel("<html><center>" + sp.getTenSanPham() + "</center></html>");
         lblTen.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lblTen.setForeground(MAU_CHU_CHINH);
         lblTen.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1282,14 +1422,14 @@ public class LeTanManHinhBanHang extends JPanel {
         btnThanhToan.setBorderPainted(false);
         btnThanhToan.setContentAreaFilled(false);
         btnThanhToan.setOpaque(false);
-        btnThanhToan.setPreferredSize(new Dimension(0, 46));
+        btnThanhToan.setPreferredSize(new Dimension(0, 48));
         btnThanhToan.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnThanhToan.addActionListener(e -> xuLyThanhToanVaInHoaDon());
 
         // Hàng 2 nút: In tạm tính & Hủy đơn
         JPanel hangDuoi = new JPanel(new GridLayout(1, 2, 10, 0));
         hangDuoi.setOpaque(false);
-        hangDuoi.setPreferredSize(new Dimension(0, 38));
+        hangDuoi.setPreferredSize(new Dimension(0, 42));
 
         JButton btnInTamTinh = new JButton("In tạm tính", IconUtil.layIcon("refresh.png", 14, 14, MAU_CHU_CHINH));
         btnInTamTinh.setIconTextGap(6);
@@ -1505,70 +1645,126 @@ public class LeTanManHinhBanHang extends JPanel {
         napDuLieuDonLenGiaoDien();
     }
 
+    private String layTuKhoaTimSanPham() {
+        if (txtTimKiemSP == null) {
+            return "";
+        }
+        String text = txtTimKiemSP.getText();
+        if (text == null || PLACEHOLDER_TIM_SP.equals(text)) {
+            return "";
+        }
+        return text.trim();
+    }
+
+    private void xoaTuKhoaTimSanPham(boolean giuFocus) {
+        if (txtTimKiemSP != null) {
+            txtTimKiemSP.setText(giuFocus ? "" : PLACEHOLDER_TIM_SP);
+            txtTimKiemSP.setForeground(giuFocus ? MAU_CHU_CHINH : MAU_CHU_MO);
+            if (giuFocus) {
+                txtTimKiemSP.requestFocusInWindow();
+            }
+        }
+        if (btnXoaTimSP != null) {
+            btnXoaTimSP.setVisible(false);
+        }
+        if (popupGoiYSP != null) {
+            popupGoiYSP.setVisible(false);
+        }
+        if (dangMoRongNganKeo) {
+            trangHienTai = 1;
+            napDanhSachPhuTungVaoNganKeo();
+        }
+    }
+
     private void xuLyTimKiemSanPhamLive() {
-        String tuKhoa = txtTimKiemSP.getText();
-        if (tuKhoa == null || PLACEHOLDER_TIM_SP.equals(tuKhoa) || tuKhoa.trim().isEmpty()) {
+        String tuKhoa = layTuKhoaTimSanPham();
+        if (btnXoaTimSP != null) {
+            btnXoaTimSP.setVisible(!tuKhoa.isEmpty());
+        }
+        if (timKiemDebounceTimer != null) {
+            timKiemDebounceTimer.restart();
+        } else {
+            thucHienTimKiemSanPhamTuongDoi();
+        }
+    }
+
+    private void thucHienTimKiemSanPhamTuongDoi() {
+        String tuKhoa = layTuKhoaTimSanPham();
+
+        // Khi ngăn kéo menu sản phẩm đang mở: lọc trực tiếp lên lưới menu phía dưới
+        if (dangMoRongNganKeo) {
+            if (popupGoiYSP != null) {
+                popupGoiYSP.setVisible(false);
+            }
+            trangHienTai = 1;
+            napDanhSachPhuTungVaoNganKeo();
+            return;
+        }
+
+        if (tuKhoa.isEmpty()) {
             popupGoiYSP.setVisible(false);
             return;
         }
 
-        tuKhoa = tuKhoa.trim().toLowerCase(Locale.ROOT);
         popupGoiYSP.removeAll();
-
-        List<SanPham> ds = sanPhamBUS.layTatCa();
+        List<SanPham> ds = sanPhamBUS.timKiemNhanh(tuKhoa, 10);
         int dem = 0;
         for (SanPham sp : ds) {
-            if (!sp.isTrangThai()) continue;
-            String ma = sp.getMaSanPham() != null ? sp.getMaSanPham().toLowerCase(Locale.ROOT) : "";
-            String ten = sp.getTenSanPham() != null ? sp.getTenSanPham().toLowerCase(Locale.ROOT) : "";
-
-            if (ma.contains(tuKhoa) || ten.contains(tuKhoa)) {
-                JMenuItem item = new JMenuItem(
-                        String.format("[%s] %s  |  Giá: %s đ  |  Tồn: %d %s",
-                                sp.getMaSanPham(), sp.getTenSanPham(),
-                                dinhDangTien.format(Math.round(sp.getDonGiaBan())),
-                                sp.getSoLuongTon(), sp.getDonViTinh() != null ? sp.getDonViTinh() : "")
-                );
-                item.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-                item.addActionListener(e -> {
-                    themSanPhamVaoDonHienTai(sp);
-                    txtTimKiemSP.setText("");
-                    popupGoiYSP.setVisible(false);
-                });
-                popupGoiYSP.add(item);
-                dem++;
-                if (dem >= 8) break; // Giới hạn tối đa 8 gợi ý
-            }
+            String tenDM = (sp.getDanhMucSanPham() != null && sp.getDanhMucSanPham().getTenDanhMuc() != null)
+                    ? sp.getDanhMucSanPham().getTenDanhMuc() : "";
+            String nhan = String.format("[%s] %s%s  |  Giá: %s đ  |  Tồn: %d %s",
+                    sp.getMaSanPham(),
+                    sp.getTenSanPham(),
+                    tenDM.isEmpty() ? "" : " (" + tenDM + ")",
+                    dinhDangTien.format(Math.round(sp.getDonGiaBan())),
+                    sp.getSoLuongTon(),
+                    sp.getDonViTinh() != null ? sp.getDonViTinh() : "");
+            JMenuItem item = new JMenuItem(nhan);
+            item.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            item.setPreferredSize(new Dimension(Math.max(460, txtTimKiemSP.getWidth() + 30), 30));
+            item.addActionListener(e -> {
+                themSanPhamVaoDonHienTai(sp);
+                xoaTuKhoaTimSanPham(true);
+            });
+            popupGoiYSP.add(item);
+            dem++;
         }
 
         if (dem > 0) {
-            popupGoiYSP.show(txtTimKiemSP, 0, txtTimKiemSP.getHeight());
-            txtTimKiemSP.requestFocus();
+            popupGoiYSP.show(txtTimKiemSP, 0, txtTimKiemSP.getHeight() + 6);
         } else {
-            popupGoiYSP.setVisible(false);
+            JMenuItem itemTrong = new JMenuItem("Không tìm thấy sản phẩm phù hợp với \"" + tuKhoa + "\"");
+            itemTrong.setEnabled(false);
+            itemTrong.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+            popupGoiYSP.add(itemTrong);
+            popupGoiYSP.show(txtTimKiemSP, 0, txtTimKiemSP.getHeight() + 6);
         }
     }
 
     private void xuLyChonSanPhamBangEnter() {
-        String tuKhoa = txtTimKiemSP.getText();
-        if (tuKhoa == null || PLACEHOLDER_TIM_SP.equals(tuKhoa) || tuKhoa.trim().isEmpty()) {
+        String tuKhoa = layTuKhoaTimSanPham();
+        if (tuKhoa.isEmpty()) {
             return;
         }
-        tuKhoa = tuKhoa.trim();
 
         // 1. Kiểm tra khớp chính xác mã sản phẩm
         SanPham spChinhXac = sanPhamBUS.timTheoMa(tuKhoa);
         if (spChinhXac != null) {
             themSanPhamVaoDonHienTai(spChinhXac);
-            txtTimKiemSP.setText("");
-            popupGoiYSP.setVisible(false);
+            xoaTuKhoaTimSanPham(true);
             return;
         }
 
-        // 2. Nếu khớp dòng gợi ý đầu tiên
+        // 2. Nếu ngăn kéo menu đang mở, chọn sản phẩm đầu tiên đang lọc trên menu
+        if (dangMoRongNganKeo && !dsSanPhamNganKeoHienTai.isEmpty()) {
+            themSanPhamVaoDonHienTai(dsSanPhamNganKeoHienTai.get(0));
+            return;
+        }
+
+        // 3. Nếu khớp dòng gợi ý đầu tiên trong popup
         if (popupGoiYSP.getComponentCount() > 0) {
             Component c = popupGoiYSP.getComponent(0);
-            if (c instanceof JMenuItem item) {
+            if (c instanceof JMenuItem item && item.isEnabled()) {
                 item.doClick();
             }
         }
@@ -1689,8 +1885,16 @@ public class LeTanManHinhBanHang extends JPanel {
     }
 
     private void napDanhSachKhuyenMaiKhaDung(DonBanHangTam don) {
+        if (don == null || cboMaKhuyenMai == null) {
+            return;
+        }
         double tongTien = don.tinhTongTienHang();
-        List<MaKhuyenMai> dsKhaDung = maKhuyenMaiBUS.layDanhSachKhuyenMaiKhaDung(tongTien);
+        List<MaKhuyenMai> dsKhaDung;
+        try {
+            dsKhaDung = maKhuyenMaiBUS.layDanhSachKhuyenMaiKhaDung(tongTien);
+        } catch (Exception ex) {
+            dsKhaDung = new ArrayList<>();
+        }
 
         DefaultComboBoxModel<MaKhuyenMai> model = new DefaultComboBoxModel<>();
         model.addElement(null); // -- Không áp dụng --
@@ -1699,10 +1903,74 @@ public class LeTanManHinhBanHang extends JPanel {
             model.addElement(km);
         }
 
-        cboMaKhuyenMai.setModel(model);
-        if (don.getMaKhuyenMai() != null) {
-            cboMaKhuyenMai.setSelectedItem(don.getMaKhuyenMai());
+        boolean trangThaiTruoc = dangCapNhatDuLieu;
+        dangCapNhatDuLieu = true;
+        try {
+            cboMaKhuyenMai.setModel(model);
+
+            if (tongTien <= 0 || dsKhaDung.isEmpty()) {
+                don.setMaKhuyenMai(null);
+                don.setKhuyenMaiTuDong(false);
+                if (tongTien <= 0) {
+                    don.setDaTuBoChonKhuyenMai(false);
+                }
+                cboMaKhuyenMai.setSelectedIndex(0);
+                return;
+            }
+
+            MaKhuyenMai kmHienTaiTrongDS = null;
+            if (don.getMaKhuyenMai() != null) {
+                for (MaKhuyenMai km : dsKhaDung) {
+                    if (km.equals(don.getMaKhuyenMai())) {
+                        kmHienTaiTrongDS = km;
+                        break;
+                    }
+                }
+            }
+
+            // Chỉ tự động áp dụng mã giảm tốt nhất cho đơn đang tạo nếu người dùng chưa chủ động bỏ chọn
+            if (!don.isDaTuBoChonKhuyenMai() && (kmHienTaiTrongDS == null || don.isKhuyenMaiTuDong())) {
+                MaKhuyenMai kmTotNhat = timKhuyenMaiGiamNhieuNhat(dsKhaDung, tongTien);
+                don.setMaKhuyenMai(kmTotNhat);
+                don.setKhuyenMaiTuDong(kmTotNhat != null);
+                if (kmTotNhat != null) {
+                    cboMaKhuyenMai.setSelectedItem(kmTotNhat);
+                } else {
+                    cboMaKhuyenMai.setSelectedIndex(0);
+                }
+            } else if (kmHienTaiTrongDS != null) {
+                don.setMaKhuyenMai(kmHienTaiTrongDS);
+                cboMaKhuyenMai.setSelectedItem(kmHienTaiTrongDS);
+            } else {
+                don.setMaKhuyenMai(null);
+                don.setKhuyenMaiTuDong(false);
+                cboMaKhuyenMai.setSelectedIndex(0);
+            }
+        } finally {
+            dangCapNhatDuLieu = trangThaiTruoc;
         }
+    }
+
+    private MaKhuyenMai timKhuyenMaiGiamNhieuNhat(List<MaKhuyenMai> dsKhaDung, double tongTien) {
+        MaKhuyenMai totNhat = null;
+        double giamCaoNhat = -1;
+        for (MaKhuyenMai km : dsKhaDung) {
+            if (km == null) {
+                continue;
+            }
+            double giam = 0;
+            if (km.getLoaiGiam() == LoaiGiamGia.PHAN_TRAM) {
+                giam = tongTien * (km.getGiaTriGiam() / 100.0);
+            } else if (km.getLoaiGiam() == LoaiGiamGia.SO_TIEN) {
+                giam = km.getGiaTriGiam();
+            }
+            giam = Math.min(tongTien, Math.max(0, giam));
+            if (giam > giamCaoNhat) {
+                giamCaoNhat = giam;
+                totNhat = km;
+            }
+        }
+        return totNhat;
     }
 
     private void xuLyThayDoiKhuyenMai() {
@@ -1712,6 +1980,8 @@ public class LeTanManHinhBanHang extends JPanel {
 
         MaKhuyenMai km = (MaKhuyenMai) cboMaKhuyenMai.getSelectedItem();
         don.setMaKhuyenMai(km);
+        don.setKhuyenMaiTuDong(false);
+        don.setDaTuBoChonKhuyenMai(km == null);
         capNhatTongThanhToanHienThi();
     }
 
@@ -1887,6 +2157,9 @@ public class LeTanManHinhBanHang extends JPanel {
                     danhSachDonTam.set(0, new DonBanHangTam("Hóa đơn 1"));
                 }
                 chuyenSangDonTam(chiSoDonHienTai);
+                if (dangMoRongNganKeo) {
+                    napDanhSachPhuTungVaoNganKeo();
+                }
             } else {
                 JOptionPane.showMessageDialog(this,
                         "Không thể lưu hóa đơn bán hàng. Vui lòng kiểm tra lại kết nối CSDL!",
@@ -2025,8 +2298,8 @@ public class LeTanManHinhBanHang extends JPanel {
             super(cuaSoCha, "Tạo Nhanh Hồ Sơ Khách Hàng", ModalityType.APPLICATION_MODAL);
             this.khachHangBUS = khachHangBUS;
 
-            setSize(560, 480);
-            setMinimumSize(new Dimension(500, 440));
+            setSize(620, 520);
+            setMinimumSize(new Dimension(560, 480));
             setLocationRelativeTo(cuaSoCha);
             setResizable(true);
             setLayout(new BorderLayout());
@@ -2084,6 +2357,7 @@ public class LeTanManHinhBanHang extends JPanel {
             JButton btnHuy = new JButton("Đóng");
             btnHuy.setFont(new Font("Segoe UI", Font.PLAIN, 13));
             btnHuy.setBackground(Color.WHITE);
+            btnHuy.setPreferredSize(new Dimension(110, 38));
             btnHuy.setFocusPainted(false);
             btnHuy.addActionListener(e -> dispose());
 
@@ -2091,6 +2365,7 @@ public class LeTanManHinhBanHang extends JPanel {
             btnLuu.setFont(new Font("Segoe UI", Font.BOLD, 13));
             btnLuu.setForeground(Color.WHITE);
             btnLuu.setBackground(MAU_CAM_CHU_DAO);
+            btnLuu.setPreferredSize(new Dimension(170, 38));
             btnLuu.setFocusPainted(false);
             btnLuu.addActionListener(e -> xuLyLuuKhachHang());
 
@@ -2174,6 +2449,8 @@ public class LeTanManHinhBanHang extends JPanel {
         private final List<DongGioHang> danhSachHang = new ArrayList<>();
         private KhachHang khachHang = null;
         private MaKhuyenMai maKhuyenMai = null;
+        private boolean khuyenMaiTuDong = false;
+        private boolean daTuBoChonKhuyenMai = false;
         private double tienKhachDua = 0.0;
         private PhuongThucThanhToan phuongThuc = PhuongThucThanhToan.TIEN_MAT;
         private String ghiChu = "";
@@ -2188,6 +2465,10 @@ public class LeTanManHinhBanHang extends JPanel {
         public void setKhachHang(KhachHang kh) { this.khachHang = kh; }
         public MaKhuyenMai getMaKhuyenMai() { return maKhuyenMai; }
         public void setMaKhuyenMai(MaKhuyenMai km) { this.maKhuyenMai = km; }
+        public boolean isKhuyenMaiTuDong() { return khuyenMaiTuDong; }
+        public void setKhuyenMaiTuDong(boolean tuDong) { this.khuyenMaiTuDong = tuDong; }
+        public boolean isDaTuBoChonKhuyenMai() { return daTuBoChonKhuyenMai; }
+        public void setDaTuBoChonKhuyenMai(boolean tuBo) { this.daTuBoChonKhuyenMai = tuBo; }
         public double getTienKhachDua() { return tienKhachDua; }
         public void setTienKhachDua(double tien) { this.tienKhachDua = tien; }
         public PhuongThucThanhToan getPhuongThuc() { return phuongThuc; }
@@ -2216,6 +2497,8 @@ public class LeTanManHinhBanHang extends JPanel {
             danhSachHang.clear();
             khachHang = null;
             maKhuyenMai = null;
+            khuyenMaiTuDong = false;
+            daTuBoChonKhuyenMai = false;
             tienKhachDua = 0.0;
             phuongThuc = PhuongThucThanhToan.TIEN_MAT;
             ghiChu = "";
@@ -2550,7 +2833,8 @@ public class LeTanManHinhBanHang extends JPanel {
                 JDialog.ModalityType.APPLICATION_MODAL
         );
 
-        dialog.setSize(520, 540);
+        dialog.setSize(600, 630);
+        dialog.setMinimumSize(new Dimension(560, 580));
         dialog.setLocationRelativeTo(cuaSoCha);
         dialog.setLayout(new BorderLayout(10, 10));
 
@@ -2620,25 +2904,23 @@ public class LeTanManHinhBanHang extends JPanel {
         pnlChinh.add(lblTrangThai);
 
         // Hai nút xác nhận và hủy
-        JPanel pnlNut = new JPanel(new GridLayout(1, 2, 10, 0));
+        JPanel pnlNut = new JPanel(new FlowLayout(FlowLayout.CENTER, 14, 12));
         pnlNut.setBackground(Color.WHITE);
-        pnlNut.setBorder(new EmptyBorder(10, 20, 15, 20));
+        pnlNut.setBorder(new EmptyBorder(6, 20, 14, 20));
 
         boolean[] daXacNhan = {false};
 
         JButton btnXacNhan = new JButton("XÁC NHẬN ĐÃ NHẬN TIỀN");
-        btnXacNhan.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btnXacNhan.setPreferredSize(new Dimension(250, 40));
-        btnXacNhan.setMinimumSize(new Dimension(250, 40));
+        btnXacNhan.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnXacNhan.setPreferredSize(new Dimension(250, 42));
+        btnXacNhan.setMinimumSize(new Dimension(250, 42));
         btnXacNhan.setFocusPainted(false);
         btnXacNhan.setBorderPainted(false);
         btnXacNhan.setForeground(Color.WHITE);
         btnXacNhan.setBackground(MAU_XANH_LA);
-        btnXacNhan.setFocusPainted(false);
-        btnXacNhan.setBorderPainted(false);
 
         JButton btnHuy = new JButton("Hủy");
-        btnHuy.setPreferredSize(new Dimension(150, 40));
+        btnHuy.setPreferredSize(new Dimension(130, 42));
         btnHuy.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnHuy.setForeground(MAU_DO);
         btnHuy.setBackground(new Color(254, 242, 242));

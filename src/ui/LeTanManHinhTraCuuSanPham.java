@@ -5,6 +5,7 @@ import bus.SanPhamBUS;
 import entity.DanhMucSanPham;
 import entity.SanPham;
 import util.IconUtil;
+import util.ThanhPhanTrang;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -32,6 +33,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import java.awt.BasicStroke;
+import java.awt.FontMetrics;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -65,25 +67,31 @@ import java.util.Locale;
  */
 public class LeTanManHinhTraCuuSanPham extends JPanel {
 
-    // Bảng màu đồng bộ theo phong cách Pengu Garage
-    private static final Color MAU_NEN_TRANG = new Color(248, 250, 252);
+    // Bảng màu đồng bộ & tươi sáng theo phong cách Pengu Garage
+    private static final Color MAU_NEN_TRANG = new Color(241, 245, 249);
     private static final Color MAU_THE_TRANG = Color.WHITE;
-    private static final Color MAU_VIEN_THE = new Color(226, 232, 240);
+    private static final Color MAU_VIEN_THE = new Color(203, 213, 225);
     private static final Color MAU_XANH_DAM = new Color(15, 41, 66);
-    private static final Color MAU_CHU_CHINH = new Color(30, 41, 59);
-    private static final Color MAU_CHU_PHU = new Color(71, 85, 105);
-    private static final Color MAU_CHU_MO = new Color(148, 163, 184);
+    private static final Color MAU_CHU_CHINH = new Color(15, 23, 42);
+    private static final Color MAU_CHU_PHU = new Color(51, 65, 85);
+    private static final Color MAU_CHU_MO = new Color(100, 116, 139);
     private static final Color MAU_CAM_CHU_DAO = new Color(234, 106, 31);
     private static final Color MAU_CAM_HOVER = new Color(244, 132, 52);
-    private static final Color MAU_XANH_LA = new Color(16, 185, 129);
+    private static final Color MAU_XANH_LA = new Color(21, 128, 61);
+    private static final Color MAU_NEN_XANH_LA = new Color(220, 252, 231);
+    private static final Color MAU_CANH_BAO_CAM = new Color(180, 83, 9);
+    private static final Color MAU_NEN_CANH_BAO = new Color(254, 243, 199);
     private static final Color MAU_DO_CANH_BAO = new Color(220, 38, 38);
+    private static final Color MAU_NEN_DO = new Color(254, 226, 226);
     private static final Color MAU_NEN_BADGE_TONG = new Color(239, 246, 255);
-    private static final Color MAU_VIEN_BADGE_TONG = new Color(219, 234, 254);
-    private static final Color MAU_CHU_BADGE_TONG = new Color(30, 58, 138);
-    private static final Color MAU_CHON_DONG = new Color(255, 247, 237);
-    private static final Color MAU_KE_BANG = new Color(241, 245, 249);
+    private static final Color MAU_VIEN_BADGE_TONG = new Color(191, 219, 254);
+    private static final Color MAU_CHU_BADGE_TONG = new Color(29, 78, 216);
+    private static final Color MAU_CHON_DONG = new Color(255, 244, 230);
+    private static final Color MAU_DONG_XEN_KE = new Color(248, 250, 252);
+    private static final Color MAU_KE_BANG = new Color(226, 232, 240);
 
     private static final String PLACEHOLDER_TIM_KIEM = "Tìm kiếm theo Mã SP, Tên sản phẩm, ĐVT...";
+    private static final int KICH_THUOC_TRANG = 13;
 
     private final SanPhamBUS sanPhamBUS = new SanPhamBUS();
     private final DanhMucSanPhamBUS danhMucBUS = new DanhMucSanPhamBUS();
@@ -91,6 +99,7 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
 
     private List<SanPham> danhSachGoc = new ArrayList<>();
     private final List<SanPham> danhSachHienThi = new ArrayList<>();
+    private ThanhPhanTrang thanhPhanTrang;
 
     private JTextField txtTimKiem;
     private JComboBox<LuaChonDanhMuc> cboDanhMuc;
@@ -112,12 +121,12 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
     }
 
     private void khoiTaoGiaoDien() {
-        setLayout(new BorderLayout(0, 14));
+        setLayout(new BorderLayout(0, 10));
         setBackground(MAU_NEN_TRANG);
-        setBorder(new EmptyBorder(18, 24, 22, 24));
+        setBorder(new EmptyBorder(12, 24, 14, 24));
 
         // Phần đầu: Tiêu đề + nút xem chi tiết, bên dưới là thanh tìm kiếm & bộ lọc
-        JPanel khuVucTren = new JPanel(new BorderLayout(0, 14));
+        JPanel khuVucTren = new JPanel(new BorderLayout(0, 10));
         khuVucTren.setOpaque(false);
         khuVucTren.add(taoHangTieuDeVaNutChucNang(), BorderLayout.NORTH);
         khuVucTren.add(taoTheTimKiemVaBoLoc(), BorderLayout.CENTER);
@@ -165,7 +174,7 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
     private JPanel taoTheTimKiemVaBoLoc() {
         TheBoGoc the = new TheBoGoc(14, MAU_THE_TRANG, MAU_VIEN_THE);
         the.setLayout(new GridBagLayout());
-        the.setBorder(new EmptyBorder(12, 14, 12, 14));
+        the.setBorder(new EmptyBorder(9, 14, 9, 14));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
@@ -285,7 +294,7 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
         dauThe.setOpaque(false);
         dauThe.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, MAU_KE_BANG),
-                new EmptyBorder(14, 18, 12, 18)
+                new EmptyBorder(10, 18, 10, 18)
         ));
 
         JLabel lblTieuDeBang = new JLabel("Danh Sách Phụ Tùng & Vật Tư");
@@ -316,7 +325,7 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
         };
 
         bangSanPham = new JTable(moHinhBang);
-        bangSanPham.setRowHeight(41);
+        bangSanPham.setRowHeight(35);
         bangSanPham.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         bangSanPham.setForeground(MAU_CHU_CHINH);
         bangSanPham.setBackground(Color.WHITE);
@@ -328,21 +337,22 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
         bangSanPham.setGridColor(MAU_KE_BANG);
         bangSanPham.setIntercellSpacing(new Dimension(0, 1));
         bangSanPham.setFillsViewportHeight(true);
+        bangSanPham.setPreferredScrollableViewportSize(new Dimension(0, KICH_THUOC_TRANG * 35));
 
         // Tuỳ chỉnh thanh tiêu đề cột
         JTableHeader header = bangSanPham.getTableHeader();
         header.setReorderingAllowed(false);
-        header.setPreferredSize(new Dimension(0, 40));
+        header.setPreferredSize(new Dimension(0, 36));
         header.setDefaultRenderer(new BoVeTieuDeBang());
 
         // Độ rộng các cột
         TableColumnModel cotModel = bangSanPham.getColumnModel();
         cotModel.getColumn(0).setPreferredWidth(140);
-        cotModel.getColumn(1).setPreferredWidth(270);
-        cotModel.getColumn(2).setPreferredWidth(200);
-        cotModel.getColumn(3).setPreferredWidth(95);
-        cotModel.getColumn(4).setPreferredWidth(155);
-        cotModel.getColumn(5).setPreferredWidth(115);
+        cotModel.getColumn(1).setPreferredWidth(255);
+        cotModel.getColumn(2).setPreferredWidth(185);
+        cotModel.getColumn(3).setPreferredWidth(85);
+        cotModel.getColumn(4).setPreferredWidth(145);
+        cotModel.getColumn(5).setPreferredWidth(145);
         cotModel.getColumn(6).setPreferredWidth(145);
 
         BoVeOSanPham rendererO = new BoVeOSanPham();
@@ -387,9 +397,13 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
         JScrollPane cuonBang = new JScrollPane(bangSanPham);
         cuonBang.setBorder(BorderFactory.createEmptyBorder(0, 1, 1, 1));
         cuonBang.getViewport().setBackground(Color.WHITE);
+        ThanhPhanTrang.caiDatBangCoDinh(cuonBang, bangSanPham, KICH_THUOC_TRANG);
+
+        thanhPhanTrang = new ThanhPhanTrang(KICH_THUOC_TRANG, "sản phẩm", trang -> taiTrangSanPham());
 
         the.add(dauThe, BorderLayout.NORTH);
         the.add(cuonBang, BorderLayout.CENTER);
+        the.add(thanhPhanTrang, BorderLayout.SOUTH);
         return the;
     }
 
@@ -441,7 +455,7 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
             cboDanhMuc.setModel(modelDM);
             cboDanhMuc.setSelectedItem(mucCanChonLai);
 
-            danhSachGoc = sanPhamBUS.layTatCa();
+            // Thay thế việc gọi sanPhamBUS.layTatCa() toàn bảng bằng layDanhSachQuanLyPhanTrang(..., 13)
         } catch (Exception ex) {
             danhSachGoc = new ArrayList<>();
         } finally {
@@ -467,60 +481,54 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
     }
 
     private void apDungBoLoc() {
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.datTrang(1);
+        }
+        taiTrangSanPham();
+    }
+
+    private void taiTrangSanPham() {
         String tuKhoa = txtTimKiem.getText();
         if (tuKhoa == null || PLACEHOLDER_TIM_KIEM.equals(tuKhoa)) {
             tuKhoa = "";
         }
-        tuKhoa = tuKhoa.trim().toLowerCase(Locale.ROOT);
+        tuKhoa = tuKhoa.trim();
 
         LuaChonDanhMuc luaChonDM = (LuaChonDanhMuc) cboDanhMuc.getSelectedItem();
         String maDanhMucLoc = luaChonDM != null ? luaChonDM.maDanhMuc() : null;
         int chiSoTonKho = cboTonKho.getSelectedIndex();
         int chiSoTrangThai = cboTrangThai.getSelectedIndex();
+        Boolean trangThaiLoc = chiSoTrangThai == 1 ? Boolean.TRUE
+                : (chiSoTrangThai == 2 ? Boolean.FALSE : null);
+
+        int trang = thanhPhanTrang != null ? thanhPhanTrang.getTrangHienTai() : 1;
+        int tongBanGhi;
+        List<SanPham> dsTrang;
+        try {
+            tongBanGhi = sanPhamBUS.demTheoDieuKien(tuKhoa, maDanhMucLoc, chiSoTonKho, trangThaiLoc);
+            int tongTrang = Math.max(1, (int) Math.ceil((double) tongBanGhi / KICH_THUOC_TRANG));
+            if (trang > tongTrang) {
+                trang = tongTrang;
+                if (thanhPhanTrang != null) {
+                    thanhPhanTrang.datTrang(trang);
+                }
+            }
+            dsTrang = sanPhamBUS.layDanhSachQuanLyPhanTrang(
+                    tuKhoa, maDanhMucLoc, chiSoTonKho, trangThaiLoc, trang, KICH_THUOC_TRANG);
+        } catch (Exception ex) {
+            tongBanGhi = 0;
+            dsTrang = new ArrayList<>();
+        }
 
         danhSachHienThi.clear();
         moHinhBang.setRowCount(0);
 
-        for (SanPham sp : danhSachGoc) {
-            // 1. Lọc theo từ khóa
-            if (!tuKhoa.isEmpty()) {
-                String ma = sp.getMaSanPham() != null ? sp.getMaSanPham().toLowerCase(Locale.ROOT) : "";
-                String ten = sp.getTenSanPham() != null ? sp.getTenSanPham().toLowerCase(Locale.ROOT) : "";
-                String dvt = sp.getDonViTinh() != null ? sp.getDonViTinh().toLowerCase(Locale.ROOT) : "";
-                if (!ma.contains(tuKhoa) && !ten.contains(tuKhoa) && !dvt.contains(tuKhoa)) {
-                    continue;
-                }
-            }
-
-            // 2. Lọc theo Danh mục
-            if (maDanhMucLoc != null) {
-                String maDM = sp.getDanhMucSanPham() != null ? sp.getDanhMucSanPham().getMaDanhMuc() : null;
-                if (!maDanhMucLoc.equals(maDM)) {
-                    continue;
-                }
-            }
-
-            // 3. Lọc theo Tồn kho
-            int ton = sp.getSoLuongTon();
-            if (chiSoTonKho == 1 && ton <= 0) {
-                continue;
-            } else if (chiSoTonKho == 2 && !(ton > 0 && ton <= Math.max(5, sp.getSoLuongTonToiThieu()))) {
-                continue;
-            } else if (chiSoTonKho == 3 && ton != 0) {
-                continue;
-            }
-
-            // 4. Lọc theo Trạng thái
-            if (chiSoTrangThai == 1 && !sp.isTrangThai()) {
-                continue;
-            } else if (chiSoTrangThai == 2 && sp.isTrangThai()) {
-                continue;
-            }
-
+        for (SanPham sp : dsTrang) {
             danhSachHienThi.add(sp);
             String tenDanhMuc = (sp.getDanhMucSanPham() != null && sp.getDanhMucSanPham().getTenDanhMuc() != null)
                     ? sp.getDanhMucSanPham().getTenDanhMuc()
                     : "";
+            int ton = sp.getSoLuongTon();
 
             moHinhBang.addRow(new Object[]{
                     sp.getMaSanPham(),
@@ -533,7 +541,10 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
             });
         }
 
-        lblBadgeTongSo.setText("Tổng số: " + danhSachHienThi.size() + " sản phẩm");
+        lblBadgeTongSo.setText("Tổng số: " + tongBanGhi + " sản phẩm");
+        if (thanhPhanTrang != null) {
+            thanhPhanTrang.capNhat(tongBanGhi, danhSachHienThi.size());
+        }
     }
 
     /**
@@ -603,7 +614,7 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
             setPreferredSize(new Dimension(320, 38));
             setBorder(new EmptyBorder(0, 14, 0, 14));
 
-            JLabel lblIcon = new JLabel(new BieuTuongNut(LoaiIcon.KINH_LUP, 14, MAU_CHU_MO));
+            JLabel lblIcon = new JLabel(new BieuTuongNut(LoaiIcon.KINH_LUP, 14, MAU_CHU_PHU));
             txt = new JTextField(PLACEHOLDER_TIM_KIEM);
             txt.setBorder(null);
             txt.setOpaque(false);
@@ -646,7 +657,7 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             RoundRectangle2D pill = new RoundRectangle2D.Float(
                     0.5f, 0.5f, getWidth() - 1f, getHeight() - 1f, 20f, 20f);
-            g2.setColor(dangFocus ? Color.WHITE : new Color(248, 250, 252));
+            g2.setColor(dangFocus ? new Color(255, 251, 247) : Color.WHITE);
             g2.fill(pill);
             g2.setColor(dangFocus ? MAU_CAM_CHU_DAO : MAU_VIEN_THE);
             g2.setStroke(new BasicStroke(1f));
@@ -738,9 +749,9 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             RoundRectangle2D nen = new RoundRectangle2D.Float(
                     0.5f, 0.5f, getWidth() - 1f, getHeight() - 1f, 10f, 10f);
-            g2.setColor(hover ? new Color(226, 232, 240) : new Color(241, 245, 249));
+            g2.setColor(hover ? MAU_NEN_BADGE_TONG : Color.WHITE);
             g2.fill(nen);
-            g2.setColor(MAU_VIEN_THE);
+            g2.setColor(hover ? MAU_VIEN_BADGE_TONG : MAU_VIEN_THE);
             g2.setStroke(new BasicStroke(1f));
             g2.draw(nen);
             g2.dispose();
@@ -783,7 +794,7 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setPaint(new GradientPaint(
                             0, 0, new Color(248, 250, 252),
-                            0, getHeight(), new Color(226, 232, 240)
+                            0, getHeight(), new Color(235, 242, 252)
                     ));
                     g2.fillRect(0, 0, getWidth(), getHeight());
                     g2.setColor(new Color(203, 213, 225));
@@ -794,12 +805,12 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
             };
             lbl.setOpaque(false);
             lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            lbl.setForeground(MAU_CHU_CHINH);
+            lbl.setForeground(MAU_XANH_DAM);
 
             if (column == 4) {
                 lbl.setHorizontalAlignment(SwingConstants.RIGHT);
                 lbl.setBorder(new EmptyBorder(0, 12, 0, 26));
-            } else if (column == 5 || column == 6) {
+            } else if (column == 2 || column == 3 || column == 5 || column == 6) {
                 lbl.setHorizontalAlignment(SwingConstants.CENTER);
                 lbl.setBorder(new EmptyBorder(0, 10, 0, 10));
             } else {
@@ -810,31 +821,49 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
         }
     }
 
-    private static class BoVeOSanPham extends DefaultTableCellRenderer {
+    private class BoVeOSanPham extends DefaultTableCellRenderer {
+        private boolean vePill = false;
+        private String chuPill = "";
+        private Color mauNenPill;
+        private Color mauChuPill;
+        private Color mauNenO;
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                                                        boolean hasFocus, int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            setBackground(isSelected ? MAU_CHON_DONG : Color.WHITE);
+            vePill = false;
+            mauNenO = isSelected ? MAU_CHON_DONG : (row % 2 == 1 ? MAU_DONG_XEN_KE : Color.WHITE);
+            setBackground(mauNenO);
             setFont(new Font("Segoe UI", Font.PLAIN, 13));
             setForeground(MAU_CHU_CHINH);
 
             switch (column) {
                 case 0 -> {
                     setHorizontalAlignment(SwingConstants.LEFT);
-                    setForeground(MAU_CHU_PHU);
+                    setFont(new Font("Segoe UI", Font.BOLD, 12));
+                    setForeground(MAU_XANH_DAM);
                     setBorder(new EmptyBorder(0, 18, 0, 12));
                 }
                 case 1 -> {
                     setHorizontalAlignment(SwingConstants.LEFT);
+                    setFont(new Font("Segoe UI", Font.BOLD, 13));
                     setForeground(MAU_CHU_CHINH);
                     setBorder(new EmptyBorder(0, 12, 0, 12));
                 }
-                case 2, 3 -> {
-                    setHorizontalAlignment(SwingConstants.LEFT);
+                case 2 -> {
+                    vePill = true;
+                    chuPill = value != null ? value.toString() : "";
+                    mauNenPill = MAU_NEN_BADGE_TONG;
+                    mauChuPill = MAU_CHU_BADGE_TONG;
+                    setText("");
+                }
+                case 3 -> {
+                    setHorizontalAlignment(SwingConstants.CENTER);
+                    setFont(new Font("Segoe UI", Font.PLAIN, 13));
                     setForeground(MAU_CHU_PHU);
-                    setBorder(new EmptyBorder(0, 12, 0, 12));
+                    setBorder(new EmptyBorder(0, 10, 0, 10));
                 }
                 case 4 -> {
                     setHorizontalAlignment(SwingConstants.RIGHT);
@@ -843,24 +872,77 @@ public class LeTanManHinhTraCuuSanPham extends JPanel {
                     setBorder(new EmptyBorder(0, 12, 0, 26));
                 }
                 case 5 -> {
-                    setHorizontalAlignment(SwingConstants.CENTER);
-                    setFont(new Font("Segoe UI", Font.BOLD, 13));
-                    int ton = 0;
-                    if (value instanceof Number n) {
-                        ton = n.intValue();
+                    int ton = (value instanceof Number n) ? n.intValue() : 0;
+                    int tonMin = 0;
+                    if (row >= 0 && row < danhSachHienThi.size()) {
+                        tonMin = danhSachHienThi.get(row).getSoLuongTonToiThieu();
                     }
-                    setForeground(ton > 0 ? MAU_XANH_LA : MAU_DO_CANH_BAO);
-                    setBorder(new EmptyBorder(0, 10, 0, 10));
+                    vePill = true;
+                    if (ton <= 0) {
+                        chuPill = "0 • Hết hàng";
+                        mauNenPill = MAU_NEN_DO;
+                        mauChuPill = MAU_DO_CANH_BAO;
+                    } else if (ton <= tonMin) {
+                        chuPill = ton + " • Sắp hết";
+                        mauNenPill = MAU_NEN_CANH_BAO;
+                        mauChuPill = MAU_CANH_BAO_CAM;
+                    } else {
+                        chuPill = ton + " • Sẵn hàng";
+                        mauNenPill = MAU_NEN_XANH_LA;
+                        mauChuPill = MAU_XANH_LA;
+                    }
+                    setText("");
                 }
                 case 6 -> {
-                    setHorizontalAlignment(SwingConstants.CENTER);
-                    setFont(new Font("Segoe UI", Font.BOLD, 12));
                     String chuoi = value != null ? value.toString() : "";
-                    setForeground(chuoi.contains("Đang bán") ? MAU_XANH_LA : MAU_DO_CANH_BAO);
-                    setBorder(new EmptyBorder(0, 10, 0, 10));
+                    boolean dangBan = chuoi.contains("Đang bán");
+                    vePill = true;
+                    chuPill = dangBan ? "\u2022 Đang bán" : "\u2022 Ngừng bán";
+                    mauNenPill = dangBan ? MAU_NEN_XANH_LA : MAU_NEN_DO;
+                    mauChuPill = dangBan ? MAU_XANH_LA : MAU_DO_CANH_BAO;
+                    setText("");
                 }
             }
             return this;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            if (!vePill) {
+                super.paintComponent(g);
+                return;
+            }
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+
+            g2.setColor(mauNenO);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            FontMetrics fm = g2.getFontMetrics();
+            int maxRong = Math.max(40, getWidth() - 16);
+            int chieuRongChu = fm.stringWidth(chuPill);
+            int pw = Math.min(maxRong, chieuRongChu + 20);
+            int ph = 24;
+            int px = (getWidth() - pw) / 2;
+            int py = (getHeight() - ph) / 2;
+
+            g2.setColor(mauNenPill);
+            g2.fill(new RoundRectangle2D.Float(px, py, pw, ph, 12f, 12f));
+
+            g2.setColor(mauChuPill);
+            String hienThi = chuPill;
+            if (fm.stringWidth(hienThi) > pw - 10) {
+                while (hienThi.length() > 3 && fm.stringWidth(hienThi + "...") > pw - 10) {
+                    hienThi = hienThi.substring(0, hienThi.length() - 1);
+                }
+                hienThi = hienThi + "...";
+            }
+            int tx = px + (pw - fm.stringWidth(hienThi)) / 2;
+            int ty = py + (ph - fm.getHeight()) / 2 + fm.getAscent();
+            g2.drawString(hienThi, tx, ty);
+            g2.dispose();
         }
     }
 

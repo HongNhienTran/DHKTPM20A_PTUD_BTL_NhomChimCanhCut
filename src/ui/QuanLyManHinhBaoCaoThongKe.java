@@ -90,7 +90,12 @@ public class QuanLyManHinhBaoCaoThongKe extends JPanel {
 
         add(dauTrang, BorderLayout.NORTH);
         add(new JScrollPane(luoiBieuDo), BorderLayout.CENTER);
-        cboKhoangThoiGian.addActionListener(e -> capNhatTheoKhoangThoiGian());
+        cboKhoangThoiGian.addActionListener(e -> {
+            capNhatTheoKhoangThoiGian();
+            if (!"Tùy chọn".equals(cboKhoangThoiGian.getSelectedItem())) {
+                lamMoiDuLieu();
+            }
+        });
     }
 
     private JPanel taoTieuDe() {
@@ -166,7 +171,7 @@ public class QuanLyManHinhBaoCaoThongKe extends JPanel {
         panel.add(taoTheKpi("Doanh thu dịch vụ", lblDoanhThuDichVu, "Hóa đơn sửa chữa"));
         panel.add(taoTheKpi("Hóa đơn đã thanh toán", lblSoHoaDon, "Trong khoảng chọn"));
         panel.add(taoTheKpi("Phiếu sửa chữa", lblSoPhieuSua, "Theo trạng thái xử lý"));
-        panel.add(taoTheKpi("Tồn kho thấp", lblTonKhoThap, "Không dùng dữ liệu giả"));
+        panel.add(taoTheKpi("Tồn kho thấp", lblTonKhoThap, "Tồn kho <= mức tối thiểu"));
         return panel;
     }
 
@@ -345,7 +350,7 @@ public class QuanLyManHinhBaoCaoThongKe extends JPanel {
             if (duLieuChuoi.isEmpty()) {
                 g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
                 g.setColor(MAU_CHU_PHU);
-                g.drawString("Chưa có dữ liệu. BUS sẽ cập nhật sau.", 14, 58);
+                g.drawString("Không có dữ liệu trong khoảng thời gian đã chọn.", 14, 58);
                 g.dispose();
                 return;
             }
@@ -358,26 +363,45 @@ public class QuanLyManHinhBaoCaoThongKe extends JPanel {
         }
 
         private void veBieuDoCot(Graphics2D g) {
-            int left = 42;
-            int top = 48;
-            int bottom = getHeight() - 34;
+            int left = 52;
+            int top = 50;
+            int bottom = getHeight() - 28;
             int right = getWidth() - 18;
-            double max = 1;
+            if (right <= left + 30 || bottom <= top + 20) {
+                return;
+            }
+            double max = 0;
             for (List<Double> values : duLieuChuoi.values()) {
                 for (Double value : values) {
                     max = Math.max(max, value);
                 }
             }
-            g.setColor(new Color(203, 213, 225));
-            g.drawLine(left, bottom, right, bottom);
+            if (max <= 0) {
+                max = 1;
+            }
+
+            g.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            for (double t : new double[]{0d, 0.5d, 1d}) {
+                int y = bottom - (int) ((bottom - top) * t);
+                g.setColor(t == 0d ? new Color(203, 213, 225) : new Color(241, 245, 249));
+                g.drawLine(left, y, right, y);
+                String nhan = t == 0d ? "0" : dinhDangNganGon(max * t);
+                g.setColor(MAU_CHU_PHU);
+                int w = g.getFontMetrics().stringWidth(nhan);
+                g.drawString(nhan, left - w - 6, y + 4);
+            }
+
             int soCot = duLieuChuoi.values().iterator().next().size();
-            int rongCot = Math.max(12, (right - left) / Math.max(1, soCot * duLieuChuoi.size() + 1));
+            int soChuoi = duLieuChuoi.size();
+            int rongCot = Math.max(10, Math.min(24, (right - left) / Math.max(1, soCot * soChuoi + 1)));
+            Color[] mau = {MAU_CAM, new Color(37, 99, 235), new Color(16, 185, 129), new Color(168, 85, 247)};
             int index = 0;
             for (List<Double> values : duLieuChuoi.values()) {
-                g.setColor(index == 0 ? MAU_CAM : new Color(37, 99, 235));
+                g.setColor(mau[index % mau.length]);
                 for (int i = 0; i < values.size(); i++) {
-                    int x = left + (i * duLieuChuoi.size() + index + 1) * rongCot;
-                    int h = (int) ((bottom - top) * values.get(i) / max);
+                    int x = left + (i * soChuoi + index + 1) * rongCot;
+                    double val = values.get(i);
+                    int h = val <= 0 ? 0 : Math.max(3, (int) ((bottom - top) * val / max));
                     g.fillRect(x, bottom - h, Math.max(8, rongCot - 3), h);
                 }
                 index++;
@@ -385,22 +409,60 @@ public class QuanLyManHinhBaoCaoThongKe extends JPanel {
         }
 
         private void veBieuDoTron(Graphics2D g) {
-            int tong = 0;
+            double tong = 0d;
             for (List<Double> values : duLieuChuoi.values()) {
                 tong += values.get(0);
             }
-            int start = 0;
-            int size = Math.min(getHeight() - 68, 150);
+            int size = Math.max(80, Math.min(getHeight() - 68, 145));
             int x = 20;
-            int y = 42;
-            int index = 0;
-            Color[] mau = {MAU_CAM, new Color(37, 99, 235), new Color(16, 185, 129), new Color(168, 85, 247)};
-            for (List<Double> values : duLieuChuoi.values()) {
-                int goc = tong == 0 ? 0 : (int) Math.round(values.get(0) * 360 / tong);
-                g.setColor(mau[index++ % mau.length]);
-                g.fillArc(x, y, size, size, start, goc);
-                start += goc;
+            int y = 44;
+            if (tong <= 0d) {
+                g.setColor(new Color(226, 232, 240));
+                g.fillOval(x, y, size, size);
+                g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                g.setColor(MAU_CHU_PHU);
+                g.drawString("Chưa có dữ liệu phát sinh", x + size + 24, y + size / 2);
+                return;
             }
+
+            int start = 0;
+            int index = 0;
+            int legendY = y + 8;
+            Color[] mau = {
+                    MAU_CAM, new Color(37, 99, 235), new Color(16, 185, 129),
+                    new Color(168, 85, 247), new Color(245, 158, 11), new Color(100, 116, 139)
+            };
+            g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            for (Map.Entry<String, List<Double>> entry : duLieuChuoi.entrySet()) {
+                double val = entry.getValue().get(0);
+                Color c = mau[index % mau.length];
+                int goc = (int) Math.round(val * 360d / tong);
+                if (goc > 0) {
+                    g.setColor(c);
+                    g.fillArc(x, y, size, size, start, goc);
+                    start += goc;
+                }
+                int lx = x + size + 20;
+                g.setColor(c);
+                g.fillRect(lx, legendY - 10, 10, 10);
+                g.setColor(MAU_XANH);
+                double phanTram = val * 100d / tong;
+                String dong = String.format(Locale.US, "%s: %s (%.1f%%)",
+                        entry.getKey(), dinhDangNganGon(val), phanTram);
+                g.drawString(dong, lx + 16, legendY);
+                legendY += 20;
+                index++;
+            }
+        }
+
+        private String dinhDangNganGon(double giaTri) {
+            if (giaTri >= 1_000_000) {
+                return String.format(Locale.US, "%.1ftr", giaTri / 1_000_000d).replace(".0tr", "tr");
+            }
+            if (giaTri >= 1_000) {
+                return Math.round(giaTri / 1_000d) + "k";
+            }
+            return String.valueOf(Math.round(giaTri));
         }
     }
 }
